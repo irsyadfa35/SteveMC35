@@ -127,15 +127,17 @@ document.getElementById('downloadBtn').addEventListener('click', async()=>{
   slideIndicator.textContent='';
 
   try{
-    const proxy='https://api.allorigins.win/raw?url=';
+    const proxy='https://api.codetabs.com/v1/proxy?quest=';  // Proxy alternatif yang lebih andal
     // Video API
     const apiVideo=`https://api.siputzx.my.id/api/d/tiktok?url=${encodeURIComponent(url)}`;
     const resVideo=await fetch(proxy + encodeURIComponent(apiVideo));
+    if(!resVideo.ok) throw new Error(`Video API Error: ${resVideo.status} - ${resVideo.statusText}`);
     const dataVideo=await resVideo.json();
     
     // Foto/slide API
     const apiPhoto=`https://api.nekolabs.my.id/downloader/tiktok?url=${encodeURIComponent(url)}`;
     const resPhoto=await fetch(proxy + encodeURIComponent(apiPhoto));
+    if(!resPhoto.ok) throw new Error(`Photo API Error: ${resPhoto.status} - ${resPhoto.statusText}`);
     const dataPhoto=await resPhoto.json();
 
     titleDiv.textContent = dataPhoto.result.title || 'TikTok';
