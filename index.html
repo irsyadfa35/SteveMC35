@@ -121,6 +121,21 @@
         .content p {
             font-size: 18px;
         }
+
+        .footer {
+            position: fixed;
+            bottom: 20px; /* Sedikit ke atas dari bawah */
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-size: 12px;
+            opacity: 0.7;
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 5px; /* Kurangi padding untuk lebih rapat */
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
@@ -139,6 +154,9 @@
     <div class="content">
         <h1>Welcome to Dashboard</h1>
         <p>This is the home page. Click the menu button to access options.</p>
+    </div>
+    <div class="footer">
+        ©2025 SteveMC developer
     </div>
 
     <script>
