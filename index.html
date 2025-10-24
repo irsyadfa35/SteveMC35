@@ -1,139 +1,153 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TikTok Downloader - Village Theme</title>
-<style>
-body {
-  font-family: 'Arial', sans-serif;
-  margin:0; padding:0;
-  background:url('https://qu.ax/vneoG.jpg') no-repeat center center fixed;
-  background-size:cover;
-  color:#fff;
-}
-body::before {
-  content:'';
-  position:fixed; top:0; left:0; right:0; bottom:0;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  background: rgba(0,0,0,0.4);
-  z-index:-1;
-}
-.container {
-  max-width:700px; margin:50px auto; padding:20px;
-  background: rgba(0,0,0,0.5); border-radius:15px; text-align:center;
-}
-h1 { color:#00AEEF; margin-bottom:20px; }
-input[type=text] { width:70%; padding:10px; border-radius:5px; border:none; margin-right:10px; }
-button { padding:10px 20px; background:#00AEEF; border:none; border-radius:5px; color:#fff; cursor:pointer; }
-button:hover { background:#008CBA; }
-.result { display:none; margin-top:20px; }
-video, img { max-width:100%; border-radius:12px; margin:10px 0; }
-.carousel { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:12px; padding-bottom:12px; }
-.carousel img { flex:0 0 auto; width:100%; max-width:550px; scroll-snap-align:center; cursor:pointer; border-radius:12px; }
-.slide-indicator { margin-top:10px; font-weight:bold; }
-.download-links a { display:inline-block; margin:5px; padding:10px 15px; background:#00AEEF; color:#fff; text-decoration:none; border-radius:5px; }
-.download-links a:hover { background:#008CBA; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Home</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://qu.ax/vneoG.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            filter: blur(2px); /* Blur only the background */
+            z-index: -1; /* Behind everything */
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent overlay for better readability */
+            z-index: 0;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent header */
+            backdrop-filter: blur(10px); /* Additional blur for modern browsers */
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: white;
+            opacity: 0.8; /* Semi-transparent button */
+        }
+
+        .menu {
+            position: fixed;
+            top: 60px;
+            left: -250px; /* Hidden initially */
+            width: 250px;
+            height: calc(100vh - 60px);
+            background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent menu */
+            backdrop-filter: blur(10px);
+            transition: left 0.3s ease; /* Slide animation */
+            z-index: 999;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .menu.open {
+            left: 0; /* Slide in */
+        }
+
+        .menu-btns {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .menu-btns li {
+            margin-bottom: 20px;
+        }
+
+        .menu-btns button {
+            width: 100%;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent buttons */
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .menu-btns button:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            padding: 80px 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .content h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .content p {
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-<h1>TikTok Downloader</h1>
-<input type="text" id="tiktokUrl" placeholder="Masukkan URL TikTok...">
-<button id="downloadBtn">Download</button>
+    <div class="background"></div>
+    <div class="overlay"></div>
+    <div class="header">
+        <button class="menu-btn" id="menuToggle">☰</button>
+    </div>
+    <div class="menu" id="menu">
+        <ul class="menu-btns">
+            <li><button>TikTok Download</button></li>
+            <li><button>YouTube Download</button></li>
+            <li><button>Dashboard</button></li>
+        </ul>
+    </div>
+    <div class="content">
+        <h1>Welcome to Dashboard</h1>
+        <p>This is the home page. Click the menu button to access options.</p>
+    </div>
 
-<div class="result" id="result">
-  <h2 id="title"></h2>
-  <div class="carousel" id="carousel"></div>
-  <div class="slide-indicator" id="slideIndicator"></div>
-  <div class="download-links" id="downloads"></div>
-</div>
-</div>
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const menu = document.getElementById('menu');
 
-<script>
-document.getElementById('downloadBtn').addEventListener('click', async ()=>{
-  const url = document.getElementById('tiktokUrl').value.trim();
-  if(!url) return alert('Masukkan URL TikTok dulu 😎');
-
-  const resultDiv = document.getElementById('result');
-  const carousel = document.getElementById('carousel');
-  const downloads = document.getElementById('downloads');
-  const slideIndicator = document.getElementById('slideIndicator');
-  const titleDiv = document.getElementById('title');
-
-  // Reset
-  carousel.innerHTML = '';
-  downloads.innerHTML = '';
-  titleDiv.textContent = '';
-  slideIndicator.textContent = '';
-  resultDiv.style.display = 'block';
-  titleDiv.textContent = 'Sedang memuat... ⏳';
-
-  try{
-    const proxy = 'https://api.allorigins.win/raw?url=';
-    const apiUrl = `https://api.siputzx.my.id/api/d/tiktok?url=${encodeURIComponent(url)}`;
-    const res = await fetch(proxy + encodeURIComponent(apiUrl));
-    const data = await res.json();
-
-    if(!data.status) throw new Error('Gagal ambil data TikTok');
-
-    const tiktok = data.data;
-    titleDiv.textContent = tiktok.metadata.title || 'TikTok';
-
-    // Jika ada slide/foto
-    if(tiktok.images && tiktok.images.length>0){
-      tiktok.images.forEach((imgUrl,i)=>{
-        const img = document.createElement('img');
-        img.src = imgUrl;
-        carousel.appendChild(img);
-
-        const link = document.createElement('a');
-        link.href = imgUrl;
-        link.download = `TikTok_Foto_${i+1}.jpg`;
-        link.textContent = `⬇️ Download Foto ${i+1}`;
-        downloads.appendChild(link);
-      });
-
-      slideIndicator.textContent = `Foto 1 dari ${tiktok.images.length}`;
-      carousel.addEventListener('scroll', ()=>{
-        const index = Math.round(carousel.scrollLeft / (carousel.scrollWidth / tiktok.images.length));
-        slideIndicator.textContent = `Foto ${Math.min(index+1,tiktok.images.length)} dari ${tiktok.images.length}`;
-      });
-    }else{
-      // Jika video
-      const videoUrl = tiktok.urls[0];
-      const videoEl = document.createElement('video');
-      videoEl.src = videoUrl;
-      videoEl.controls = true;
-      videoEl.autoplay = false;
-      videoEl.style.margin = '10px 0';
-      carousel.appendChild(videoEl);
-
-      const linkVideo = document.createElement('a');
-      linkVideo.href = videoUrl;
-      linkVideo.textContent = '⬇️ Download Video';
-      linkVideo.target = '_blank';
-      downloads.appendChild(linkVideo);
-    }
-
-    // Tambah MP3
-    if(tiktok.music_info?.play_url){
-      const linkMp3 = document.createElement('a');
-      linkMp3.href = tiktok.music_info.play_url;
-      linkMp3.textContent = '⬇️ Download MP3';
-      linkMp3.target = '_blank';
-      downloads.appendChild(linkMp3);
-    }
-
-  }catch(err){
-    titleDiv.textContent = '';
-    carousel.innerHTML = '';
-    downloads.innerHTML = '';
-    slideIndicator.textContent = '';
-    alert('Gagal ambil TikTok 😢\n'+err.message);
-  }
-});
-</script>
+        menuToggle.addEventListener('click', () => {
+            menu.classList.toggle('open');
+        });
+    </script>
 </body>
 </html>
