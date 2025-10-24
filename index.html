@@ -89,10 +89,7 @@
             margin-bottom: 20px;
         }
 
-        /* Styling untuk tag <a> agar terlihat seperti tombol */
-        .menu-btns a {
-            display: block; /* Agar mengisi lebar 100% */
-            text-decoration: none; /* Hilangkan garis bawah default */
+        .menu-btns button {
             width: 100%;
             padding: 15px;
             background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent buttons */
@@ -102,10 +99,9 @@
             cursor: pointer;
             border-radius: 5px;
             transition: background-color 0.3s;
-            text-align: center; /* Teks di tengah */
         }
 
-        .menu-btns a:hover {
+        .menu-btns button:hover {
             background-color: rgba(255, 255, 255, 0.4);
         }
 
@@ -126,18 +122,19 @@
             font-size: 18px;
         }
         
-        /* --- Footer --- */
+        /* --- Bagian Footer Baru --- */
         .footer {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            background-color: #1a1a2e;
-            color: #ffffff;
+            background-color: #1a1a2e; /* Warna latar belakang gelap (mirip gambar) */
+            color: #ffffff; /* Teks putih */
             text-align: center;
             padding: 15px 0;
             font-size: 14px;
-            z-index: 10;
+            z-index: 10; /* Pastikan di atas overlay dan background */
+            /* Garis di atas teks seperti di gambar */
             border-top: 1px solid rgba(255, 255, 255, 0.2); 
         }
     </style>
@@ -150,7 +147,7 @@
     </div>
     <div class="menu" id="menu">
         <ul class="menu-btns">
-            <li><a href="tiktok-download.html">TikTok Download</a></li>
+            <li><button>TikTok Download</button></li>
             <li><button>YouTube Download</button></li>
             <li><button>Dashboard</button></li>
         </ul>
