@@ -6,227 +6,132 @@
 <title>TikTok Downloader - Village Theme</title>
 <style>
 body {
-  font-family: 'Poppins', sans-serif;
-  margin: 0;
-  padding: 0;
-  background: url('https://qu.ax/vneoG.jpg') no-repeat center center fixed;
-  background-size: cover;
-  color: #fff;
-  overflow-x: hidden;
+  font-family: 'Arial', sans-serif;
+  margin:0; padding:0;
+  background:url('https://qu.ax/vneoG.jpg') no-repeat center center fixed;
+  background-size:cover;
+  color:#fff;
 }
 body::before {
   content:'';
-  position:fixed;
-  top:0; left:0; right:0; bottom:0;
+  position:fixed; top:0; left:0; right:0; bottom:0;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   background: rgba(0,0,0,0.4);
   z-index:-1;
 }
 .container {
-  max-width: 700px;
-  margin: 50px auto;
-  padding: 25px;
-  background: rgba(0,0,0,0.55);
-  border-radius: 15px;
-  text-align: center;
-  box-shadow: 0 0 20px rgba(0,174,239,0.4);
+  max-width:700px; margin:50px auto; padding:20px;
+  background: rgba(0,0,0,0.5); border-radius:15px; text-align:center;
 }
-h2 { color:#00AEEF; margin-bottom:20px; }
-input[type=text] {
-  width: 100%;
-  padding:12px;
-  border-radius:8px;
-  border:none;
-  margin-bottom:15px;
-  font-size:1em;
-}
-button, .download-btn {
-  padding:10px 15px;
-  border:none;
-  border-radius:8px;
-  background:#00AEEF;
-  color:#fff;
-  cursor:pointer;
-  margin:5px;
-  text-decoration:none;
-  display:inline-block;
-  transition:0.3s;
-}
-button:hover, .download-btn:hover { background:#008CBA; }
-.result { margin-top:25px; display:none; }
-video, audio { width:100%; border-radius:12px; margin:10px 0; }
-.carousel-container { position:relative; margin-top:20px; display:none; }
-.carousel {
-  display:flex;
-  overflow-x:auto;
-  scroll-snap-type:x mandatory;
-  gap:12px;
-  padding-bottom:12px;
-}
-.carousel img {
-  flex:0 0 auto;
-  width:100%;
-  max-width:550px;
-  scroll-snap-align:center;
-  border-radius:12px;
-  cursor:pointer;
-  transition:0.3s;
-}
-.carousel img:hover { transform:scale(1.02); }
-.slide-indicator {
-  margin-top:10px;
-  font-size:1.05em;
-  font-weight:bold;
-}
-.download-group { margin-top:15px; display:flex; flex-wrap:wrap; justify-content:center; gap:5px; }
-.mp3-container { width:100%; text-align:center; margin-top:10px; }
-#loading {
-  display:none;
-  margin: 15px auto;
-  border: 5px solid #f3f3f3;
-  border-top: 5px solid #00AEEF;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  0% { transform: rotate(0deg);}
-  100% { transform: rotate(360deg);}
-}
+h1 { color:#00AEEF; margin-bottom:20px; }
+input[type=text] { width:70%; padding:10px; border-radius:5px; border:none; margin-right:10px; }
+button { padding:10px 20px; background:#00AEEF; border:none; border-radius:5px; color:#fff; cursor:pointer; }
+button:hover { background:#008CBA; }
+.result { display:none; margin-top:20px; }
+video, img { max-width:100%; border-radius:12px; margin:10px 0; }
+.carousel { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:12px; padding-bottom:12px; }
+.carousel img { flex:0 0 auto; width:100%; max-width:550px; scroll-snap-align:center; cursor:pointer; border-radius:12px; }
+.slide-indicator { margin-top:10px; font-weight:bold; }
+.download-links a { display:inline-block; margin:5px; padding:10px 15px; background:#00AEEF; color:#fff; text-decoration:none; border-radius:5px; }
+.download-links a:hover { background:#008CBA; }
 </style>
 </head>
 <body>
 <div class="container">
-<h2>🎵 TikTok Downloader</h2>
-<input type="text" id="tiktokUrl" placeholder="Masukkan link TikTok...">
+<h1>TikTok Downloader</h1>
+<input type="text" id="tiktokUrl" placeholder="Masukkan URL TikTok...">
 <button id="downloadBtn">Download</button>
-<div id="loading"></div>
 
 <div class="result" id="result">
-  <h3 id="title"></h3>
-  <video id="videoPlayer" controls style="display:none;"></video>
-  <audio id="audioPlayer" controls style="display:none;"></audio>
-
-  <div class="carousel-container">
-    <div class="carousel" id="photoCarousel"></div>
-    <div class="slide-indicator" id="slideIndicator"></div>
-  </div>
-  
-  <div class="download-group" id="links"></div>
+  <h2 id="title"></h2>
+  <div class="carousel" id="carousel"></div>
+  <div class="slide-indicator" id="slideIndicator"></div>
+  <div class="download-links" id="downloads"></div>
 </div>
 </div>
 
 <script>
-document.getElementById('downloadBtn').addEventListener('click', async()=>{
-  const url=document.getElementById('tiktokUrl').value.trim();
+document.getElementById('downloadBtn').addEventListener('click', async ()=>{
+  const url = document.getElementById('tiktokUrl').value.trim();
   if(!url) return alert('Masukkan URL TikTok dulu 😎');
 
-  const loading=document.getElementById('loading');
-  loading.style.display='block';
+  const resultDiv = document.getElementById('result');
+  const carousel = document.getElementById('carousel');
+  const downloads = document.getElementById('downloads');
+  const slideIndicator = document.getElementById('slideIndicator');
+  const titleDiv = document.getElementById('title');
 
-  const resultDiv=document.getElementById('result');
-  const videoPlayer=document.getElementById('videoPlayer');
-  const audioPlayer=document.getElementById('audioPlayer');
-  const carouselContainer=document.querySelector('.carousel-container');
-  const carousel=document.getElementById('photoCarousel');
-  const linksDiv=document.getElementById('links');
-  const titleDiv=document.getElementById('title');
-  const slideIndicator=document.getElementById('slideIndicator');
-
-  // Reset tampilan
-  videoPlayer.style.display='none';
-  audioPlayer.style.display='none';
-  carouselContainer.style.display='none';
-  carousel.innerHTML='';
-  linksDiv.innerHTML='';
-  titleDiv.textContent='';
-  slideIndicator.textContent='';
+  // Reset
+  carousel.innerHTML = '';
+  downloads.innerHTML = '';
+  titleDiv.textContent = '';
+  slideIndicator.textContent = '';
+  resultDiv.style.display = 'block';
+  titleDiv.textContent = 'Sedang memuat... ⏳';
 
   try{
-    const proxy='https://api.codetabs.com/v1/proxy?quest=';
+    const proxy = 'https://api.allorigins.win/raw?url=';
+    const apiUrl = `https://api.siputzx.my.id/api/d/tiktok?url=${encodeURIComponent(url)}`;
+    const res = await fetch(proxy + encodeURIComponent(apiUrl));
+    const data = await res.json();
 
-    // API foto/slide
-    const apiPhoto=`https://api.nekolabs.my.id/downloader/tiktok?url=${encodeURIComponent(url)}`;
-    const resPhoto=await fetch(proxy + encodeURIComponent(apiPhoto));
-    if(!resPhoto.ok) throw new Error(`Photo API Error: ${resPhoto.status}`);
-    const dataPhoto=await resPhoto.json();
+    if(!data.status) throw new Error('Gagal ambil data TikTok');
 
-    // API video
-    const apiVideo=`https://api.siputzx.my.id/api/d/tiktok?url=${encodeURIComponent(url)}`;
-    const resVideo=await fetch(proxy + encodeURIComponent(apiVideo));
-    const dataVideo=await resVideo.json();
+    const tiktok = data.data;
+    titleDiv.textContent = tiktok.metadata.title || 'TikTok';
 
-    titleDiv.textContent = dataPhoto.result.title || 'TikTok';
-
-    // Foto carousel
-    if(dataPhoto.result.images && dataPhoto.result.images.length>0){
-      carouselContainer.style.display='block';
-      let images = dataPhoto.result.images;
-      images.forEach((imgUrl,i)=>{
-        const img=document.createElement('img');
-        img.src=imgUrl;
+    // Jika ada slide/foto
+    if(tiktok.images && tiktok.images.length>0){
+      tiktok.images.forEach((imgUrl,i)=>{
+        const img = document.createElement('img');
+        img.src = imgUrl;
         carousel.appendChild(img);
 
-        const link=document.createElement('a');
-        link.href=imgUrl;
-        link.download=`TikTok_Foto_${i+1}.jpg`;
-        link.textContent=`⬇️ Download Foto ${i+1}`;
-        link.className='download-btn';
-        linksDiv.appendChild(link);
+        const link = document.createElement('a');
+        link.href = imgUrl;
+        link.download = `TikTok_Foto_${i+1}.jpg`;
+        link.textContent = `⬇️ Download Foto ${i+1}`;
+        downloads.appendChild(link);
       });
 
-      slideIndicator.textContent=`Foto 1 dari ${images.length}`;
+      slideIndicator.textContent = `Foto 1 dari ${tiktok.images.length}`;
       carousel.addEventListener('scroll', ()=>{
-        const scrollLeft = carousel.scrollLeft;
-        const widthPerSlide = carousel.scrollWidth / images.length;
-        const index = Math.round(scrollLeft / widthPerSlide);
-        slideIndicator.textContent=`Foto ${Math.min(index+1,images.length)} dari ${images.length}`;
+        const index = Math.round(carousel.scrollLeft / (carousel.scrollWidth / tiktok.images.length));
+        slideIndicator.textContent = `Foto ${Math.min(index+1,tiktok.images.length)} dari ${tiktok.images.length}`;
       });
-
-      // Tombol download MP3 jika ada
-      if(dataVideo.status && dataVideo.data.music_info?.play_url){
-        const mp3Container = document.createElement('div');
-        mp3Container.className = 'mp3-container';
-        const mp3Link=document.createElement('a');
-        mp3Link.href=dataVideo.data.music_info.play_url;
-        mp3Link.textContent='⬇️ Download MP3';
-        mp3Link.className='download-btn';
-        mp3Link.target='_blank';
-        mp3Container.appendChild(mp3Link);
-        linksDiv.appendChild(mp3Container);
-      }
-
-    } else if(dataVideo.status){
-      videoPlayer.style.display='block';
-      audioPlayer.style.display='block';
-      videoPlayer.src=dataVideo.data.urls[0];
-      audioPlayer.src=dataVideo.data.music_info?.play_url || dataVideo.data.urls[0];
-
-      const videoLink=document.createElement('a');
-      videoLink.href=dataVideo.data.urls[0];
-      videoLink.textContent='⬇️ Download Video';
-      videoLink.className='download-btn';
-      videoLink.target='_blank';
-      linksDiv.appendChild(videoLink);
-
-      const mp3Link=document.createElement('a');
-      mp3Link.href=dataVideo.data.music_info?.play_url || dataVideo.data.urls[0];
-      mp3Link.textContent='⬇️ Download MP3';
-      mp3Link.className='download-btn';
-      mp3Link.target='_blank';
-      linksDiv.appendChild(mp3Link);
     }else{
-      alert('Gagal ambil konten TikTok 😢');
+      // Jika video
+      const videoUrl = tiktok.urls[0];
+      const videoEl = document.createElement('video');
+      videoEl.src = videoUrl;
+      videoEl.controls = true;
+      videoEl.autoplay = false;
+      videoEl.style.margin = '10px 0';
+      carousel.appendChild(videoEl);
+
+      const linkVideo = document.createElement('a');
+      linkVideo.href = videoUrl;
+      linkVideo.textContent = '⬇️ Download Video';
+      linkVideo.target = '_blank';
+      downloads.appendChild(linkVideo);
     }
 
-    resultDiv.style.display='block';
+    // Tambah MP3
+    if(tiktok.music_info?.play_url){
+      const linkMp3 = document.createElement('a');
+      linkMp3.href = tiktok.music_info.play_url;
+      linkMp3.textContent = '⬇️ Download MP3';
+      linkMp3.target = '_blank';
+      downloads.appendChild(linkMp3);
+    }
+
   }catch(err){
-    console.error(err);
+    titleDiv.textContent = '';
+    carousel.innerHTML = '';
+    downloads.innerHTML = '';
+    slideIndicator.textContent = '';
     alert('Gagal ambil TikTok 😢\n'+err.message);
-  }finally{
-    loading.style.display='none';
   }
 });
 </script>
