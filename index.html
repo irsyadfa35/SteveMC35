@@ -1,231 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Home</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Home</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        height: 100vh;
+        overflow: hidden;
+        position: relative;
+        color: white;
+    }
 
-        .background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('https://qu.ax/vneoG.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            filter: blur(2px); /* Blur only the background */
-            z-index: -1; /* Behind everything */
-        }
+    .background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('https://qu.ax/vneoG.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        filter: blur(2px);
+        z-index: -1;
+    }
 
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.3); /* Semi-transparent overlay for better readability */
-            z-index: 0;
-        }
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.3);
+        z-index: 0;
+    }
 
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent header */
-            backdrop-filter: blur(10px); /* Additional blur for modern browsers */
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-        }
+    .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        background-color: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+    }
 
-        .menu-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 24px;
-            color: white;
-            opacity: 0.8; /* Semi-transparent button */
-        }
+    .menu-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 24px;
+        color: white;
+        opacity: 0.8;
+    }
 
-        .menu {
-            position: fixed;
-            top: 60px;
-            left: -250px; /* Hidden initially */
-            width: 250px;
-            height: calc(100vh - 60px);
-            background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent menu */
-            backdrop-filter: blur(10px);
-            transition: left 0.3s ease; /* Slide animation */
-            z-index: 999;
-            padding: 20px;
-            box-sizing: border-box;
-        }
+    .menu {
+        position: fixed;
+        top: 60px;
+        left: -250px;
+        width: 250px;
+        height: calc(100vh - 60px);
+        background-color: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        transition: left 0.3s ease;
+        z-index: 999;
+        padding: 20px;
+        box-sizing: border-box;
+    }
 
-        .menu.open {
-            left: 0; /* Slide in */
-        }
+    .menu.open { left: 0; }
 
-        .menu-btns {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
+    .menu-btns { list-style: none; padding: 0; margin: 0; }
 
-        .menu-btns li {
-            margin-bottom: 20px;
-        }
+    .menu-btns li { margin-bottom: 20px; }
 
-        .menu-btns button {
-            width: 100%;
-            padding: 15px;
-            background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent buttons */
-            border: none;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
+    .menu-btns button {
+        width: 100%;
+        padding: 15px;
+        background-color: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
 
-        .menu-btns button:hover {
-            background-color: rgba(255, 255, 255, 0.4);
-        }
+    .menu-btns button:hover {
+        background-color: rgba(255, 255, 255, 0.4);
+    }
 
-        .content {
-            position: relative;
-            z-index: 1;
-            padding: 80px 20px;
-            color: white;
-            text-align: center;
-        }
+    .content {
+        position: relative;
+        z-index: 1;
+        padding: 80px 20px;
+        text-align: center;
+    }
 
-        .content h1 {
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
+    .content h1 { font-size: 48px; margin-bottom: 20px; }
+    .content p { font-size: 18px; }
 
-        .content p {
-            font-size: 18px;
-        }
-
-        .footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            color: white;
-            font-size: 12px;
-            opacity: 0.7;
-            background-color: rgba(0, 0, 0, 0.1);
-            padding: 10px;
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-        }
-
-        /* Pull-to-refresh indicator */
-        .pull-refresh {
-            position: fixed;
-            top: -50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 50px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: #333;
-            transition: top 0.3s ease;
-            z-index: 1001;
-        }
-
-        .pull-refresh.show {
-            top: 10px;
-        }
-    </style>
+    .footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 12px;
+        opacity: 0.7;
+        background-color: rgba(0, 0, 0, 0.1);
+        padding: 10px;
+        backdrop-filter: blur(5px);
+        z-index: 1000;
+    }
+</style>
 </head>
 <body>
-    <div class="background"></div>
-    <div class="overlay"></div>
-    <div class="header">
-        <button class="menu-btn" id="menuToggle">☰</button>
-    </div>
-    <div class="menu" id="menu">
-        <ul class="menu-btns">
-            <li><button>TikTok Download</button></li>
-            <li><button>YouTube Download</button></li>
-            <li><button>Dashboard</button></li>
-        </ul>
-    </div>
-    <div class="content">
-        <h1>Welcome to Dashboard</h1>
-        <p>This is the home page. Click the menu button to access options.</p>
-    </div>
-    <div class="footer">
-        ©2025 SteveMC developer
-    </div>
-    <!-- Pull-to-refresh indicator -->
-    <div class="pull-refresh" id="pullRefresh">↻</div>
+<div class="background"></div>
+<div class="overlay"></div>
+<div class="header">
+    <button class="menu-btn" id="menuToggle">☰</button>
+</div>
+<div class="menu" id="menu">
+    <ul class="menu-btns">
+        <li><button onclick="window.location.href='tiktokdl.html'">TikTok Download</button></li>
+        <li><button onclick="window.location.href='ytdl.html'">YouTube Download</button></li>
+        <li><button onclick="window.location.href='index.html'">Dashboard</button></li>
+    </ul>
+</div>
+<div class="content">
+    <h1>Welcome to Dashboard</h1>
+    <p>Click the menu button ☰ to access options.</p>
+</div>
+<div class="footer">©2025 SteveMC Developer</div>
 
-    <script>
-        const menuToggle = document.getElementById('menuToggle');
-        const menu = document.getElementById('menu');
-        const pullRefresh = document.getElementById('pullRefresh');
+<script>
+    const menuToggle = document.getElementById('menuToggle');
+    const menu = document.getElementById('menu');
 
-        menuToggle.addEventListener('click', () => {
-            menu.classList.toggle('open');
-        });
-
-        // Pull-to-refresh functionality
-        let startY = 0;
-        let isPulling = false;
-        let pullThreshold = 100; // Distance to trigger refresh
-
-        document.addEventListener('touchstart', (e) => {
-            startY = e.touches[0].clientY;
-            isPulling = window.scrollY === 0; // Only allow pull if at top
-        });
-
-        document.addEventListener('touchmove', (e) => {
-            if (!isPulling) return;
-
-            const currentY = e.touches[0].clientY;
-            const diff = currentY - startY;
-
-            if (diff > 50) { // Show indicator after 50px
-                pullRefresh.classList.add('show');
-            }
-
-            if (diff > pullThreshold) {
-                // Trigger refresh
-                pullRefresh.textContent = '⟳'; // Spinning icon
-                location.reload();
-                isPulling = false;
-            }
-        });
-
-        document.addEventListener('touchend', () => {
-            isPulling = false;
-            pullRefresh.classList.remove('show');
-            pullRefresh.textContent = '↻';
-        });
-    </script>
+    menuToggle.addEventListener('click', () => {
+        menu.classList.toggle('open');
+    });
+</script>
 </body>
 </html>
