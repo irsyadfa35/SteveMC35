@@ -1,157 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinix TikTok Downloader - Village Flat Rice Field Theme</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: url('https://source.unsplash.com/featured/?village,flat,ricefield') no-repeat center center fixed; /* Background pemandangan desa dan sawah datar */
-            background-size: cover;
-            color: #fff;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        .container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.05); /* Transparan 5% opacity */
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 174, 239, 0.5); /* Infinix blue glow */
-        }
-        h1 {
-            text-align: center;
-            color: #00AEEF; /* Infinix blue */
-            font-size: 2.5em;
-            margin-bottom: 20px;
-        }
-        .input-group {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        input[type="text"] {
-            width: 70%;
-            padding: 10px;
-            border: 2px solid #00AEEF;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            font-size: 1em;
-        }
-        button {
-            padding: 10px 20px;
-            background: #00AEEF;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            margin-left: 10px;
-        }
-        button:hover {
-            background: #008CBA;
-        }
-        .result {
-            display: none;
-            text-align: center;
-        }
-        .video-player {
-            max-width: 100%;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-        .download-links {
-            margin-top: 20px;
-        }
-        .download-links a {
-            display: inline-block;
-            padding: 10px 20px;
-            background: #00AEEF;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            margin: 5px;
-        }
-        .download-links a:hover {
-            background: #008CBA;
-        }
-        .error {
-            color: #ff6b6b;
-            text-align: center;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infinix TikTok Downloader - Village Theme</title>
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        background: url('https://source.unsplash.com/featured/?village,flat,ricefield') no-repeat center center fixed;
+        background-size: cover;
+        color: #fff;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+    }
+    .header {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1000;
+    }
+    .header button {
+        padding: 10px 15px;
+        background: rgba(0,174,239,0.8);
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    .header button:hover {
+        background: rgba(0,174,239,1);
+        transform: scale(1.05);
+    }
+    .container {
+        max-width: 800px;
+        margin: 100px auto 50px auto;
+        padding: 25px;
+        background: rgba(0,0,0,0.5);
+        border-radius: 15px;
+        box-shadow: 0 0 25px rgba(0,174,239,0.6);
+        text-align: center;
+    }
+    h1 {
+        color: #00AEEF;
+        margin-bottom: 25px;
+        font-size: 2.5em;
+    }
+    .input-group {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+        gap: 10px;
+    }
+    input[type="text"] {
+        width: 70%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 2px solid #00AEEF;
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+        font-size: 1em;
+    }
+    input[type="text"]::placeholder {
+        color: #ddd;
+    }
+    button.download-btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        background: #00AEEF;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    button.download-btn:hover {
+        background: #008CBA;
+        transform: scale(1.05);
+    }
+    .result {
+        display: none;
+        margin-top: 30px;
+        text-align: center;
+    }
+    video.video-player {
+        max-width: 100%;
+        border-radius: 12px;
+        margin: 20px 0;
+        box-shadow: 0 0 15px rgba(0,174,239,0.5);
+    }
+    .download-links {
+        margin-top: 20px;
+    }
+    .download-links a {
+        display: inline-block;
+        padding: 10px 18px;
+        background: #00AEEF;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 8px;
+        margin: 5px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .download-links a:hover {
+        background: #008CBA;
+        transform: scale(1.05);
+    }
+    .error {
+        color: #ff6b6b;
+        margin-top: 20px;
+        font-weight: bold;
+    }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>Infinix TikTok Downloader</h1>
-        <div class="input-group">
-            <input type="text" id="tiktok-url" placeholder="Masukkan URL TikTok (contoh: https://vt.tiktok.com/ZSUs2cB7L/)">
-            <button onclick="downloadVideo()">Download</button>
-        </div>
-        <div id="result" class="result">
-            <h2 id="title"></h2>
-            <video id="video-player" class="video-player" controls>
-                Browser Anda tidak mendukung tag video.
-            </video>
-            <p id="description"></p>
-            <div class="download-links" id="downloads"></div>
-        </div>
-        <div id="error" class="error"></div>
+
+<div class="header">
+    <button onclick="goDashboard()">🏠 Dashboard</button>
+</div>
+
+<div class="container">
+    <h1>Infinix TikTok Downloader</h1>
+    <div class="input-group">
+        <input type="text" id="tiktok-url" placeholder="Masukkan URL TikTok (contoh: https://vt.tiktok.com/ZSUs2cB7L/)">
+        <button class="download-btn" onclick="downloadVideo()">Download</button>
     </div>
+    <div id="result" class="result">
+        <h2 id="title"></h2>
+        <video id="video-player" class="video-player" controls>
+            Browser Anda tidak mendukung tag video.
+        </video>
+        <p id="description"></p>
+        <div class="download-links" id="downloads"></div>
+    </div>
+    <div id="error" class="error"></div>
+</div>
 
-    <script>
-        async function downloadVideo() {
-            const url = document.getElementById('tiktok-url').value.trim();
-            if (!url) {
-                showError('Masukkan URL TikTok yang valid!');
-                return;
-            }
+<script>
+function goDashboard() {
+    window.location.href = 'index.html';
+}
 
-            const apiUrl = `https://api.siputzx.my.id/api/d/tiktok?url=${encodeURIComponent(url)}`;
+async function downloadVideo() {
+    const url = document.getElementById('tiktok-url').value.trim();
+    if (!url) return showError('Masukkan URL TikTok yang valid!');
 
-            try {
-                const response = await fetch(apiUrl);
-                const data = await response.json();
+    const apiUrl = `https://api.siputzx.my.id/api/d/tiktok?url=${encodeURIComponent(url)}`;
 
-                if (data.status) {
-                    displayResult(data.data);
-                } else {
-                    showError('Gagal mengambil data. Pastikan URL benar.');
-                }
-            } catch (error) {
-                showError('Terjadi kesalahan: ' + error.message);
-            }
-        }
+    try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
 
-        function displayResult(data) {
-            document.getElementById('title').textContent = data.metadata.title;
-            const videoPlayer = document.getElementById('video-player');
-            videoPlayer.src = data.urls[0]; // Menggunakan URL pertama untuk pemutaran
-            document.getElementById('description').textContent = data.metadata.description;
+        if (data.status) displayResult(data.data);
+        else showError('Gagal mengambil data. Pastikan URL benar.');
+    } catch (error) {
+        showError('Terjadi kesalahan: ' + error.message);
+    }
+}
 
-            const downloads = document.getElementById('downloads');
-            downloads.innerHTML = '';
-            data.urls.forEach((url, index) => {
-                const link = document.createElement('a');
-                link.href = url;
-                link.textContent = `Download Video ${index + 1}`;
-                link.target = '_blank';
-                downloads.appendChild(link);
-            });
+function displayResult(data) {
+    document.getElementById('title').textContent = data.metadata.title;
+    const videoPlayer = document.getElementById('video-player');
+    videoPlayer.src = data.urls[0];
+    document.getElementById('description').textContent = data.metadata.description;
 
-            document.getElementById('result').style.display = 'block';
-            document.getElementById('error').style.display = 'none';
-        }
+    const downloads = document.getElementById('downloads');
+    downloads.innerHTML = '';
+    data.urls.forEach((url, i) => {
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.textContent = `Download Video ${i + 1}`;
+        downloads.appendChild(link);
+    });
 
-        function showError(message) {
-            document.getElementById('error').textContent = message;
-            document.getElementById('error').style.display = 'block';
-            document.getElementById('result').style.display = 'none';
-        }
-    </script>
+    document.getElementById('result').style.display = 'block';
+    document.getElementById('error').style.display = 'none';
+}
+
+function showError(msg) {
+    const errorDiv = document.getElementById('error');
+    errorDiv.textContent = msg;
+    errorDiv.style.display = 'block';
+    document.getElementById('result').style.display = 'none';
+}
+</script>
+
 </body>
 </html>
