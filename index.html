@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Home | SteveMC</title>
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
     body {
         margin: 0;
         padding: 0;
@@ -13,14 +15,13 @@
         color: white;
         overflow-y: scroll;
         -webkit-overflow-scrolling: touch;
+        background-color: #000;
     }
 
     .background {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
         background-image: url('https://qu.ax/vneoG.jpg');
         background-size: cover;
         background-position: center;
@@ -32,7 +33,7 @@
         position: fixed;
         top: 0; left: 0;
         width: 100%; height: 100%;
-        background-color: rgba(0,0,0,0.3);
+        background-color: rgba(0,0,0,0.35);
         z-index: -1;
     }
 
@@ -42,21 +43,21 @@
         left: 0;
         width: 100%;
         height: 60px;
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: rgba(255,255,255,0.1);
         backdrop-filter: blur(10px);
-        z-index: 1000;
         display: flex;
         align-items: center;
         padding: 0 20px;
+        z-index: 1000;
     }
 
     .menu-btn {
         background: none;
         border: none;
         cursor: pointer;
-        font-size: 24px;
-        color: white;
-        opacity: 0.8;
+        font-size: 26px;
+        color: #00bfff;
+        text-shadow: 0 0 10px #00bfff, 0 0 20px #00ffff;
     }
 
     .menu {
@@ -72,56 +73,88 @@
         padding: 20px;
         box-sizing: border-box;
     }
-
     .menu.open { left: 0; }
 
     .menu-btns { list-style: none; padding: 0; margin: 0; }
-    .menu-btns li { margin-bottom: 20px; }
+    .menu-btns li { margin-bottom: 15px; }
     .menu-btns button {
         width: 100%;
-        padding: 15px;
-        background-color: rgba(255,255,255,0.2);
+        padding: 12px;
+        background-color: rgba(255,255,255,0.15);
         border: none;
-        color: white;
+        color: #00eaff;
         font-size: 16px;
+        border-radius: 6px;
         cursor: pointer;
-        border-radius: 5px;
+        transition: 0.2s;
+        text-shadow: 0 0 8px #00ffff;
     }
-    .menu-btns button:hover { background-color: rgba(255,255,255,0.4); }
+    .menu-btns button:hover {
+        background-color: rgba(0,255,255,0.2);
+        box-shadow: 0 0 10px #00ffff;
+    }
 
     .content {
-        padding: 80px 20px;
+        padding: 90px 20px;
         text-align: center;
+        animation: fadeIn 1.2s ease;
     }
 
     .thumbnail {
-        margin-top: 80px;
+        margin-top: 60px;
         display: flex;
         justify-content: center;
+        animation: fadeInUp 1.4s ease;
     }
 
     .thumbnail img {
         width: 90%;
         max-width: 735px;
         border-radius: 15px;
-        box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        box-shadow: 0 0 20px rgba(0,255,255,0.4);
     }
 
     .welcome-text {
-        font-size: 1.8em;
-        font-weight: bold;
+        font-size: 2em;
+        font-weight: 700;
         margin-top: 20px;
-        color: #ffffff;
-        text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        color: #00ffff;
+        text-shadow: 0 0 8px #00ffff, 0 0 16px #00bfff, 0 0 25px #00ffff;
+        animation: glow 2s infinite alternate, fadeInUp 1.8s ease;
     }
+
+    @keyframes glow {
+        from { text-shadow: 0 0 10px #00ffff, 0 0 20px #00bfff; }
+        to { text-shadow: 0 0 20px #00ffff, 0 0 40px #00bfff; }
+    }
+
+    .info-section {
+        margin-top: 40px;
+        background: rgba(255,255,255,0.05);
+        padding: 20px;
+        border-radius: 12px;
+        backdrop-filter: blur(6px);
+        box-shadow: 0 0 15px rgba(0,255,255,0.2);
+        display: inline-block;
+        animation: fadeIn 2s ease;
+    }
+
+    .clock { font-size: 1.6em; color: #00ffff; font-weight: 600; text-shadow: 0 0 8px #00ffff; }
+    .date { margin-top: 8px; color: #aefcff; font-size: 1em; text-shadow: 0 0 6px #00bfff; }
+    .countdown { margin-top: 10px; color: #fff; font-size: 1.1em; text-shadow: 0 0 8px #00eaff; }
 
     .footer {
         text-align: center;
         font-size: 12px;
-        opacity: 0.7;
-        padding: 10px;
-        margin-top: 40px;
+        opacity: 0.8;
+        padding: 20px;
+        color: #00ffff;
+        text-shadow: 0 0 10px #00ffff;
+        margin-top: 30px;
     }
+
+    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+    @keyframes fadeInUp { from {opacity:0; transform:translateY(30px);} to {opacity:1; transform:translateY(0);} }
 </style>
 </head>
 <body>
@@ -148,6 +181,12 @@
     </div>
 
     <div class="welcome-text">Welcome To SteveMC Website</div>
+
+    <div class="info-section">
+        <div class="clock" id="clock">00:00:00 WIB</div>
+        <div class="date" id="date"></div>
+        <div class="countdown" id="countdown">Menuju Tahun Baru 🎆</div>
+    </div>
 </div>
 
 <div class="footer">©2025 SteveMC Developer</div>
@@ -155,32 +194,53 @@
 <script>
 const menuToggle = document.getElementById('menuToggle');
 const menu = document.getElementById('menu');
+menuToggle.addEventListener('click', () => menu.classList.toggle('open'));
 
-menuToggle.addEventListener('click', () => {
-    menu.classList.toggle('open');
-});
+// === JAM & TANGGAL ===
+function updateClock() {
+  const now = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const formatter = new Intl.DateTimeFormat('id-ID', options);
+  const jam = now.getHours().toString().padStart(2, '0');
+  const menit = now.getMinutes().toString().padStart(2, '0');
+  const detik = now.getSeconds().toString().padStart(2, '0');
 
-// Pull-to-refresh (mobile)
-let startY = 0;
-let pullDistance = 0;
-const threshold = 80;
+  document.getElementById('clock').textContent = `${jam}:${menit}:${detik} WIB`;
+  document.getElementById('date').textContent = formatter.format(now);
+}
+setInterval(updateClock, 1000);
+updateClock();
 
-document.body.addEventListener('touchstart', e => {
-    if (window.scrollY === 0) startY = e.touches[0].clientY;
-}, {passive: true});
+// === COUNTDOWN ===
+function updateCountdown() {
+  const now = new Date();
+  const idulFitri = new Date('2025-03-31T00:00:00+07:00');
+  const newYear = new Date('2026-01-01T00:00:00+07:00');
+  let target, label;
 
-document.body.addEventListener('touchmove', e => {
-    const y = e.touches[0].clientY;
-    pullDistance = y - startY;
-}, {passive: true});
+  if (now < idulFitri) {
+    target = idulFitri;
+    label = "🕌 Menuju Idul Fitri 2025";
+  } else {
+    target = newYear;
+    label = "🎆 Menuju Tahun Baru 2026";
+  }
 
-document.body.addEventListener('touchend', e => {
-    if (pullDistance > threshold && window.scrollY === 0) {
-        location.reload();
-    }
-    startY = 0;
-    pullDistance = 0;
-}, {passive: true});
+  const selisih = target - now;
+  if (selisih <= 0) {
+    document.getElementById('countdown').textContent = "🎉 Selamat! Event telah tiba!";
+    return;
+  }
+
+  const hari = Math.floor(selisih / (1000 * 60 * 60 * 24));
+  const jam = Math.floor((selisih / (1000 * 60 * 60)) % 24);
+  const menit = Math.floor((selisih / (1000 * 60)) % 60);
+  const detik = Math.floor((selisih / 1000) % 60);
+
+  document.getElementById('countdown').innerHTML = `${label}<br>${hari} Hari ${jam} Jam ${menit} Menit ${detik} Detik`;
+}
+setInterval(updateCountdown, 1000);
+updateCountdown();
 </script>
 </body>
 </html>
