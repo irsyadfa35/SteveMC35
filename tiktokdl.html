@@ -5,14 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Infinix TikTok Downloader</title>
 <style>
-body {
-    font-family: 'Poppins', sans-serif;
-    margin:0; padding:0;
-    color:#fff;
-    overflow-x:hidden;
-}
-
-/* Background blur */
+body { font-family:'Poppins',sans-serif; margin:0; padding:0; color:#fff; overflow-x:hidden; }
 body::before {
     content:'';
     position:fixed;
@@ -22,96 +15,24 @@ body::before {
     filter: blur(8px);
     z-index:-1;
 }
-
-/* Header & menu */
-.header {
-    position: fixed;
-    top:10px;
-    left:10px;
-    z-index:1000;
-}
-.menu-btn {
-    padding:10px 15px;
-    background: rgba(0,174,239,0.8);
-    border:none;
-    border-radius:8px;
-    color:#fff;
-    font-weight:bold;
-    cursor:pointer;
-    transition:0.3s;
-}
+.header { position: fixed; top:10px; left:10px; z-index:1000; }
+.menu-btn { padding:10px 15px; background: rgba(0,174,239,0.8); border:none; border-radius:8px; color:#fff; font-weight:bold; cursor:pointer; transition:0.3s; }
 .menu-btn:hover { background: rgba(0,174,239,1); transform:scale(1.05); }
-
-.menu {
-    position: fixed;
-    top:50px;
-    left:-220px;
-    width:200px;
-    background: rgba(0,0,0,0.7);
-    border-radius:10px;
-    padding:10px;
-    transition: left 0.3s;
-}
+.menu { position: fixed; top:50px; left:-220px; width:200px; background: rgba(0,0,0,0.7); border-radius:10px; padding:10px; transition:left 0.3s; }
 .menu.open { left:10px; }
-.menu button {
-    width:100%;
-    margin:10px 0;
-    padding:10px;
-    border:none;
-    border-radius:8px;
-    background:#00AEEF;
-    color:#fff;
-    font-weight:bold;
-    cursor:pointer;
-    transition:0.3s;
-}
+.menu button { width:100%; margin:10px 0; padding:10px; border:none; border-radius:8px; background:#00AEEF; color:#fff; font-weight:bold; cursor:pointer; transition:0.3s; }
 .menu button:hover { background:#008CBA; transform:scale(1.05); }
 
-/* Container */
-.container {
-    max-width:700px;
-    margin:120px auto 50px auto;
-    padding:25px;
-    background: rgba(0,0,0,0.55);
-    border-radius:15px;
-    text-align:center;
-    box-shadow: 0 0 20px rgba(0,174,239,0.4);
-}
+.container { max-width:700px; margin:120px auto 50px auto; padding:25px; background: rgba(0,0,0,0.55); border-radius:15px; text-align:center; box-shadow: 0 0 20px rgba(0,174,239,0.4); }
 h2 { color:#00AEEF; margin-bottom:20px; }
-input[type=text] {
-    width:100%;
-    padding:12px;
-    border-radius:8px;
-    border:none;
-    margin-bottom:15px;
-    font-size:1em;
-}
-button.download-btn {
-    padding:10px 15px;
-    border:none;
-    border-radius:8px;
-    background:#00AEEF;
-    color:#fff;
-    cursor:pointer;
-    margin:5px;
-    text-decoration:none;
-    display:inline-block;
-    transition:0.3s;
-}
+input[type=text] { width:100%; padding:12px; border-radius:8px; border:none; margin-bottom:15px; font-size:1em; }
+button.download-btn { padding:10px 15px; border:none; border-radius:8px; background:#00AEEF; color:#fff; cursor:pointer; margin:5px; text-decoration:none; display:inline-block; transition:0.3s; }
 button.download-btn:hover { background:#008CBA; }
 
 .result { margin-top:25px; display:none; }
 video { width:100%; border-radius:12px; margin:10px 0; }
 .download-links { margin-top:20px; }
-.download-links a {
-    display:inline-block;
-    padding:10px 20px;
-    background:#00AEEF;
-    color:#fff;
-    text-decoration:none;
-    border-radius:8px;
-    margin:5px;
-}
+.download-links a { display:inline-block; padding:10px 20px; background:#00AEEF; color:#fff; text-decoration:none; border-radius:8px; margin:5px; }
 .download-links a:hover { background:#008CBA; }
 .loading { display:none; font-size:1em; margin-top:10px; color:#00AEEF; }
 </style>
@@ -143,7 +64,6 @@ video { width:100%; border-radius:12px; margin:10px 0; }
 <script>
 const menuToggle = document.getElementById('menuToggle');
 const menu = document.getElementById('menu');
-
 menuToggle.addEventListener('click',()=>{ menu.classList.toggle('open'); });
 
 document.getElementById('downloadBtn').addEventListener('click', async ()=>{
@@ -171,6 +91,7 @@ document.getElementById('downloadBtn').addEventListener('click', async ()=>{
             videoPlayer.src = videoUrl;
             resultDiv.style.display='block';
 
+            // Tombol download video
             const videoLink = document.createElement('a');
             videoLink.href = videoUrl;
             videoLink.textContent = '⬇️ Download Video';
@@ -178,10 +99,11 @@ document.getElementById('downloadBtn').addEventListener('click', async ()=>{
             videoLink.className='download-btn';
             downloadsDiv.appendChild(videoLink);
 
+            // Tombol download MP3 jika ada musik
             if(data.data.music_info?.play_url){
                 const mp3Link = document.createElement('a');
                 mp3Link.href = data.data.music_info.play_url;
-                mp3Link.textContent='⬇️ Download MP3';
+                mp3Link.textContent='🎵 Download MP3';
                 mp3Link.target='_blank';
                 mp3Link.className='download-btn';
                 downloadsDiv.appendChild(mp3Link);
