@@ -35,13 +35,24 @@
   }
   .menu.open { left: 0; }
   .menu-btns { list-style: none; padding: 0; margin: 0; }
-  .menu-btns li { margin-bottom: 20px; }
+  .menu-btns li { margin-bottom: 15px; }
   .menu-btns button {
-    width: 100%; padding: 15px; background-color: rgba(255,255,255,0.2);
-    border: none; color: white; font-size: 16px; cursor: pointer; border-radius: 5px;
+    width: 100%; padding: 12px; background-color: rgba(255,255,255,0.15);
+    border: none; color: #00eaff; font-size: 16px; cursor: pointer; border-radius: 6px;
+    display: flex; justify-content: space-between; align-items: center;
     transition: background-color 0.3s;
   }
-  .menu-btns button:hover { background-color: rgba(255,255,255,0.4); }
+  .menu-btns button:hover { background-color: rgba(0,255,255,0.25); }
+
+  /* Submenu */
+  .submenu {
+    list-style: none; padding-left: 10px; margin-top: 5px; display: none;
+  }
+  .submenu li { margin-bottom: 10px; }
+  .submenu li button { background-color: rgba(0,255,255,0.1); font-size: 14px; }
+
+  .arrow { transition: transform 0.3s ease; }
+  .arrow.down { transform: rotate(90deg); }
 
   .container { 
     max-width: 800px; margin: 80px auto 80px auto; 
@@ -83,12 +94,19 @@
 <div class="header">
     <button class="menu-btn" id="menuToggle">☰</button>
 </div>
+
 <div class="menu" id="menu">
     <ul class="menu-btns">
         <li><button onclick="window.location.href='index.html'">Home</button></li>
-        <li><button onclick="window.location.href='youtube.html'">YouTube Play</button></li>
-        <li><button onclick="window.location.href='tiktokdl.html'">Tiktok Download</button></li>
-        <li><button onclick="window.location.href='toqrcode.html'">Link To QR</button></li>
+        <li>
+            <button id="featuresBtn">List Fitur <span class="arrow">→</span></button>
+            <ul class="submenu" id="featuresSub">
+                <li><button onclick="window.location.href='tiktokdl.html'">TikTok Download</button></li>
+                <li><button onclick="window.location.href='youtube.html'">YouTube Play</button></li>
+                <li><button onclick="window.location.href='toqrcode.html'">Link To QR</button></li>
+                <li><button onclick="window.location.href='flux.html'">Flux AI</button></li>
+            </ul>
+        </li>
         <li><button onclick="window.location.href='grupwa.html'">Grup WhatsApp</button></li>
     </ul>
 </div>
@@ -107,7 +125,16 @@
 <script>
 const menuToggle = document.getElementById('menuToggle');
 const menu = document.getElementById('menu');
-menuToggle.addEventListener('click', () => { menu.classList.toggle('open'); });
+menuToggle.addEventListener('click', () => menu.classList.toggle('open'));
+
+const featuresBtn = document.getElementById('featuresBtn');
+const featuresSub = document.getElementById('featuresSub');
+const arrow = featuresBtn.querySelector('.arrow');
+featuresBtn.addEventListener('click', () => {
+    const isOpen = featuresSub.style.display === 'block';
+    featuresSub.style.display = isOpen ? 'none' : 'block';
+    arrow.classList.toggle('down', !isOpen);
+});
 
 async function searchYoutube() {
   const query = document.getElementById('query').value.trim();
@@ -158,5 +185,6 @@ async function downloadMP3(url) {
   }
 }
 </script>
+
 </body>
 </html>

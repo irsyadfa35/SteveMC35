@@ -58,14 +58,31 @@
   .menu.open { left: 14px; }
   .menu button {
     background: rgba(255,255,255,0.06);
-    color: #fff;
+    color: #00eaff;
     border: none;
     padding: 8px;
     border-radius: 8px;
     cursor: pointer;
     text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
-  .menu button:hover { background: rgba(255,255,255,0.2); }
+  .menu button:hover { background: rgba(0,255,255,0.2); }
+
+  .submenu {
+    list-style: none;
+    padding-left: 10px;
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .submenu button {
+    background: rgba(0,255,255,0.1);
+    font-size: 14px;
+  }
+  .arrow { transition: transform 0.3s ease; }
+  .arrow.down { transform: rotate(90deg); }
 
   .container {
     max-width: 500px;
@@ -121,11 +138,7 @@
     cursor: pointer;
   }
   .download-btn:hover { background: #00B34A; }
-  #qrCaption {
-    margin-top: 8px;
-    font-size: 14px;
-    word-break: break-word;
-  }
+  #qrCaption { margin-top: 8px; font-size: 14px; word-break: break-word; }
 
   .footer {
     font-size: 12px;
@@ -137,15 +150,18 @@
 </head>
 <body>
 
-<!-- Top-left menu button -->
 <button class="menu-btn" id="menuToggle">☰</button>
 
-<!-- Hidden menu -->
 <div class="menu" id="menu">
-  <button onclick="location.href='index.html'">Dashboard</button>
-  <button onclick="alert('Lo udah di QR Generator')">QR Code</button>
-  <button onclick="location.href='tiktokdl.html'">TikTok Download</button>
-  <button onclick="location.href='youtube.html'">YouTube Play</button>
+  <button onclick="location.href='index.html'">Home</button>
+  <button id="featuresBtn">List Fitur <span class="arrow">→</span></button>
+  <div class="submenu" id="featuresSub">
+    <button onclick="location.href='tiktokdl.html'">TikTok Download</button>
+    <button onclick="location.href='youtube.html'">YouTube Play</button>
+    <button onclick="location.href='flux.html'">Flux AI</button>
+    <button onclick="location.href='toqrcode.html'">Link To QR</button>
+  </div>
+  <button onclick="location.href='grupwa.html'">Grup WhatsApp</button>
 </div>
 
 <div class="container">
@@ -163,8 +179,15 @@
 <script>
 const menuToggle = document.getElementById('menuToggle');
 const menu = document.getElementById('menu');
-menuToggle.addEventListener('click', () => {
-  menu.classList.toggle('open');
+menuToggle.addEventListener('click', () => menu.classList.toggle('open'));
+
+const featuresBtn = document.getElementById('featuresBtn');
+const featuresSub = document.getElementById('featuresSub');
+const arrow = featuresBtn.querySelector('.arrow');
+featuresBtn.addEventListener('click', () => {
+    const isOpen = featuresSub.style.display === 'flex';
+    featuresSub.style.display = isOpen ? 'none' : 'flex';
+    arrow.classList.toggle('down', !isOpen);
 });
 
 function generateQR() {
@@ -178,14 +201,8 @@ function generateQR() {
   downloadBtn.style.display = 'none';
   qrCaption.textContent = '';
 
-  if (!url) {
-    alert('Masukkan link dulu!');
-    return;
-  }
-  if (!/^https?:\/\//.test(url)) {
-    alert('❌ Link tidak valid. Harus diawali dengan http:// atau https://');
-    return;
-  }
+  if (!url) return alert('Masukkan link dulu!');
+  if (!/^https?:\/\//.test(url)) return alert('❌ Link tidak valid. Harus diawali http:// atau https://');
 
   const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=50&data=${encodeURIComponent(url)}`;
 

@@ -5,182 +5,224 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Home | SteveMC</title>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: "Poppins", sans-serif;
-        height: 100%;
-        color: white;
-        overflow-y: scroll;
-        -webkit-overflow-scrolling: touch;
-        background-color: #000;
-    }
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+    height: 100%;
+    color: white;
+    overflow-x: hidden;
+    background-color: #000;
+}
 
-    .background {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background-image: url('https://qu.ax/vneoG.jpg');
-        background-size: cover;
-        background-position: center;
-        filter: blur(2px);
-        z-index: -1;
-    }
+.background {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image: url('https://qu.ax/vneoG.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: blur(2px);
+    z-index: -1;
+}
 
-    .overlay {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background-color: rgba(0,0,0,0.35);
-        z-index: -1;
-    }
+.overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.35);
+    z-index: -1;
+}
 
-    .header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 60px;
-        background-color: rgba(255,255,255,0.1);
-        backdrop-filter: blur(10px);
-        display: flex;
-        align-items: center;
-        padding: 0 20px;
-        z-index: 1000;
-    }
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 1000;
+}
 
-    .menu-btn {
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 26px;
-        color: #00bfff;
-        text-shadow: 0 0 10px #00bfff, 0 0 20px #00ffff;
-    }
+.menu-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 26px;
+    color: #00bfff;
+    text-shadow: 0 0 10px #00bfff, 0 0 20px #00ffff;
+}
 
-    .menu {
-        position: fixed;
-        top: 60px;
-        left: -250px;
-        width: 250px;
-        height: calc(100% - 60px);
-        background-color: rgba(0,0,0,0.8);
-        backdrop-filter: blur(10px);
-        transition: left 0.3s ease;
-        z-index: 999;
-        padding: 20px;
-        box-sizing: border-box;
-    }
-    .menu.open { left: 0; }
+.menu {
+    position: fixed;
+    top: 0;
+    left: -270px;
+    width: 270px;
+    height: 100%;
+    background-color: rgba(0,0,0,0.85);
+    backdrop-filter: blur(10px);
+    transition: left 0.4s ease;
+    z-index: 999;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
 
-    .menu-btns { list-style: none; padding: 0; margin: 0; }
-    .menu-btns li { margin-bottom: 15px; }
-    .menu-btns button {
-        width: 100%;
-        padding: 12px;
-        background-color: rgba(255,255,255,0.15);
-        border: none;
-        color: #00eaff;
-        font-size: 16px;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: 0.2s;
-        text-shadow: 0 0 8px #00ffff;
-    }
-    .menu-btns button:hover {
-        background-color: rgba(0,255,255,0.2);
-        box-shadow: 0 0 10px #00ffff;
-    }
+.menu.open { left: 0; }
 
-    .content {
-        padding: 90px 20px;
-        text-align: center;
-        animation: fadeIn 1.2s ease;
-    }
+.menu-btns {
+    list-style: none;
+    padding: 80px 0 0 0; /* jarak atas supaya Home keliatan */
+    margin: 0;
+}
 
-    .thumbnail {
-        margin-top: 60px;
-        display: flex;
-        justify-content: center;
-        animation: fadeInUp 1.4s ease;
-    }
+.menu-btns li {
+    margin-bottom: 15px;
+}
 
-    .thumbnail img {
-        width: 90%;
-        max-width: 735px;
-        border-radius: 15px;
-        box-shadow: 0 0 20px rgba(0,255,255,0.4);
-    }
+.menu-btns button {
+    width: 100%;
+    padding: 12px;
+    background-color: rgba(255,255,255,0.15);
+    border: none;
+    color: #00eaff;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-align: left;
+    position: relative;
+    text-shadow: 0 0 8px #00ffff;
+}
 
-    .welcome-text {
-        font-size: 2em;
-        font-weight: 700;
-        margin-top: 20px;
-        color: #00ffff;
-        text-shadow: 0 0 8px #00ffff, 0 0 16px #00bfff, 0 0 25px #00ffff;
-        animation: glow 2s infinite alternate, fadeInUp 1.8s ease;
-    }
+.menu-btns button:hover {
+    background-color: rgba(0,255,255,0.25);
+    box-shadow: 0 0 10px #00ffff;
+}
 
-    @keyframes glow {
-        from { text-shadow: 0 0 10px #00ffff, 0 0 20px #00bfff; }
-        to { text-shadow: 0 0 20px #00ffff, 0 0 40px #00bfff; }
-    }
+.menu-btns button .arrow {
+    position: absolute;
+    right: 15px;
+    transition: transform 0.3s ease;
+}
 
-    .info-section {
-        margin-top: 40px;
-        background: rgba(255,255,255,0.05);
-        padding: 20px;
-        border-radius: 12px;
-        backdrop-filter: blur(6px);
-        box-shadow: 0 0 15px rgba(0,255,255,0.2);
-        display: inline-block;
-        animation: fadeIn 2s ease;
-    }
+.menu-btns button.active .arrow {
+    transform: rotate(90deg);
+}
 
-    .clock { font-size: 1.6em; color: #00ffff; font-weight: 600; text-shadow: 0 0 8px #00ffff; }
-    .date { margin-top: 8px; color: #aefcff; font-size: 1em; text-shadow: 0 0 6px #00bfff; }
-    .countdown { margin-top: 10px; color: #fff; font-size: 1.1em; text-shadow: 0 0 8px #00eaff; }
+.submenu {
+    display: none;
+    list-style: none;
+    padding-left: 15px;
+    margin-top: 10px;
+}
 
-    .footer {
-        text-align: center;
-        font-size: 12px;
-        opacity: 0.8;
-        padding: 20px;
-        color: #00ffff;
-        text-shadow: 0 0 10px #00ffff;
-        margin-top: 30px;
-    }
+.submenu li button {
+    background-color: rgba(255,255,255,0.1);
+    font-size: 14px;
+    text-shadow: none;
+}
 
-    /* Tombol bulat AI */
-    .ai-btn {
-        position: fixed;
-        bottom: 25px;
-        right: 25px;
-        background: linear-gradient(135deg, #00ffff, #7f00ff);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 15px 20px;
-        font-size: 15px;
-        font-weight: 600;
-        box-shadow: 0 0 20px rgba(0,255,255,0.6);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        animation: float 2.5s ease-in-out infinite;
-    }
-    .ai-btn:hover {
-        box-shadow: 0 0 30px #00ffff;
-        transform: scale(1.05);
-    }
-    @keyframes float {
-        0%,100% { transform: translateY(0); }
-        50% { transform: translateY(-6px); }
-    }
+.submenu li button:hover {
+    background-color: rgba(0,255,255,0.2);
+}
 
-    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
-    @keyframes fadeInUp { from {opacity:0; transform:translateY(30px);} to {opacity:1; transform:translateY(0);} }
+/* Content utama */
+.content {
+    padding: 90px 20px;
+    text-align: center;
+    animation: fadeIn 1s ease;
+}
+
+.thumbnail {
+    margin-top: 60px;
+    display: flex;
+    justify-content: center;
+    animation: fadeInUp 1.2s ease;
+}
+
+.thumbnail img {
+    width: 90%;
+    max-width: 735px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,255,255,0.4);
+}
+
+.welcome-text {
+    font-size: 2em;
+    font-weight: 700;
+    margin-top: 20px;
+    color: #00ffff;
+    text-shadow: 0 0 8px #00ffff, 0 0 16px #00bfff, 0 0 25px #00ffff;
+    animation: glow 2s infinite alternate, fadeInUp 1.4s ease;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px #00ffff, 0 0 20px #00bfff; }
+    to { text-shadow: 0 0 20px #00ffff, 0 0 40px #00bfff; }
+}
+
+.info-section {
+    margin-top: 40px;
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 12px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 0 15px rgba(0,255,255,0.2);
+    display: inline-block;
+    animation: fadeIn 1.5s ease;
+}
+
+.clock { font-size: 1.6em; color: #00ffff; font-weight: 600; text-shadow: 0 0 8px #00ffff; }
+.date { margin-top: 8px; color: #aefcff; font-size: 1em; text-shadow: 0 0 6px #00bfff; }
+.countdown { margin-top: 10px; color: #fff; font-size: 1.1em; text-shadow: 0 0 8px #00eaff; }
+
+.footer {
+    text-align: center;
+    font-size: 12px;
+    opacity: 0.8;
+    padding: 20px;
+    color: #00ffff;
+    text-shadow: 0 0 10px #00ffff;
+    margin-top: 30px;
+}
+
+/* Tombol AI */
+.ai-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: linear-gradient(135deg, #00ffff, #7f00ff);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 0 20px rgba(0,255,255,0.6);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    animation: float 2.5s ease-in-out infinite;
+}
+
+.ai-btn:hover {
+    box-shadow: 0 0 30px #00ffff;
+    transform: scale(1.05);
+}
+
+@keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+@keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+@keyframes fadeInUp { from {opacity:0; transform:translateY(30px);} to {opacity:1; transform:translateY(0);} }
 </style>
 </head>
 <body>
@@ -193,11 +235,22 @@
 
 <div class="menu" id="menu">
     <ul class="menu-btns">
-        <li><button onclick="window.location.href='index.html'">Home</button></li>
-        <li><button onclick="window.location.href='tiktokdl.html'">TikTok Download</button></li>
-        <li><button onclick="window.location.href='youtube.html'">YouTube Play</button></li>
-        <li><button onclick="window.location.href='toqrcode.html'">Link To QR</button></li>
-        <li><button onclick="window.location.href='grupwa.html'">Grup WhatsApp</button></li>
+        <li>
+            <button class="neon" onclick="window.location.href='index.html'">Home</button>
+        </li>
+        <li>
+            <button class="neon" id="featuresBtn">List Fitur <span class="arrow">→</span></button>
+            <ul class="submenu" id="featuresSub">
+                <li><button onclick="window.location.href='tiktokdl.html'">TikTok Download</button></li>
+                <li><button onclick="window.location.href='youtube.html'">YouTube Play</button></li>
+                <li><button onclick="window.location.href='toqrcode.html'">Link To QR</button></li>
+                <li><button onclick="window.location.href='flux.html'">Flux AI</button></li>
+                <li><button onclick="window.location.href='cekresi.html'">Cek Resi Paket</button></li>
+            </ul>
+        </li>
+        <li>
+            <button class="neon" onclick="window.location.href='grupwa.html'">Grup WhatsApp</button>
+        </li>
     </ul>
 </div>
 
@@ -205,9 +258,7 @@
     <div class="thumbnail">
         <img src="https://qu.ax/kOzMp.jpg" alt="SteveMC Thumbnail">
     </div>
-
     <div class="welcome-text">Welcome To SteveMC Website</div>
-
     <div class="info-section">
         <div class="clock" id="clock">00:00:00 WIB</div>
         <div class="date" id="date"></div>
@@ -215,60 +266,57 @@
     </div>
 </div>
 
-<!-- Tombol ke AI -->
 <button class="ai-btn" onclick="window.location.href='ai.html'">💬 Chat dengan Felo AI</button>
 
 <div class="footer">©2025 SteveMC Developer</div>
 
 <script>
+// Toggle sidebar
 const menuToggle = document.getElementById('menuToggle');
 const menu = document.getElementById('menu');
-menuToggle.addEventListener('click', () => menu.classList.toggle('open'));
+menuToggle.addEventListener('click', () => { menu.classList.toggle('open'); });
 
-// === JAM & TANGGAL ===
+// Toggle List Fitur
+const featuresBtn = document.getElementById('featuresBtn');
+const featuresSub = document.getElementById('featuresSub');
+featuresBtn.addEventListener('click', () => {
+    featuresSub.style.display = featuresSub.style.display === 'block' ? 'none' : 'block';
+    featuresBtn.classList.toggle('active');
+});
+
+// Jam & Tanggal
 function updateClock() {
-  const now = new Date();
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const formatter = new Intl.DateTimeFormat('id-ID', options);
-  const jam = now.getHours().toString().padStart(2, '0');
-  const menit = now.getMinutes().toString().padStart(2, '0');
-  const detik = now.getSeconds().toString().padStart(2, '0');
-
-  document.getElementById('clock').textContent = `${jam}:${menit}:${detik} WIB`;
-  document.getElementById('date').textContent = formatter.format(now);
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const formatter = new Intl.DateTimeFormat('id-ID', options);
+    const jam = now.getHours().toString().padStart(2,'0');
+    const menit = now.getMinutes().toString().padStart(2,'0');
+    const detik = now.getSeconds().toString().padStart(2,'0');
+    document.getElementById('clock').textContent = `${jam}:${menit}:${detik} WIB`;
+    document.getElementById('date').textContent = formatter.format(now);
 }
-setInterval(updateClock, 1000);
+setInterval(updateClock,1000);
 updateClock();
 
-// === COUNTDOWN ===
+// Countdown
 function updateCountdown() {
-  const now = new Date();
-  const idulFitri = new Date('2025-03-31T00:00:00+07:00');
-  const newYear = new Date('2026-01-01T00:00:00+07:00');
-  let target, label;
+    const now = new Date();
+    const idulFitri = new Date('2025-03-31T00:00:00+07:00');
+    const newYear = new Date('2026-01-01T00:00:00+07:00');
+    let target, label;
+    if(now < idulFitri){ target=idulFitri; label="🕌 Menuju Idul Fitri 2025"; }
+    else { target=newYear; label="🎆 Menuju Tahun Baru 2026"; }
 
-  if (now < idulFitri) {
-    target = idulFitri;
-    label = "🕌 Menuju Idul Fitri 2025";
-  } else {
-    target = newYear;
-    label = "🎆 Menuju Tahun Baru 2026";
-  }
+    const selisih = target-now;
+    if(selisih<=0){ document.getElementById('countdown').textContent="🎉 Selamat! Event telah tiba!"; return; }
 
-  const selisih = target - now;
-  if (selisih <= 0) {
-    document.getElementById('countdown').textContent = "🎉 Selamat! Event telah tiba!";
-    return;
-  }
-
-  const hari = Math.floor(selisih / (1000 * 60 * 60 * 24));
-  const jam = Math.floor((selisih / (1000 * 60 * 60)) % 24);
-  const menit = Math.floor((selisih / (1000 * 60)) % 60);
-  const detik = Math.floor((selisih / 1000) % 60);
-
-  document.getElementById('countdown').innerHTML = `${label}<br>${hari} Hari ${jam} Jam ${menit} Menit ${detik} Detik`;
+    const hari = Math.floor(selisih/(1000*60*60*24));
+    const jam = Math.floor((selisih/(1000*60*60))%24);
+    const menit = Math.floor((selisih/(1000*60))%60);
+    const detik = Math.floor((selisih/1000)%60);
+    document.getElementById('countdown').innerHTML = `${label}<br>${hari} Hari ${jam} Jam ${menit} Menit ${detik} Detik`;
 }
-setInterval(updateCountdown, 1000);
+setInterval(updateCountdown,1000);
 updateCountdown();
 </script>
 </body>
