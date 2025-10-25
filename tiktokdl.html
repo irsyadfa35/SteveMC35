@@ -23,28 +23,14 @@ body::before {
     background: rgba(0,0,0,0.4);
     z-index:-1;
 }
-.header {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    z-index: 100;
-    display: flex;
-    gap: 10px;
-}
-.header button {
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: none;
-    background: #00AEEF;
-    color: #fff;
-    cursor: pointer;
-}
-.header button:hover { background: #008CBA; }
 .container {
     max-width: 700px;
-    margin: 100px auto 50px auto;
+    margin: 50px auto;
     padding: 25px;
+    background: rgba(0,0,0,0.55);
+    border-radius: 15px;
     text-align: center;
+    box-shadow: 0 0 20px rgba(0,174,239,0.4);
 }
 h2 { color:#00AEEF; margin-bottom:20px; }
 input[type=text] {
@@ -55,7 +41,7 @@ input[type=text] {
     margin-bottom:15px;
     font-size:1em;
 }
-button#downloadBtn {
+button, .download-btn {
     padding:10px 15px;
     border:none;
     border-radius:8px;
@@ -63,32 +49,28 @@ button#downloadBtn {
     color:#fff;
     cursor:pointer;
     margin:5px;
+    text-decoration:none;
+    display:inline-block;
+    transition:0.3s;
 }
-button#downloadBtn:hover { background:#008CBA; }
+button:hover, .download-btn:hover { background:#008CBA; }
 .result { margin-top:25px; display:none; }
 video { width:100%; border-radius:12px; margin:10px 0; }
+.loading { display:none; font-size:1em; margin-top:10px; color:#00AEEF; }
 .download-links { margin-top:20px; }
 .download-links a {
     display:inline-block;
-    padding:10px 15px;
-    border-radius:8px;
+    padding:10px 20px;
     background:#00AEEF;
     color:#fff;
     text-decoration:none;
+    border-radius:8px;
     margin:5px;
 }
 .download-links a:hover { background:#008CBA; }
-.loading { display:none; color:#00AEEF; margin-top:10px; }
 </style>
 </head>
 <body>
-
-<div class="header">
-    <button onclick="window.location.href='tiktokdl.html'">TikTok Download</button>
-    <button onclick="window.location.href='ytdl.html'">YouTube Download</button>
-    <button onclick="window.location.href='index.html'">Dashboard</button>
-</div>
-
 <div class="container">
 <h2>🎵 TikTok Downloader</h2>
 <input type="text" id="tiktokUrl" placeholder="Masukkan link TikTok...">
@@ -118,38 +100,37 @@ document.getElementById('downloadBtn').addEventListener('click', async ()=>{
     loading.style.display='block';
 
     try{
-        // Ambil video
-        const apiVideo = `https://api.siputzx.my.id/api/d/tiktok?url=${encodeURIComponent(url)}`;
-        const resVideo = await fetch(apiVideo);
-        const dataVideo = await resVideo.json();
-
-        if(!dataVideo.status) throw new Error('Gagal mengambil video.');
-
-        const videoUrl = dataVideo.data.urls[0];
-        videoPlayer.src = videoUrl;
-        resultDiv.style.display='block';
-
-        // Tombol download Video
-        const videoLink = document.createElement('a');
-        videoLink.href = videoUrl;
-        videoLink.textContent = '⬇️ Download Video';
-        videoLink.target = '_blank';
-        downloadsDiv.appendChild(videoLink);
-
-        // Ambil MP3 dari API Vreden
-        const apiMp3 = `https://api.vreden.my.id/api/v1/download/tiktok?url=${encodeURIComponent(url)}`;
-        const resMp3 = await fetch(apiMp3);
-        const dataMp3 = await resMp3.json();
-
-        if(dataMp3?.result?.music_info?.url){
-            const mp3Link = document.createElement('a');
-            mp3Link.href = dataMp3.result.music_info.url;
-            mp3Link.textContent='🎵 Download MP3';
-            mp3Link.target='_blank';
-            downloadsDiv.appendChild(mp3Link);
-        }
-
+        const apiUrl = `https://api.siputzx.my.id/api/d/tiktok?url=${encodeURIComponent(url)}`;
+        const response = await fetch(apiUrl);
+        const data = await response.json();
         loading.style.display='none';
+
+        if(data.status){
+            const videoUrl = data.data.urls[0];
+            videoPlayer.src = videoUrl;
+            resultDiv.style.display='block';
+
+            // Tombol download Video
+            const videoLink = document.createElement('a');
+            videoLink.href = videoUrl;
+            videoLink.textContent = '⬇️ Download Video';
+            videoLink.target = '_blank';
+            videoLink.className = 'download-btn';
+            downloadsDiv.appendChild(videoLink);
+
+            // Tombol download MP3
+            if(data.data.music_info?.play_url){
+                const mp3Link = document.createElement('a');
+                mp3Link.href = data.data.music_info.play_url;
+                mp3Link.textContent = '⬇️ Download MP3';
+                mp3Link.target = '_blank';
+                mp3Link.className = 'download-btn';
+                downloadsDiv.appendChild(mp3Link);
+            }
+
+        } else {
+            alert('Gagal mengambil data. Pastikan URL TikTok valid.');
+        }
     }catch(err){
         loading.style.display='none';
         alert('Terjadi kesalahan: ' + err.message);
