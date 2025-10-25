@@ -1,149 +1,149 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Infinix TikTok Downloader - Village Theme</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>TikTok Downloader — Village Theme</title>
 <style>
-body {
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    padding: 0;
-    background: url('https://qu.ax/vneoG.jpg') no-repeat center center fixed;
-    background-size: cover;
-    color: #fff;
-    overflow-x: hidden;
-}
-body::before {
-    content:'';
-    position:fixed;
-    top:0; left:0; right:0; bottom:0;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    background: rgba(0,0,0,0.4);
-    z-index:-1;
-}
-.container {
-    max-width: 700px;
-    margin: 50px auto;
-    padding: 25px;
-    background: rgba(0,0,0,0.55);
-    border-radius: 15px;
-    text-align: center;
-    box-shadow: 0 0 20px rgba(0,174,239,0.4);
-}
-h2 { color:#00AEEF; margin-bottom:20px; }
-input[type=text] {
-    width: 100%;
-    padding:12px;
-    border-radius:8px;
-    border:none;
-    margin-bottom:15px;
-    font-size:1em;
-}
-button, .download-btn {
-    padding:10px 15px;
-    border:none;
-    border-radius:8px;
-    background:#00AEEF;
-    color:#fff;
-    cursor:pointer;
-    margin:5px;
-    text-decoration:none;
-    display:inline-block;
-    transition:0.3s;
-}
-button:hover, .download-btn:hover { background:#008CBA; }
-.result { margin-top:25px; display:none; }
-video { width:100%; border-radius:12px; margin:10px 0; }
-.loading { display:none; font-size:1em; margin-top:10px; color:#00AEEF; }
-.download-links { margin-top:20px; }
-.download-links a {
-    display:inline-block;
-    padding:10px 20px;
-    background:#00AEEF;
-    color:#fff;
-    text-decoration:none;
-    border-radius:8px;
-    margin:5px;
-}
-.download-links a:hover { background:#008CBA; }
+:root{--accent:#00AEEF;--bg-blur:8px}
+*{box-sizing:border-box}
+body,html{height:100%;margin:0;font-family:Poppins,Inter,system-ui,Segoe UI,Roboto,-apple-system}
+body{color:#fff;background:url('https://qu.ax/vneoG.jpg') center/cover no-repeat fixed}
+body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(var(--bg-blur));-webkit-backdrop-filter:blur(var(--bg-blur));z-index:-1}
+
+/* top-left menu */
+.topmenu{position:fixed;left:14px;top:14px;z-index:999;display:flex;align-items:center;}
+.menu-btn{background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600;backdrop-filter:blur(6px);}
+.menu-btn:hover{opacity:0.95;transform:translateY(-2px)}
+.dropdown{position:absolute;top:40px;left:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);padding:10px 0;border-radius:8px;display:none;flex-direction:column;min-width:160px;}
+.dropdown button{background:none;border:none;color:#fff;text-align:left;padding:10px 16px;cursor:pointer;font-weight:600;width:100%;}
+.dropdown button:hover{background:rgba(0,174,239,0.2);}
+
+.wrap{max-width:760px;margin:120px auto;padding:26px;border-radius:14px;background:rgba(0,0,0,0.54);box-shadow:0 8px 30px rgba(0,0,0,0.6);border:1px solid rgba(0,174,239,0.06);}
+h1{margin:0 0 16px 0;color:var(--accent);font-size:20px}
+.note{color:#d7f0ff;font-size:13px;margin-bottom:14px}
+
+input[type=text]{width:100%;padding:12px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:#fff;font-size:14px;outline:2px solid transparent;transition:outline .15s;}
+input[type=text]:focus{outline:2px solid rgba(0,174,239,0.25)}
+
+.actions{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
+.btn{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700;}
+.btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);}
+.loading{color:var(--accent);margin-top:12px;display:none}
+
+.result{margin-top:20px;display:none}
+video{width:100%;border-radius:12px;background:#000;display:block}
+.downloads{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
+.downloads a{background:rgba(255,255,255,0.06);color:#fff;padding:10px 12px;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,0.04);font-weight:600}
+
+.meta{margin-top:12px;color:#dfefff;font-size:13px}
+.small{font-size:12px;color:#cfefff;margin-top:6px}
+
+.footer{margin-top:30px;text-align:center;font-size:12px;color:#ccc;}
+@media (max-width:520px){ .wrap{margin:90px 12px;padding:18px} }
 </style>
 </head>
 <body>
 
-<!-- Tombol menu di kiri atas -->
-<div style="position:fixed; top:10px; left:10px; z-index:999;">
-    <button onclick="window.location.href='index.html'" style="margin-right:5px;">Dashboard</button>
-    <button onclick="alert('TikTok Download')" style="margin-right:5px;">TikTok Download</button>
-    <button onclick="alert('YouTube Download')">YouTube Download</button>
+<!-- top-left menu -->
+<div class="topmenu" role="navigation" aria-label="menu">
+  <button class="menu-btn" id="menuToggle">☰</button>
+  <div class="dropdown" id="dropdownMenu">
+    <button onclick="location.href='index.html'">Dashboard</button>
+    <button onclick="alert('Lo udah di TikTok Download')">TikTok Download</button>
+    <button onclick="location.href='youtube.html'">YouTube Play</button>
+  </div>
 </div>
 
-<div class="container">
-<h2>🎵 TikTok Downloader</h2>
-<input type="text" id="tiktokUrl" placeholder="Masukkan link TikTok...">
-<button id="downloadBtn">Download</button>
-<div class="loading" id="loading">Sedang mengambil data...</div>
+<main class="wrap" role="main">
+  <h1>🎵 TikTok Downloader</h1>
+  <div class="note">Masukin URL TikTok, tekan <strong>Download</strong>. Tombol MP3 muncul kalo tersedia.</div>
 
-<div class="result" id="result">
-    <video id="videoPlayer" controls></video>
-    <div class="download-links" id="downloads"></div>
-</div>
-</div>
+  <input id="inputUrl" type="text" placeholder="Contoh: https://vt.tiktok.com/..." autocomplete="off" />
+
+  <div class="actions">
+    <button id="btnDownload" class="btn">Download</button>
+    <button id="btnClear" class="btn secondary">Clear</button>
+    <div id="loading" class="loading">Loading…</div>
+  </div>
+
+  <section id="result" class="result" aria-live="polite">
+    <div id="previewWrap">
+      <video id="player" controls playsinline></video>
+    </div>
+    <div class="meta" id="meta"></div>
+    <div class="small" id="stats"></div>
+    <div class="downloads" id="downloads"></div>
+  </section>
+
+  <div class="footer">©2025 SteveMC Developer</div>
+</main>
 
 <script>
-document.getElementById('downloadBtn').addEventListener('click', async ()=>{
-    const url = document.getElementById('tiktokUrl').value.trim();
-    if(!url) return alert('Masukkan URL TikTok dulu 😎');
+(async()=>{
+  const menuToggle = document.getElementById('menuToggle');
+  const dropdownMenu = document.getElementById('dropdownMenu');
+  menuToggle.addEventListener('click', ()=>{ dropdownMenu.style.display = dropdownMenu.style.display === 'flex' ? 'none' : 'flex'; });
 
-    const resultDiv = document.getElementById('result');
-    const videoPlayer = document.getElementById('videoPlayer');
-    const downloadsDiv = document.getElementById('downloads');
-    const loading = document.getElementById('loading');
+  const input = document.getElementById('inputUrl');
+  const btn = document.getElementById('btnDownload');
+  const btnClear = document.getElementById('btnClear');
+  const loadingEl = document.getElementById('loading');
+  const resultEl = document.getElementById('result');
+  const player = document.getElementById('player');
+  const downloads = document.getElementById('downloads');
+  const meta = document.getElementById('meta');
+  const stats = document.getElementById('stats');
 
-    // Reset tampilan
-    resultDiv.style.display='none';
-    videoPlayer.src='';
-    downloadsDiv.innerHTML='';
-    loading.style.display='block';
+  const showLoading = (t=true)=>{ loadingEl.style.display = t ? 'inline-block' : 'none'; }
+  const showResult = (t=true)=>{ resultEl.style.display = t ? 'block' : 'none'; }
+  const clearResult = ()=>{
+    showResult(false); player.pause(); player.src=''; downloads.innerHTML=''; meta.textContent=''; stats.textContent='';
+  }
+
+  btnClear.addEventListener('click', ()=>{ input.value=''; clearResult(); });
+
+  btn.addEventListener('click', async ()=>{
+    const url = input.value.trim();
+    if(!url){ alert('Masukin URL TikTok dulu bro'); return; }
+    clearResult(); showLoading(true);
 
     try{
-        const apiUrl = `https://api.siputzx.my.id/api/d/tiktok?url=${encodeURIComponent(url)}`;
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-        loading.style.display='none';
+      const api = `https://www.sankavolereii.my.id/download/tiktok?apikey=planaai&url=${encodeURIComponent(url)}`;
+      const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(api)}`);
+      const wrapper = await res.json();
+      const data = JSON.parse(wrapper.contents);
+      showLoading(false);
+      if(data.status && data.result){
+        const v = data.result.play || data.result.video || data.result.play_url;
+        const m = data.result.music_info?.play || data.result.music;
+        const title = data.result.title || '';
+        const cover = data.result.cover || '';
+        player.src = v || '';
+        if(cover) player.poster = cover;
+        meta.textContent = title;
+        stats.textContent = '';
 
-        if(data.status){
-            const videoUrl = data.data.urls[0];
-            videoPlayer.src = videoUrl;
-            resultDiv.style.display='block';
-
-            // Tombol download Video
-            const videoLink = document.createElement('a');
-            videoLink.href = videoUrl;
-            videoLink.textContent = '⬇️ Download Video';
-            videoLink.target = '_blank';
-            videoLink.className = 'download-btn';
-            downloadsDiv.appendChild(videoLink);
-
-            // Tombol download MP3
-            if(data.data.music_info?.play_url){
-                const mp3Link = document.createElement('a');
-                mp3Link.href = data.data.music_info.play_url;
-                mp3Link.textContent = '🎵 Download MP3';
-                mp3Link.target = '_blank';
-                mp3Link.className = 'download-btn';
-                downloadsDiv.appendChild(mp3Link);
-            }
-
-        } else {
-            alert('Gagal mengambil data. Pastikan URL TikTok valid.');
+        downloads.innerHTML='';
+        if(v){
+          const a = document.createElement('a');
+          a.href = v; a.innerText='⬇️ Download Video'; a.setAttribute('download','tiktok_video.mp4');
+          a.style.cssText='background:var(--accent);color:#fff;padding:10px 12px;border-radius:8px;text-decoration:none;font-weight:700';
+          downloads.appendChild(a);
         }
-    }catch(err){
-        loading.style.display='none';
-        alert('Terjadi kesalahan: ' + err.message);
-    }
-});
+        if(m){
+          const b = document.createElement('a');
+          b.href = m; b.innerText='🎵 Download MP3'; b.setAttribute('download','tiktok_audio.mp3');
+          b.style.cssText='background:var(--accent);color:#fff;padding:10px 12px;border-radius:8px;text-decoration:none;font-weight:700';
+          downloads.appendChild(b);
+        }
+        showResult(true);
+      } else { alert('Gagal ambil video TikTok'); }
+    }catch(e){ showLoading(false); console.error(e); alert('Error fetch TikTok'); }
+  });
+
+})();
 </script>
+
 </body>
 </html>
