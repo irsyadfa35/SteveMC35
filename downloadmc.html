@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Map Tambak Udang dan Ikan</title>
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  background: url('https://qu.ax/vneoG.jpg') center/cover fixed;
+  margin: 0;
+  padding: 0;
+  color: #fff;
+}
+
+/* Tombol Home di kiri atas */
+#homeBtn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  background: rgba(0,240,255,0.2);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(0,240,255,0.4);
+  transition: 0.25s;
+  z-index: 999;
+}
+#homeBtn:hover {
+  background: #00f0ff;
+  color: #000;
+  box-shadow: 0 0 20px #00f0ff;
+}
+
+.container {
+  max-width: 500px;
+  margin: 100px auto;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+  overflow: hidden;
+  text-align: center;
+  padding-bottom: 20px;
+}
+.thumbnail img {
+  width: 100%;
+  display: block;
+}
+h2 {
+  margin: 12px 0 4px;
+  color: #00f0ff;
+  font-size: 22px;
+}
+.author {
+  font-size: 13px;
+  color: #b0eaff;
+  margin-bottom: 10px;
+  opacity: 0.9;
+  text-shadow: 0 0 5px #00f0ff;
+}
+select {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: bold;
+  width: 80%;
+  margin: 10px 0;
+  outline: none;
+  text-align: center;
+}
+.option-info {
+  font-size: 13px;
+  color: #8deeff;
+  margin-bottom: 10px;
+  text-shadow: 0 0 5px #00f0ff;
+}
+button {
+  background: #00f0ff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  color: #000;
+  box-shadow: 0 0 15px #00f0ff, inset 0 0 15px #00f0ff;
+  transition: 0.2s;
+}
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px #00f0ff, inset 0 0 20px #00f0ff;
+}
+.footer {
+  margin-top: 20px;
+  font-size: 12px;
+  color: #aaa;
+}
+</style>
+</head>
+<body>
+
+<a href="index.html" id="homeBtn">🏠 Home</a>
+
+<div class="container">
+  <div class="thumbnail">
+    <img src="https://qu.ax/iYYhe.jpg" alt="Thumbnail Map">
+  </div>
+  <h2>🗺️ Map Tambak Udang dan Ikan</h2>
+  <div class="author">Map by rullzNPC</div>
+
+  <select id="version">
+    <option value="java">Java Edition (v1.21.4)</option>
+    <option value="bedrock">Bedrock Edition (v1.21+)</option>
+  </select>
+  <div class="option-info">💡 Pilih versi Minecraft kamu sebelum mengunduh</div>
+
+  <button id="downloadBtn">⬇️ Download Map</button>
+
+  <div class="footer">©2025 SteveMC Developer</div>
+</div>
+
+<script>
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  const version = document.getElementById('version').value;
+  let url = '';
+  
+  if (version === 'java') {
+    url = 'https://sfile.mobi/1zAu8HNRZuw';
+  } else {
+    url = 'https://sfile.mobi/1VKukAw2by6';
+  }
+  
+  window.location.href = url;
+});
+</script>
+
+</body>
+</html>
