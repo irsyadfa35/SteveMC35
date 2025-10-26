@@ -3,78 +3,82 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>TikTok Downloader — Village Theme</title>
+<title>TikTok Downloader — Village Neon Theme</title>
 <style>
-:root{--accent:#00AEEF;--bg-blur:8px}
+:root{--accent:#00f0ff;--bg-blur:8px}
 *{box-sizing:border-box}
 body,html{height:100%;margin:0;font-family:Poppins,Inter,system-ui,Segoe UI,Roboto,-apple-system}
 body{color:#fff;background:url('https://qu.ax/vneoG.jpg') center/cover no-repeat fixed}
 body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(var(--bg-blur));-webkit-backdrop-filter:blur(var(--bg-blur));z-index:-1}
 
-/* top-left menu */
-.topmenu{position:fixed;left:14px;top:14px;z-index:999;display:flex;align-items:center;}
-.menu-btn{background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600;backdrop-filter:blur(6px);}
-.menu-btn:hover{opacity:0.95;transform:translateY(-2px)}
-.dropdown{position:absolute;top:40px;left:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);padding:10px 0;border-radius:8px;display:none;flex-direction:column;min-width:160px;}
-.dropdown button{background:none;border:none;color:#fff;text-align:left;padding:10px 16px;cursor:pointer;font-weight:600;width:100%;}
-.dropdown button:hover{background:rgba(0,174,239,0.2);}
+/* Tombol back home fixed di kiri atas layar */
+#backHome{position:fixed;top:12px;left:12px;z-index:999;padding:8px 14px;background:rgba(0,240,255,0.2);color:#fff;border-radius:8px;text-decoration:none;font-weight:700;transition:0.2s;}
+#backHome:hover{background:var(--accent);color:#000;}
 
-.wrap{max-width:760px;margin:120px auto;padding:26px;border-radius:14px;background:rgba(0,0,0,0.54);box-shadow:0 8px 30px rgba(0,0,0,0.6);border:1px solid rgba(0,174,239,0.06);}
+.wrap{max-width:760px;margin:120px auto;padding:26px;border-radius:14px;background:rgba(0,0,0,0.54);box-shadow:0 8px 30px rgba(0,0,0,0.6);border:1px solid rgba(0,240,255,0.06);}
 h1{margin:0 0 16px 0;color:var(--accent);font-size:20px}
 .note{color:#d7f0ff;font-size:13px;margin-bottom:14px}
 
 input[type=text]{width:100%;padding:12px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:#fff;font-size:14px;outline:2px solid transparent;transition:outline .15s;}
-input[type=text]:focus{outline:2px solid rgba(0,174,239,0.25)}
+input[type=text]:focus{outline:2px solid rgba(0,240,255,0.25)}
 
 .actions{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
-.btn{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700;}
-.btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);}
-.loading{color:var(--accent);margin-top:12px;display:none}
+.btn{background:var(--accent);color:#000;border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700;box-shadow:0 0 10px var(--accent),0 0 20px var(--accent) inset;transition:0.2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 0 20px var(--accent),0 0 30px var(--accent) inset;}
+.btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;box-shadow:none;}
+.btn.secondary:hover{background:rgba(255,255,255,0.06);}
+
+.loading{margin-top:12px;display:none;width:100%;text-align:center}
+.loading-bar{width:100%;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;margin-top:4px;position:relative}
+.loading-progress{width:0%;height:100%;background:var(--accent);border-radius:3px;transition:width 0.1s linear}
 
 .result{margin-top:20px;display:none}
 video{width:100%;border-radius:12px;background:#000;display:block}
+
+/* Slideshow */
+.slideshow-container{position:relative;width:100%;overflow:hidden;border-radius:12px;background:#000;}
+.slideshow-wrapper{display:flex;width:100%;transition:transform 0.3s ease;}
+.slide{min-width:100%;box-sizing:border-box;}
+.slide img{width:100%;height:auto;display:block;border-radius:12px;}
+.slide-counter{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.7);color:#fff;padding:5px 10px;border-radius:5px;font-size:14px;z-index:10;}
+
 .downloads{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
-.downloads a{background:rgba(255,255,255,0.06);color:#fff;padding:10px 12px;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,0.04);font-weight:600}
+.downloads a{background:var(--accent);color:#000;padding:10px 12px;border-radius:10px;text-decoration:none;font-weight:700;box-shadow:0 0 10px var(--accent),0 0 20px var(--accent) inset;transition:0.2s}
+.downloads a:hover{transform:translateY(-2px);box-shadow:0 0 20px var(--accent),0 0 30px var(--accent) inset;}
 
 .meta{margin-top:12px;color:#dfefff;font-size:13px}
-.small{font-size:12px;color:#cfefff;margin-top:6px}
-
 .footer{margin-top:30px;text-align:center;font-size:12px;color:#ccc;}
-@media (max-width:520px){ .wrap{margin:90px 12px;padding:18px} }
 </style>
 </head>
 <body>
 
-<!-- top-left menu -->
-<div class="topmenu" role="navigation" aria-label="menu">
-  <button class="menu-btn" id="menuToggle">☰</button>
-  <div class="dropdown" id="dropdownMenu">
-    <button onclick="location.href='index.html'">Home</button>
-    <button onclick="alert('Lo udah di TikTok Download')">TikTok Download</button>
-    <button onclick="location.href='youtube.html'">YouTube Play</button>
-    <button onclick="location.href='toqrcode.html'">Link To QR</button>
-    <button onclick="location.href='grupwa.html'">Grup WhatsApp</button>
-  </div>
-</div>
+<a href="index.html" id="backHome">🏠 Back Home</a>
 
 <main class="wrap" role="main">
   <h1>🎵 TikTok Downloader</h1>
-  <div class="note">Masukin URL TikTok, tekan <strong>Download</strong>. Tombol MP3 muncul kalo tersedia.</div>
+  <div class="note">Masukin URL TikTok, tekan <strong>Download</strong>. Video pakai API lama, foto/slideshow pakai Sanka Vollerei. Untuk download foto, tekan & tahan foto lalu pilih "Download Gambar".</div>
 
   <input id="inputUrl" type="text" placeholder="Contoh: https://vt.tiktok.com/..." autocomplete="off" />
 
   <div class="actions">
     <button id="btnDownload" class="btn">Download</button>
     <button id="btnClear" class="btn secondary">Clear</button>
-    <div id="loading" class="loading">Loading…</div>
+    <div id="loading" class="loading">
+      <div class="loading-bar">
+        <div class="loading-progress" id="loadingProgress"></div>
+      </div>
+    </div>
   </div>
 
   <section id="result" class="result" aria-live="polite">
     <div id="previewWrap">
-      <video id="player" controls playsinline></video>
+      <video id="player" controls playsinline style="display:none;"></video>
+      <div id="slideshowContainer" class="slideshow-container" style="display:none;">
+        <div id="slideCounter" class="slide-counter">1 / 1</div>
+        <div id="slideshowWrapper" class="slideshow-wrapper"></div>
+      </div>
     </div>
     <div class="meta" id="meta"></div>
-    <div class="small" id="stats"></div>
     <div class="downloads" id="downloads"></div>
   </section>
 
@@ -82,69 +86,152 @@ video{width:100%;border-radius:12px;background:#000;display:block}
 </main>
 
 <script>
-(async()=>{
-  const menuToggle = document.getElementById('menuToggle');
-  const dropdownMenu = document.getElementById('dropdownMenu');
-  menuToggle.addEventListener('click', ()=>{ dropdownMenu.style.display = dropdownMenu.style.display === 'flex' ? 'none' : 'flex'; });
+const input = document.getElementById('inputUrl');
+const btn = document.getElementById('btnDownload');
+const btnClear = document.getElementById('btnClear');
+const loadingEl = document.getElementById('loading');
+const loadingProgress = document.getElementById('loadingProgress');
+const resultEl = document.getElementById('result');
+const player = document.getElementById('player');
+const slideshowContainer = document.getElementById('slideshowContainer');
+const slideshowWrapper = document.getElementById('slideshowWrapper');
+const slideCounter = document.getElementById('slideCounter');
+const downloads = document.getElementById('downloads');
+const meta = document.getElementById('meta');
 
-  const input = document.getElementById('inputUrl');
-  const btn = document.getElementById('btnDownload');
-  const btnClear = document.getElementById('btnClear');
-  const loadingEl = document.getElementById('loading');
-  const resultEl = document.getElementById('result');
-  const player = document.getElementById('player');
-  const downloads = document.getElementById('downloads');
-  const meta = document.getElementById('meta');
-  const stats = document.getElementById('stats');
+let progressInterval;
+let currentSlide = 0;
+let totalSlides = 0;
+let startX = 0;
+let isDragging = false;
 
-  const showLoading = (t=true)=>{ loadingEl.style.display = t ? 'inline-block' : 'none'; }
-  const showResult = (t=true)=>{ resultEl.style.display = t ? 'block' : 'none'; }
-  const clearResult = ()=>{
-    showResult(false); player.pause(); player.src=''; downloads.innerHTML=''; meta.textContent=''; stats.textContent='';
+btnClear.addEventListener('click', ()=>{ 
+  input.value=''; 
+  clearResult(); 
+  resetLoading();
+});
+
+function showLoading(t=true){
+  loadingEl.style.display = t ? 'block' : 'none';
+  if(t) startLoadingBar(); else resetLoading();
+}
+
+function startLoadingBar(){
+  let width = 0;
+  loadingProgress.style.width = '0%';
+  clearInterval(progressInterval);
+  progressInterval = setInterval(()=>{
+    width += 1;
+    if(width > 100) width = 100;
+    loadingProgress.style.width = width + '%';
+  }, 20);
+}
+
+function resetLoading(){
+  clearInterval(progressInterval);
+  loadingProgress.style.width = '0%';
+}
+
+function showResult(t=true){ resultEl.style.display = t ? 'block' : 'none'; }
+function clearResult(){ 
+  showResult(false); 
+  player.pause(); 
+  player.src=''; 
+  player.style.display='none';
+  slideshowContainer.style.display='none';
+  slideshowWrapper.innerHTML=''; 
+  downloads.innerHTML=''; 
+  meta.textContent=''; 
+  currentSlide = 0; 
+  totalSlides = 0;
+}
+
+function updateSlideCounter(){
+  slideCounter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+}
+
+function showSlide(index){
+  if(index < 0) index = totalSlides - 1;
+  if(index >= totalSlides) index = 0;
+  currentSlide = index;
+  slideshowWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+  updateSlideCounter();
+}
+
+slideshowWrapper.addEventListener('touchstart', (e) => {
+  startX = e.touches[0].clientX;
+  isDragging = true;
+});
+
+slideshowWrapper.addEventListener('touchmove', (e) => { if(!isDragging) return; e.preventDefault(); });
+slideshowWrapper.addEventListener('touchend', (e) => {
+  if(!isDragging) return;
+  isDragging = false;
+  const diffX = startX - e.changedTouches[0].clientX;
+  if(Math.abs(diffX) > 50){
+    showSlide(diffX>0?currentSlide+1:currentSlide-1);
   }
+});
 
-  btnClear.addEventListener('click', ()=>{ input.value=''; clearResult(); });
+btn.addEventListener('click', async ()=>{
+  const url = input.value.trim();
+  if(!url){ alert('Masukin URL TikTok dulu bro'); return; }
+  clearResult(); showLoading(true);
 
-  btn.addEventListener('click', async ()=>{
-    const url = input.value.trim();
-    if(!url){ alert('Masukin URL TikTok dulu bro'); return; }
-    clearResult(); showLoading(true);
+  try{
+    // Video API lama
+    const videoRes = await fetch(`https://api.siputzx.my.id/api/d/tiktok?url=${encodeURIComponent(url)}`);
+    const videoData = await videoRes.json();
 
-    try{
-      const api = `https://www.sankavolereii.my.id/download/tiktok?apikey=planaai&url=${encodeURIComponent(url)}`;
-      const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(api)}`);
-      const wrapper = await res.json();
-      const data = JSON.parse(wrapper.contents);
+    if(videoData.status && videoData.data && videoData.data.type==='video'){
+      const tiktok = videoData.data;
       showLoading(false);
-      if(data.status && data.result){
-        const v = data.result.play || data.result.video || data.result.play_url;
-        const m = data.result.music_info?.play || data.result.music;
-        const title = data.result.title || '';
-        const cover = data.result.cover || '';
-        player.src = v || '';
-        if(cover) player.poster = cover;
-        meta.textContent = title;
-        stats.textContent = '';
+      meta.textContent = `Creator: ${tiktok.metadata.creator || 'Unknown'} | Title: ${tiktok.metadata.title || 'No Description'}`;
+      player.src = tiktok.urls[0];
+      player.style.display='block';
+      slideshowContainer.style.display='none';
+      downloads.innerHTML='';
+      const a=document.createElement('a');
+      a.href=tiktok.urls[0];
+      a.innerText='⬇️ Download Video';
+      a.setAttribute('download','tiktok_video.mp4');
+      downloads.appendChild(a);
+      showResult(true);
+      return;
+    }
 
-        downloads.innerHTML='';
-        if(v){
-          const a = document.createElement('a');
-          a.href = v; a.innerText='⬇️ Download Video'; a.setAttribute('download','tiktok_video.mp4');
-          a.style.cssText='background:var(--accent);color:#fff;padding:10px 12px;border-radius:8px;text-decoration:none;font-weight:700';
-          downloads.appendChild(a);
-        }
-        if(m){
-          const b = document.createElement('a');
-          b.href = m; b.innerText='🎵 Download MP3'; b.setAttribute('download','tiktok_audio.mp3');
-          b.style.cssText='background:var(--accent);color:#fff;padding:10px 12px;border-radius:8px;text-decoration:none;font-weight:700';
-          downloads.appendChild(b);
-        }
-        showResult(true);
-      } else { alert('Gagal ambil video TikTok'); }
-    }catch(e){ showLoading(false); console.error(e); alert('Error fetch TikTok'); }
-  });
+    // Foto/slideshow
+    const photoRes = await fetch(`https://www.sankavolereii.my.id/download/tiktok?apikey=planaai&url=${encodeURIComponent(url)}`);
+    const photoData = await photoRes.json();
+    showLoading(false);
 
-})();
+    if(photoData.status && photoData.result && photoData.result.images.length>0){
+      const tiktok = photoData.result;
+      meta.textContent = `Creator: ${tiktok.creator || 'Unknown'} | Title: ${tiktok.title || 'No Description'}`;
+
+      totalSlides = tiktok.images.length;
+      slideshowWrapper.innerHTML='';
+      downloads.innerHTML='';
+      tiktok.images.forEach((imgUrl,index)=>{
+        const slide=document.createElement('div');
+        slide.className='slide';
+        const img=document.createElement('img');
+        img.src=imgUrl;
+        img.alt=`Slide ${index+1}`;
+        slide.appendChild(img);
+        slideshowWrapper.appendChild(slide);
+      });
+      slideshowContainer.style.display='block';
+      player.style.display='none';
+      updateSlideCounter();
+      showResult(true);
+    } else alert('Gagal ambil konten TikTok');
+  } catch(e){
+    showLoading(false);
+    console.error(e);
+    alert('Error fetch TikTok');
+  }
+});
 </script>
 
 </body>
