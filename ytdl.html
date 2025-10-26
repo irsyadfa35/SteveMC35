@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Downloader — Neon Soft Mode</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+body { 
+  font-family: 'Orbitron', sans-serif;
+  background: url('https://qu.ax/vneoG.jpg') no-repeat center center fixed;
+  background-size: cover;
+  margin: 0; padding: 0; color: #e0f7fa;
+  overflow-x: hidden;
+}
+
+.overlay { 
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+  background-color: rgba(0,0,0,0.4); 
+  z-index: -1;
+}
+
+.header {
+  position: fixed; top: 0; left: 0; width: 100%; height: 60px;
+  background: rgba(0,0,0,0.35); backdrop-filter: blur(8px);
+  display: flex; align-items: center; padding: 0 20px; z-index: 1000;
+  box-shadow: 0 0 10px #00bcd4;
+}
+
+.menu-btn { 
+  background: none; border: none; cursor: pointer; font-size: 26px; 
+  color: #00bcd4; text-shadow: 0 0 5px #00bcd4; 
+  transition: transform 0.2s; 
+}
+.menu-btn:hover { transform: rotate(90deg); }
+
+.menu {
+  position: fixed; top: 60px; left: -270px; width: 270px; height: calc(100vh - 60px);
+  background: rgba(0,0,0,0.75); backdrop-filter: blur(10px);
+  transition: left 0.3s ease; z-index: 999; padding: 25px; box-sizing: border-box;
+  box-shadow: 0 0 10px #00bcd4 inset;
+}
+.menu.open { left: 0; }
+.menu-btns { list-style: none; padding: 0; margin: 0; }
+.menu-btns li { margin-bottom: 20px; }
+.menu-btns button {
+  width: 100%; padding: 14px; background: transparent;
+  border: 2px solid #00bcd4; color: #00bcd4; font-size: 16px; cursor: pointer; border-radius: 8px;
+  text-shadow: 0 0 3px #00bcd4; transition: all 0.3s;
+}
+.menu-btns button:hover { 
+  background: #00bcd4; color: #000; box-shadow: 0 0 15px #00bcd4; 
+}
+
+.container { 
+  max-width: 700px; margin: 100px auto 80px auto; 
+  padding: 25px; background: rgba(0,0,0,0.55); 
+  border-radius: 12px; backdrop-filter: blur(8px);
+  box-shadow: 0 0 15px #00bcd4 inset;
+}
+
+h2 { text-align: center; font-size: 26px; color: #00bcd4; text-shadow: 0 0 5px #00bcd4; margin-bottom: 20px; }
+
+input[type="text"], select { 
+  width: 68%; padding: 10px; border-radius: 6px; border: 1.5px solid #00bcd4; 
+  font-size: 16px; background: rgba(0,0,0,0.45); color: #b2ebf2; margin-bottom:10px;
+  text-shadow: 0 0 2px #00bcd4;
+}
+input[type="text"]::placeholder { color: #80deea; }
+
+button.action-btn { 
+  padding: 10px 16px; font-size: 16px; border: 1.5px solid #00acc1; border-radius: 6px; 
+  background: linear-gradient(45deg,#00acc1,#26c6da); color: #fff; cursor: pointer;
+  font-weight: bold; text-shadow: 0 0 5px #b2ebf2; transition: all 0.3s;
+}
+button.action-btn:hover { 
+  box-shadow: 0 0 12px #00acc1, 0 0 18px #26c6da;
+  transform: scale(1.03);
+}
+
+.result { margin-top: 25px; display:none; text-align:center; }
+.result img { width: 100%; max-height: 400px; object-fit: cover; border-radius:10px; box-shadow: 0 0 15px #00bcd4; }
+.result .title { font-size:18px; font-weight:bold; margin-top:10px; color:#80deea; text-shadow:0 0 5px #00bcd4; }
+.result .duration { font-size:14px; color:#b2ebf2; margin-bottom:10px; text-shadow:0 0 3px #00bcd4; }
+.download-btns { margin-top: 12px; display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+.download-btns button { 
+  background: linear-gradient(90deg,#00acc1,#26c6da); color:#fff; padding:8px 14px; border:none; border-radius:10px;
+  cursor:pointer; font-weight:600; text-shadow: 0 0 4px #b2ebf2; transition: all 0.3s;
+}
+.download-btns button:hover { 
+  box-shadow: 0 0 10px #00acc1, 0 0 10px #26c6da; transform: scale(1.03);
+}
+
+.footer {
+  position: fixed; bottom: 0; left: 0; width: 100%; text-align: center;
+  font-size: 12px; opacity: 0.75; background-color: rgba(0,0,0,0.25);
+  padding: 5px; backdrop-filter: blur(5px); z-index: 1000;
+  color:#00bcd4; text-shadow:0 0 3px #00bcd4;
+}
+</style>
+</head>
+<body>
+<div class="overlay"></div>
+
+<div class="header">
+    <button class="menu-btn" id="menuToggle">☰</button>
+</div>
+<div class="menu" id="menu">
+    <ul class="menu-btns">
+        <li><button onclick="window.location.href='index.html'">Home</button></li>
+        <li><button onclick="window.location.href='youtube.html'">YouTube Download</button></li>
+        <li><button onclick="window.location.href='tiktokdl.html'">TikTok Download</button></li>
+    </ul>
+</div>
+
+<div class="container">
+  <h2>YouTube Downloader</h2>
+  <div>
+    <input type="text" id="ytUrl" placeholder="Masukkan link YouTube">
+    <select id="formatSelect">
+      <option value="mp3">Audio (MP3)</option>
+      <option value="144">Video 144p</option>
+      <option value="240">Video 240p</option>
+      <option value="360">Video 360p</option>
+      <option value="480">Video 480p</option>
+      <option value="720">Video 720p</option>
+      <option value="1080">Video 1080p</option>
+    </select>
+    <button class="action-btn" onclick="downloadYouTube()">Download</button>
+  </div>
+
+  <div class="result" id="result">
+    <img id="cover" alt="Thumbnail">
+    <div class="title" id="title"></div>
+    <div class="duration" id="duration"></div>
+    <div class="download-btns" id="downloadBtns"></div>
+  </div>
+</div>
+
+<div class="footer">©2025 SteveMC Developer</div>
+
+<script>
+const menuToggle = document.getElementById('menuToggle');
+const menu = document.getElementById('menu');
+menuToggle.addEventListener('click', ()=>{ menu.classList.toggle('open'); });
+
+async function downloadYouTube() {
+  const url = document.getElementById('ytUrl').value.trim();
+  const format = document.getElementById('formatSelect').value;
+  const result = document.getElementById('result');
+  const cover = document.getElementById('cover');
+  const titleEl = document.getElementById('title');
+  const durationEl = document.getElementById('duration');
+  const downloadBtns = document.getElementById('downloadBtns');
+
+  if(!url){ alert('Masukkan URL YouTube dulu!'); return; }
+
+  result.style.display='none';
+  downloadBtns.innerHTML='';
+
+  try{
+    const apiUrl = `https://api.nekolabs.web.id/downloader/youtube/v1?url=${encodeURIComponent(url)}&format=${format}`;
+    const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`);
+    const dataWrap = await res.json();
+    const data = JSON.parse(dataWrap.contents);
+
+    if(!data.success || !data.result){ alert('Gagal fetch data'); return; }
+
+    const video = data.result;
+    cover.src = video.cover;
+    titleEl.textContent = video.title;
+    durationEl.textContent = `Durasi: ${video.duration}`;
+
+    const btn = document.createElement('button');
+    btn.textContent = video.type==='audio' ? '⬇️ Unduh MP3' : `⬇️ Unduh Video (${video.format})`;
+    btn.onclick = ()=>{ window.open(video.downloadUrl,'_blank'); }
+    downloadBtns.appendChild(btn);
+
+    result.style.display='block';
+  }catch(e){
+    console.error(e);
+    alert('Gagal fetch data, coba lagi.');
+  }
+}
+</script>
+</body>
+</html>
