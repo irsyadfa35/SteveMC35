@@ -15,6 +15,24 @@ body {
   display:flex; justify-content:center; align-items:center; min-height:100vh;
 }
 
+/* Tombol Home floating kiri atas */
+#homeBtn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(45deg,#00acc1,#26c6da);
+  color:#fff;
+  font-weight:bold;
+  text-shadow:0 0 5px #b2ebf2;
+  cursor:pointer;
+  transition: 0.3s;
+  z-index: 999;
+}
+#homeBtn:hover { box-shadow:0 0 12px #00acc1,0 0 18px #26c6da; transform:scale(1.05); }
+
 .container { 
   background: rgba(0,0,0,0.55); padding: 25px; border-radius:12px; backdrop-filter: blur(8px);
   width: 100%; max-width: 500px; text-align:center; box-shadow:0 0 15px #00bcd4 inset; position:relative;
@@ -25,8 +43,8 @@ h2 { color:#00bcd4; text-shadow:0 0 5px #00bcd4; margin-bottom:20px; }
 input, select { width: 68%; padding:10px; margin:10px 0; border-radius:6px; border:1.5px solid #00bcd4; background:rgba(0,0,0,0.45); color:#b2ebf2; text-shadow:0 0 2px #00bcd4; }
 input::placeholder { color:#80deea; }
 
-button { padding:10px 16px; border:none; border-radius:6px; cursor:pointer; font-weight:bold; background:linear-gradient(45deg,#00acc1,#26c6da); color:#fff; text-shadow:0 0 5px #b2ebf2; transition:0.3s; }
-button:hover { box-shadow:0 0 12px #00acc1,0 0 18px #26c6da; transform:scale(1.03); }
+button.action { padding:10px 16px; border:none; border-radius:6px; cursor:pointer; font-weight:bold; background:linear-gradient(45deg,#00acc1,#26c6da); color:#fff; text-shadow:0 0 5px #b2ebf2; transition:0.3s; }
+button.action:hover { box-shadow:0 0 12px #00acc1,0 0 18px #26c6da; transform:scale(1.03); }
 
 .result { display:none; margin-top:20px; }
 .result img { width:100%; border-radius:10px; box-shadow:0 0 15px #00bcd4; }
@@ -56,6 +74,8 @@ button:hover { box-shadow:0 0 12px #00acc1,0 0 18px #26c6da; transform:scale(1.0
 </head>
 <body>
 
+<button id="homeBtn" onclick="window.location.href='index.html'">🏠 Home</button>
+
 <div class="container">
   <h2>YouTube Downloader</h2>
   <input type="text" id="ytUrl" placeholder="Masukkan link YouTube">
@@ -63,7 +83,7 @@ button:hover { box-shadow:0 0 12px #00acc1,0 0 18px #26c6da; transform:scale(1.0
     <option value="mp3">Audio (MP3)</option>
     <option value="1080">Video (MP4)</option>
   </select>
-  <button onclick="downloadYouTube()">Download</button>
+  <button class="action" onclick="downloadYouTube()">Download</button>
 
   <div id="loadingBarContainer"><div id="loadingBar"></div></div>
 
