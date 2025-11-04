@@ -6,6 +6,8 @@
 <title>Dashboard Home | SteveMC</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap'); /* Tambahkan font Inter untuk YouTube Play */
+
 body {
   margin: 0; padding: 0;
   font-family: "Poppins", sans-serif;
@@ -13,6 +15,16 @@ body {
   background-color: #000;
   overflow-x: hidden;
 }
+
+/* Blur efek pas loading */
+body.loading *:not(.loader) {
+  filter: blur(10px);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.4;
+}
+
+/* Background utama */
 .background {
   position: fixed; top: 0; left: 0;
   width: 100%; height: 100%;
@@ -26,6 +38,25 @@ body {
   background: rgba(0,0,0,0.35);
   z-index: -1;
 }
+
+/* Loader animasi */
+.loader {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 75px; height: 75px;
+  border: 6px solid rgba(0,255,255,0.2);
+  border-top-color: #00ffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 9999;
+  box-shadow: 0 0 25px #00ffff;
+}
+@keyframes spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Header & menu */
 .header {
   position: fixed; top: 0; left: 0;
   width: 100%; height: 60px;
@@ -76,24 +107,25 @@ body {
 }
 .submenu li button:hover { background: rgba(0,255,255,0.2); }
 
-/* konten utama */
-.content { padding: 90px 20px; text-align: center; }
-.video-container { 
-  position: relative; 
-  display: flex; 
-  justify-content: center; 
-  margin-top: 60px;
+/* Konten utama */
+.content {
+  padding: 90px 20px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1s ease, transform 1s ease;
 }
-.video-container video, 
-.video-container img {
-  width: 90%; max-width: 735px;
-  border-radius: 15px;
-  box-shadow: 0 0 25px rgba(0,255,255,0.4);
-  cursor: pointer;
-  transition: transform 0.6s ease, opacity 0.6s ease;
+.content.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-/* efek zoom animasi */
+.video-container { position: relative; display: flex; justify-content: center; margin-top: 60px; }
+.video-container video, .video-container img {
+  width: 90%; max-width: 735px; border-radius: 15px;
+  box-shadow: 0 0 25px rgba(0,255,255,0.4);
+  cursor: pointer; transition: transform 0.6s ease, opacity 0.6s ease;
+}
 .zoom-in { transform: scale(1.05); opacity: 0; }
 .zoom-out { transform: scale(0.95); opacity: 0; }
 
@@ -111,6 +143,7 @@ body {
   font-size: 2em; font-weight: 700; margin-top: 20px;
   color: #00ffff;
   text-shadow: 0 0 8px #00ffff, 0 0 16px #00bfff, 0 0 25px #00ffff;
+  min-height: 2.5em;
 }
 .info-section {
   margin-top: 40px;
@@ -122,8 +155,103 @@ body {
 }
 .clock { font-size: 1.6em; color: #00ffff; font-weight: 600; text-shadow: 0 0 8px #00ffff; }
 .date { margin-top: 8px; color: #aefcff; font-size: 1em; text-shadow: 0 0 6px #00bfff; }
+.device-info { margin-top: 6px; color: #aefcff; font-size: 0.95em; text-shadow: 0 0 6px #00bfff; }
 .countdown { margin-top: 10px; color: #fff; font-size: 1.1em; text-shadow: 0 0 8px #00eaff; }
+
+/* --- STYLE UNTUK YOUTUBE PLAY BARU --- */
+.youtube-play-section {
+  margin-top: 30px;
+  margin-bottom: 20px;
+  max-width: 450px;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 0 20px rgba(0,255,255,0.3);
+  text-align: center;
+}
+
+.youtube-play-section h3 {
+    margin-top: 0;
+    color: #00ffff;
+    text-shadow: 0 0 8px #00ffff;
+}
+
+.youtube-play-section input[type="text"] {
+  width: calc(100% - 24px);
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,255,255,0.3);
+  font-size: 16px;
+  background: rgba(0,0,0,0.2);
+  color: #fff;
+  outline: none;
+  margin-bottom: 15px;
+  transition: 0.3s;
+}
+.youtube-play-section input[type="text"]:focus {
+    border-color: #00ffff;
+    box-shadow: 0 0 10px rgba(0,255,255,0.5);
+}
+.youtube-play-section input[type="text"]::placeholder { color: #ccc; }
+
+.youtube-play-section button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(0,255,255,0.15);
+  color: #00ffff;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 5px;
+  transition: 0.3s;
+  box-shadow: 0 0 5px rgba(0,255,255,0.3);
+}
+.youtube-play-section button:hover { background: rgba(0,255,255,0.3); box-shadow: 0 0 15px rgba(0,255,255,0.5); }
+
+.youtube-result {
+  margin-top: 20px;
+  display: none;
+}
+
+.youtube-result img {
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  box-shadow: 0 0 10px rgba(0,255,255,0.4);
+}
+
+.youtube-result .title { font-size: 1.1em; font-weight: 700; margin: 8px 0; color: #fff; }
+.youtube-result .channel { font-size: 0.9em; color: #aefcff; margin-bottom: 8px; }
+.youtube-result .duration { font-size: 0.9em; color: #aaa; margin-bottom: 15px; }
+
+.youtube-result audio {
+  width: 100%;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  outline: none;
+  background: rgba(0,255,255,0.1);
+}
+
+#loading-yt {
+  display: none;
+  margin-top: 20px;
+  font-weight: 600;
+  color: #00eaff;
+  text-shadow: 0 0 10px #00eaff;
+  animation: blink 1s infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+/* --- AKHIR STYLE YOUTUBE PLAY BARU --- */
+
 .footer { text-align: center; font-size: 12px; opacity: .8; padding: 20px; color: #00ffff; text-shadow: 0 0 10px #00ffff; margin-top: 30px; }
+
 .ai-btn {
   position: fixed; bottom: 25px; right: 25px;
   background: linear-gradient(135deg,#00ffff,#7f00ff);
@@ -135,9 +263,10 @@ body {
 .ai-btn:hover { box-shadow: 0 0 30px #00ffff; transform: scale(1.05); }
 </style>
 </head>
-<body>
+<body class="loading">
 <div class="background"></div>
 <div class="overlay"></div>
+<div class="loader"></div>
 
 <div class="header">
   <button class="menu-btn" id="menuToggle">☰</button>
@@ -162,7 +291,7 @@ body {
   </ul>
 </div>
 
-<div class="content">
+<div class="content" id="mainContent">
   <div class="video-container">
     <img id="previewImage" src="https://qu.ax/PvZhT.jpg" alt="Thumbnail Video">
     <video id="mainVideo" preload="none" loop playsinline>
@@ -171,26 +300,66 @@ body {
     <button class="mute-btn" id="muteBtn">🔊</button>
   </div>
 
-  <div class="welcome-text">Welcome To SteveMC Website</div>
+  <div class="welcome-text" id="welcomeText"></div>
+
   <div class="info-section">
     <div class="clock" id="clock">00:00:00 WIB</div>
     <div class="date" id="date"></div>
+    <div class="device-info" id="deviceInfo"></div>
     <div class="countdown" id="countdown">Menuju Tahun Baru 🎆</div>
   </div>
-</div>
+
+  <div class="youtube-play-section">
+    <h3>YouTube Play Musik</h3>
+    <input type="text" id="ytQuery" placeholder="Ketik judul video YouTube">
+    <button onclick="searchYouTube()">Cari Video</button>
+
+    <div id="loading-yt">Loading...</div>
+
+    <div class="youtube-result" id="youtubeResult">
+      <img id="cover" src="" alt="Cover YouTube">
+      <div class="title" id="title"></div>
+      <div class="channel" id="channel"></div>
+      <div class="duration" id="duration"></div>
+
+      <audio id="audioPlayer" controls></audio>
+      <div>
+        <button id="downloadBtn">⬇️ Download MP3</button>
+      </div>
+    </div>
+  </div>
+  </div>
 
 <button class="ai-btn" onclick="window.location.href='ai.html'">💬 Chat dengan Felo AI</button>
 <div class="footer">©2025 SteveMC Developer</div>
 
 <script>
-const menuToggle=document.getElementById('menuToggle');
-const menu=document.getElementById('menu');
-menuToggle.onclick=()=>menu.classList.toggle('open');
+// Loading animasi
+window.addEventListener('load', () => {
+  const body = document.body;
+  const loader = document.querySelector('.loader');
+  const content = document.getElementById('mainContent');
+  setTimeout(() => {
+    body.classList.remove('loading');
+    loader.style.display = 'none';
+    content.classList.add('show');
 
+    // Animasi ketik welcome text
+    const welcomeEl = document.getElementById('welcomeText');
+    const greeting = getGreeting();
+    typeEffect(welcomeEl, `${greeting}, Welcome To SteveMC Website`);
+  }, 1500);
+});
+
+// Menu sidebar
+document.getElementById('menuToggle').onclick = () => {
+  document.getElementById('menu').classList.toggle('open');
+};
 const fBtn=document.getElementById('featuresBtn');
 const fSub=document.getElementById('featuresSub');
 fBtn.onclick=()=>{fSub.style.display=fSub.style.display==='block'?'none':'block';fBtn.classList.toggle('active');};
 
+// Clock
 function updateClock(){
   const now=new Date();
   document.getElementById('clock').textContent=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')} WIB`;
@@ -198,6 +367,7 @@ function updateClock(){
 }
 setInterval(updateClock,1000); updateClock();
 
+// Countdown
 function updateCountdown(){
   const now=new Date(),target=new Date('2026-01-01T00:00:00+07:00');
   const diff=target-now;
@@ -206,13 +376,11 @@ function updateCountdown(){
 }
 setInterval(updateCountdown,1000); updateCountdown();
 
+// Video toggle
 const video=document.getElementById('mainVideo');
 const img=document.getElementById('previewImage');
 const muteBtn=document.getElementById('muteBtn');
-
-video.style.display='none';
-img.style.display='block';
-
+video.style.display='none'; img.style.display='block';
 img.onclick=()=>{
   img.classList.add('zoom-in');
   setTimeout(()=>{
@@ -222,7 +390,6 @@ img.onclick=()=>{
     video.play();
   },400);
 };
-
 video.onclick=()=>{
   video.pause();
   video.classList.add('zoom-out');
@@ -232,11 +399,102 @@ video.onclick=()=>{
     img.classList.remove('zoom-in');
   },400);
 };
+muteBtn.onclick=()=>{video.muted=!video.muted; muteBtn.textContent=video.muted?'🔇':'🔊';};
 
-muteBtn.onclick=()=>{
-  video.muted=!video.muted;
-  muteBtn.textContent=video.muted?'🔇':'🔊';
-};
+// Animasi ketik
+function typeEffect(element, text, speed=80, callback=null){
+  let i=0;
+  element.textContent='';
+  const timer=setInterval(()=>{
+    element.textContent+=text.charAt(i);
+    i++;
+    if(i>=text.length){ clearInterval(timer); if(callback) callback(); }
+  },speed);
+}
+
+// Fungsi ucapan
+function getGreeting(){
+  const hour = new Date().getHours();
+  if(hour>=4 && hour<10) return "Selamat Pagi";
+  if(hour>=10 && hour<15) return "Selamat Siang";
+  if(hour>=15 && hour<18) return "Selamat Sore";
+  return "Selamat Malam";
+}
+
+// Device & Battery Info
+function updateDeviceInfo(){
+  const infoEl = document.getElementById('deviceInfo');
+  const ua = navigator.userAgent;
+  const batteryPromise = navigator.getBattery ? navigator.getBattery() : Promise.resolve({level: 1});
+  batteryPromise.then(battery => {
+    const level = Math.round(battery.level * 100);
+    infoEl.textContent = `Device: ${ua.match(/\(([^)]+)\)/)[1]}, Battery: ${level}%`;
+  }).catch(()=>{ infoEl.textContent = `Device: ${ua.match(/\(([^)]+)\)/)[1]}, Battery: N/A`; });
+}
+setInterval(updateDeviceInfo, 5000);
+updateDeviceInfo();
+
+
+// --- FUNGSI YOUTUBE PLAY BARU ---
+async function searchYouTube() {
+  const query = document.getElementById('ytQuery').value.trim();
+  if(!query) return alert('Ketik dulu judul video!');
+
+  const resultDiv = document.getElementById('youtubeResult');
+  const loadingDiv = document.getElementById('loading-yt');
+  resultDiv.style.display = 'none';
+  loadingDiv.style.display = 'block';
+
+  // Menggunakan API Allorigins sebagai proxy untuk menghindari masalah CORS
+  const apiUrl = `https://api.nekolabs.web.id/downloader/youtube/play/v1?q=${encodeURIComponent(query)}`;
+  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+
+  try {
+    const res = await fetch(proxyUrl);
+    const wrap = await res.json();
+    
+    // Memastikan hasil parsing adalah JSON yang valid
+    let data;
+    try {
+        data = JSON.parse(wrap.contents);
+    } catch(e) {
+        console.error("Gagal parse JSON dari proxy:", e);
+        loadingDiv.style.display = 'none';
+        return alert('Gagal memproses data YouTube dari server.');
+    }
+
+
+    if(!data.success) {
+      loadingDiv.style.display = 'none';
+      return alert('Gagal fetch data YouTube: ' + (data.message || 'Pesan error tidak tersedia'));
+    }
+
+    const metadata = data.result.metadata;
+    const downloadUrl = data.result.downloadUrl;
+
+    document.getElementById('cover').src = metadata.cover;
+    document.getElementById('title').textContent = metadata.title;
+    document.getElementById('channel').textContent = metadata.channel;
+    document.getElementById('duration').textContent = `Durasi: ${metadata.duration}`;
+
+    const audioPlayer = document.getElementById('audioPlayer');
+    audioPlayer.src = downloadUrl;
+
+    document.getElementById('downloadBtn').onclick = () => {
+      window.open(downloadUrl, '_blank');
+    }
+
+    loadingDiv.style.display = 'none';
+    resultDiv.style.display = 'block';
+
+  } catch(e) {
+    console.error("Error saat fetch/proses data YouTube:", e);
+    loadingDiv.style.display = 'none';
+    alert('Terjadi error saat mencari data YouTube. Coba lagi.');
+  }
+}
+// --- AKHIR FUNGSI YOUTUBE PLAY BARU ---
+
 </script>
 </body>
 </html>
