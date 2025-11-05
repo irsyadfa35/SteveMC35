@@ -45,7 +45,7 @@ body {
   padding-bottom: 20px;
 }
 
-/* Slider thumbnail kayak Play Store */
+/* Slider thumbnail */
 .thumbnail-slider {
   display: flex;
   overflow-x: auto;
@@ -57,8 +57,6 @@ body {
 .thumbnail-slider::-webkit-scrollbar {
   display: none;
 }
-
-/* Style item di slider */
 .thumbnail-slider img, 
 .thumbnail-slider video {
   width: 90%;
@@ -72,7 +70,6 @@ body {
   transform: scale(1.03);
 }
 
-/* Video style (landscape 16:9) */
 .thumbnail-slider video {
   background: #000;
   aspect-ratio: 16 / 9;
@@ -154,8 +151,8 @@ button:hover {
   <div class="author">Map by rullzNPC</div>
 
   <select id="version">
-    <option value="java">Java Edition (v1.21.4)</option>
-    <option value="bedrock">Bedrock Edition (v1.21+)</option>
+    <option value="java">Java Edition</option>
+    <option value="bedrock">Bedrock Edition 1.21+</option>
   </select>
   <div class="option-info">💡 Pilih versi Minecraft kamu sebelum mengunduh</div>
 
@@ -165,18 +162,32 @@ button:hover {
 </div>
 
 <script>
+async function loadLinks() {
+  try {
+    const res = await fetch('https://endernet.web.id/bagian1?api=maptambakudangdanikan');
+    const json = await res.json();
+    const data = json.datany;
+
+    window.mapJava = data.mapTambakJava;
+    window.mapBedrock = data.mapTambakBedrock;
+  } catch (err) {
+    alert("⚠️ Gagal mengambil data dari server!");
+    console.error(err);
+  }
+}
+
 document.getElementById('downloadBtn').addEventListener('click', () => {
   const version = document.getElementById('version').value;
-  let url = '';
-  
-  if (version === 'java') {
-    url = 'https://sfile.mobi/4qTyVHpmb6a';
+  if (version === 'java' && window.mapJava) {
+    window.location.href = window.mapJava;
+  } else if (version === 'bedrock' && window.mapBedrock) {
+    window.location.href = window.mapBedrock;
   } else {
-    url = 'https://sfile.mobi/3BbytGdI5yT';
+    alert('⚠️ Data map belum berhasil dimuat!');
   }
-  
-  window.location.href = url;
 });
+
+loadLinks();
 </script>
 
 </body>
