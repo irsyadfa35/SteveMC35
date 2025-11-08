@@ -1,171 +1,184 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cek Resi | SteveMC</title>
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: url('https://qu.ax/nsaLU.jpg') no-repeat center center fixed;
-      background-size: cover;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
-      backdrop-filter: blur(5px);
-    }
-
-    .home-btn {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background: rgba(0, 0, 0, 0.6);
-      color: #fff;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.3s, transform 0.2s;
-      z-index: 100;
-    }
-
-    .home-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: scale(1.05);
-    }
-
-    .container {
-      background: rgba(0, 0, 0, 0.75);
-      border-radius: 18px;
-      padding: 30px 25px;
-      width: 90%;
-      max-width: 420px;
-      margin-top: 90px;
-      box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
-      text-align: center;
-    }
-
-    h2 {
-      margin-bottom: 20px;
-      font-size: 22px;
-      color: #00ffc8;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      background: #1a1a1a;
-      color: #fff;
-      box-sizing: border-box;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #00ffc8;
-      color: #000;
-      font-weight: bold;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      background: #00ffaa;
-      transform: scale(1.02);
-    }
-
-    #result {
-      margin-top: 20px;
-      text-align: left;
-      font-size: 14px;
-      background: rgba(255, 255, 255, 0.08);
-      padding: 15px;
-      border-radius: 10px;
-      max-height: 350px;
-      overflow-y: auto;
-      white-space: pre-line;
-      line-height: 1.6;
-      word-wrap: break-word;
-    }
-
-    .loading {
-      color: #00ffc8;
-      font-weight: bold;
-      text-align: center;
-    }
-
-    footer {
-      position: fixed;
-      bottom: 15px;
-      width: 100%;
-      text-align: center;
-      color: rgba(255,255,255,0.5);
-      font-size: 12px;
-      letter-spacing: 0.5px;
-      user-select: none;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cek Resi | SteveMC</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: url('https://qu.ax/nsaLU.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    backdrop-filter: blur(6px);
+  }
+  .home-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+    z-index: 99;
+  }
+  .home-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.05);
+  }
+  .container {
+    background: rgba(0,0,0,0.75);
+    border-radius: 18px;
+    padding: 25px;
+    width: 90%;
+    max-width: 450px;
+    margin-top: 90px;
+    box-shadow: 0 0 20px rgba(0,255,255,0.3);
+    text-align: center;
+  }
+  h2 {
+    color: #00ffc8;
+    margin-bottom: 20px;
+    text-shadow: 0 0 8px #00ffc8;
+  }
+  input, select {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 10px;
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 15px;
+    box-sizing: border-box;
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+    background: #00ffc8;
+    color: #000;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+  }
+  button:hover {
+    background: #00ffaa;
+    transform: scale(1.02);
+  }
+  #result {
+    margin-top: 20px;
+    text-align: left;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    max-height: 350px;
+    overflow-y: auto;
+    white-space: pre-line;
+    line-height: 1.6;
+    word-wrap: break-word;
+  }
+  footer {
+    position: fixed;
+    bottom: 15px;
+    width: 100%;
+    text-align: center;
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    user-select: none;
+  }
+</style>
 </head>
 <body>
   <button class="home-btn" onclick="window.location.href='index.html'">🏠 Home</button>
+
   <div class="container">
-    <h2>📦 Cek Resi Shopee Express</h2>
-    <input type="text" id="resi" placeholder="Masukkan nomor resi..." />
+    <h2>📦 Cek Resi Paket</h2>
+    <input type="text" id="resi" placeholder="Masukkan nomor resi...">
+    <select id="courier">
+      <option value="shopee-express">Shopee Express</option>
+      <option value="ninja">Ninja</option>
+      <option value="lion-parcel">Lion Parcel</option>
+      <option value="pos-indonesia">Pos Indonesia</option>
+      <option value="tiki">Tiki</option>
+      <option value="acommerce">Acommerce</option>
+      <option value="gtl-goto-logistics">GTL GoTo Logistics</option>
+      <option value="paxel">Paxel</option>
+      <option value="sap-express">SAP Express</option>
+      <option value="indah-logistik-cargo">Indah Logistik Cargo</option>
+      <option value="lazada-express-lex">Lazada Express (LEX)</option>
+      <option value="lazada-logistics">Lazada Logistics</option>
+      <option value="janio-asia">Janio Asia</option>
+      <option value="jet-express">JET Express</option>
+      <option value="pcp-express">PCP Express</option>
+      <option value="pt-ncs">PT NCS</option>
+      <option value="nss-express">NSS Express</option>
+      <option value="grab-express">Grab Express</option>
+      <option value="rcl-red-carpet-logistics">RCL Red Carpet Logistics</option>
+      <option value="qrim-express">QRIM Express</option>
+      <option value="ark-xpress">ARK Xpress</option>
+      <option value="standard-express-lwe">Standard Express LWE</option>
+      <option value="luar-negeri-beacukai">Luar Negeri Bea Cukai</option>
+    </select>
     <button onclick="cekResi()">🔍 Cek Sekarang</button>
     <div id="result"></div>
   </div>
 
   <footer>©2025 SteveMC Developer</footer>
 
-  <script>
-    async function cekResi() {
-      const resi = document.getElementById('resi').value.trim();
-      const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = '<p class="loading">⏳ Mengambil data...</p>';
+<script>
+  async function cekResi() {
+    const resi = document.getElementById('resi').value.trim();
+    const courier = document.getElementById('courier').value;
+    const resultDiv = document.getElementById('result');
 
-      if (!resi) {
-        resultDiv.innerHTML = '<p>⚠️ Harap masukkan nomor resi.</p>';
+    if (!resi) {
+      resultDiv.innerHTML = '⚠️ Masukkan nomor resi dulu bro.';
+      return;
+    }
+
+    resultDiv.innerHTML = '⏳ Mengecek...';
+
+    try {
+      const res = await fetch(`https://api.siputzx.my.id/api/check/resi?resi=${resi}&courier=${courier}`);
+      const data = await res.json();
+
+      if (!data.status) {
+        resultDiv.innerHTML = '⚠️ Resi tidak ditemukan atau salah ekspedisi.';
         return;
       }
 
-      try {
-        const response = await fetch(`https://api.siputzx.my.id/api/check/resi?resi=${resi}&courier=shopee-express`);
-        const data = await response.json();
+      const d = data.data;
+      let historyText = d.history.map(h => 
+        `📅 ${h.datetime}\n➡️ ${h.description}`
+      ).join('\n\n');
 
-        if (!data.status) {
-          resultDiv.innerHTML = '<p>❌ Resi tidak ditemukan atau salah.</p>';
-          return;
-        }
-
-        const d = data.data;
-        let historyText = d.history.map(h => 
-          `📅 ${h.datetime}\n📝 ${h.description}`
-        ).join('\n\n');
-
-        resultDiv.innerHTML = `
-          <b>Ekspedisi:</b> ${d.courier}<br>
-          <b>No. Resi:</b> ${d.resi}<br>
-          <b>Status:</b> ${d.status}<br>
-          <b>Pesan:</b> ${d.message}<br><br>
-          <b>Riwayat:</b><br>${historyText}
-        `;
-      } catch (error) {
-        resultDiv.innerHTML = '<p>⚠️ Gagal mengambil data.</p>';
-      }
+      resultDiv.innerHTML = `
+        🔹 <b>Ekspedisi:</b> ${d.courier}<br>
+        📦 <b>Resi:</b> ${d.resi}<br>
+        🚚 <b>Status:</b> ${d.status}<br>
+        💬 <b>Pesan:</b> ${d.message}<br><br>
+        🧾 <b>Riwayat:</b><br>${historyText}
+      `;
+    } catch (err) {
+      resultDiv.innerHTML = '❌ Gagal mengambil data.';
     }
-  </script>
+  }
+</script>
 </body>
 </html>
