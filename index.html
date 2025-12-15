@@ -137,6 +137,24 @@
     white-space: nowrap;
     overflow: hidden;
   }
+.footer{
+  text-align:center;
+  color:#aaa;
+  margin-top:40px;
+  padding-bottom:20px;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+
+.footer-main{
+  font-size:12px;
+}
+
+.footer-sub{
+  font-size:10px;
+  opacity:0.7;
+}
 
   footer {
     position: absolute;
@@ -363,7 +381,10 @@ if ('getBattery' in navigator) {
 </script>
 </div>
 
-<footer>©2025 SteveMC Developer</footer>
+<footer class="footer">
+  <div class="footer-main">©2025 SteveMC Developer</div>
+  <div class="footer-sub">Since 15 Desember 2025</div>
+</footer>
 
 <script>
 const greetingEl = document.getElementById('greeting');
