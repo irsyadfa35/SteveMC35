@@ -2,501 +2,254 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#0a0f23">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#00FFFF">
-<title>Dashboard Home | SteveMC</title>
+<title>SteveMC Website</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap'); /* Tambahkan font Inter untuk YouTube Play */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { 
+    font-family: 'Arial', sans-serif;
+    background-color: #0a0f23;
+    color: #cce0ff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: margin-left 0.3s;
+  }
 
-body {
-  margin: 0; padding: 0;
-  font-family: "Poppins", sans-serif;
-  color: white;
-  background-color: #000;
-  overflow-x: hidden;
-}
+  /* Hamburger */
+  .hamburger {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    cursor: pointer;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    transition: 0.3s;
+  }
+  .hamburger div {
+    width: 30px;
+    height: 3px;
+    background-color: #cce0ff;
+    transition: 0.3s;
+  }
+  .hamburger.active div {
+    background-color: #aa88ff;
+  }
 
-/* Blur efek pas loading */
-body.loading *:not(.loader) {
-  filter: blur(10px);
-  pointer-events: none;
-  user-select: none;
-  opacity: 0.4;
-}
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100%;
+    background-color: #0c1735;
+    padding-top: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-left: 20px;
+    transition: left 0.3s;
+    z-index: 1000;
+  }
 
-/* Background utama */
-.background {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: url('https://qu.ax/eRdKT.jpg') center/cover no-repeat;
-  filter: blur(2px);
-  z-index: -1;
-}
-.overlay {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.35);
-  z-index: -1;
-}
+  .sidebar button {
+    background: none;
+    border: 2px solid transparent;
+    color: #cce0ff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+  }
 
-/* Loader animasi */
-.loader {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 75px; height: 75px;
-  border: 6px solid rgba(0,255,255,0.2);
-  border-top-color: #00ffff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  z-index: 9999;
-  box-shadow: 0 0 25px #00ffff;
-}
-@keyframes spin {
-  to { transform: translate(-50%, -50%) rotate(360deg); }
-}
+  .sidebar button.active {
+    border-color: #8a6cff;
+    background-color: rgba(138,108,255,0.1);
+  }
 
-/* Header & menu */
-.header {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 60px;
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(10px);
-  display: flex; align-items: center;
-  padding: 0 20px;
-  z-index: 1000;
-}
-.menu-btn {
-  background: none; border: none;
-  cursor: pointer; font-size: 26px;
-  color: #00bfff;
-  text-shadow: 0 0 10px #00bfff, 0 0 20px #00ffff;
-}
-.menu {
-  position: fixed; top: 0; left: -270px;
-  width: 270px; height: 100%;
-  background: rgba(0,0,0,0.85);
-  backdrop-filter: blur(10px);
-  transition: left 0.4s;
-  z-index: 999; padding: 20px;
-  box-sizing: border-box; overflow-y: auto;
-}
-.menu.open { left: 0; }
-.menu-btns { list-style: none; padding: 80px 0 0; margin: 0; }
-.menu-btns li { margin-bottom: 15px; }
-.menu-btns button {
-  width: 100%; padding: 12px;
-  background: rgba(255,255,255,0.15);
-  border: none; color: #00eaff;
-  font-size: 16px; border-radius: 6px;
-  cursor: pointer; transition: 0.3s;
-  text-align: left; text-shadow: 0 0 8px #00ffff;
-}
-.menu-btns button:hover {
-  background: rgba(0,255,255,0.25);
-  box-shadow: 0 0 10px #00ffff;
-}
-.menu-btns button .arrow {
-  position: absolute; right: 15px;
-  transition: transform 0.3s ease;
-}
-.menu-btns button.active .arrow { transform: rotate(90deg); }
-.submenu { display: none; list-style: none; padding-left: 15px; margin-top: 10px; }
-.submenu li button {
-  background: rgba(255,255,255,0.1); font-size: 14px; text-shadow: none;
-}
-.submenu li button:hover { background: rgba(0,255,255,0.2); }
+  .sidebar button:hover {
+    border-color: #8a6cff;
+    background-color: rgba(138,108,255,0.05);
+  }
 
-/* Konten utama */
-.content {
-  padding: 90px 20px;
-  text-align: center;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 1s ease, transform 1s ease;
-}
-.content.show {
-  opacity: 1;
-  transform: translateY(0);
-}
+  .btn-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-.video-container { position: relative; display: flex; justify-content: center; margin-top: 60px; }
-.video-container video, .video-container img {
-  width: 90%; max-width: 735px; border-radius: 15px;
-  box-shadow: 0 0 25px rgba(0,255,255,0.4);
-  cursor: pointer; transition: transform 0.6s ease, opacity 0.6s ease;
-}
-.zoom-in { transform: scale(1.05); opacity: 0; }
-.zoom-out { transform: scale(0.95); opacity: 0; }
+  /* Header Image */
+  .header-image {
+    width: 90%;
+    max-width: 2048px;
+    margin: 120px auto 40px auto;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+  .header-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
 
-.mute-btn {
-  position: absolute; top: 15px; right: 30px;
-  background: rgba(0,0,0,0.5);
-  color: #00ffff; border: 2px solid #00ffff;
-  border-radius: 50%; width: 40px; height: 40px;
-  font-size: 18px; cursor: pointer;
-  text-shadow: 0 0 10px #00ffff;
-}
-.mute-btn:hover { background: rgba(0,255,255,0.2); box-shadow: 0 0 15px #00ffff; }
+  .container { 
+    text-align: center; 
+    width: 90%;
+    max-width: 1024px;
+  }
 
-.welcome-text {
-  font-size: 2em; font-weight: 700; margin-top: 20px;
-  color: #00ffff;
-  text-shadow: 0 0 8px #00ffff, 0 0 16px #00bfff, 0 0 25px #00ffff;
-  min-height: 2.5em;
-}
-.info-section {
-  margin-top: 40px;
-  background: rgba(255,255,255,0.05);
-  padding: 20px; border-radius: 12px;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 0 15px rgba(0,255,255,0.2);
-  display: inline-block;
-}
-.clock { font-size: 1.6em; color: #00ffff; font-weight: 600; text-shadow: 0 0 8px #00ffff; }
-.date { margin-top: 8px; color: #aefcff; font-size: 1em; text-shadow: 0 0 6px #00bfff; }
-.device-info { margin-top: 6px; color: #aefcff; font-size: 0.95em; text-shadow: 0 0 6px #00bfff; }
-.countdown { margin-top: 10px; color: #fff; font-size: 1.1em; text-shadow: 0 0 8px #00eaff; }
+  .site-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #aa88ff;
+    margin-bottom: 5px;
+  }
 
-/* --- STYLE UNTUK YOUTUBE PLAY BARU --- */
-.youtube-play-section {
-  margin-top: 30px;
-  margin-bottom: 20px;
-  max-width: 450px;
-  width: 90%;
-  margin-left: auto;
-  margin-right: auto;
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(8px);
-  border-radius: 16px;
-  padding: 25px;
-  box-shadow: 0 0 20px rgba(0,255,255,0.3);
-  text-align: center;
-}
+  .divider {
+    width: 50%;
+    height: 3px;
+    background-color: #8a6cff;
+    margin: 0 auto 20px auto;
+    border-radius: 2px;
+  }
 
-.youtube-play-section h3 {
-    margin-top: 0;
-    color: #00ffff;
-    text-shadow: 0 0 8px #00ffff;
-}
+  .development-note {
+    font-size: 1.2rem;
+    color: #aa88ff;
+    margin-bottom: 15px;
+  }
+  .greeting { font-size: 2rem; margin-bottom: 20px; }
+  .typing {
+    font-size: 1.5rem;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+  }
 
-.youtube-play-section input[type="text"] {
-  width: calc(100% - 24px);
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(0,255,255,0.3);
-  font-size: 16px;
-  background: rgba(0,0,0,0.2);
-  color: #fff;
-  outline: none;
-  margin-bottom: 15px;
-  transition: 0.3s;
-}
-.youtube-play-section input[type="text"]:focus {
-    border-color: #00ffff;
-    box-shadow: 0 0 10px rgba(0,255,255,0.5);
-}
-.youtube-play-section input[type="text"]::placeholder { color: #ccc; }
-
-.youtube-play-section button {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 8px;
-  background: rgba(0,255,255,0.15);
-  color: #00ffff;
-  font-weight: 600;
-  cursor: pointer;
-  margin: 5px;
-  transition: 0.3s;
-  box-shadow: 0 0 5px rgba(0,255,255,0.3);
-}
-.youtube-play-section button:hover { background: rgba(0,255,255,0.3); box-shadow: 0 0 15px rgba(0,255,255,0.5); }
-
-.youtube-result {
-  margin-top: 20px;
-  display: none;
-}
-
-.youtube-result img {
-  width: 100%;
-  border-radius: 10px;
-  margin-bottom: 12px;
-  box-shadow: 0 0 10px rgba(0,255,255,0.4);
-}
-
-.youtube-result .title { font-size: 1.1em; font-weight: 700; margin: 8px 0; color: #fff; }
-.youtube-result .channel { font-size: 0.9em; color: #aefcff; margin-bottom: 8px; }
-.youtube-result .duration { font-size: 0.9em; color: #aaa; margin-bottom: 15px; }
-
-.youtube-result audio {
-  width: 100%;
-  margin-bottom: 15px;
-  border-radius: 8px;
-  outline: none;
-  background: rgba(0,255,255,0.1);
-}
-
-#loading-yt {
-  display: none;
-  margin-top: 20px;
-  font-weight: 600;
-  color: #00eaff;
-  text-shadow: 0 0 10px #00eaff;
-  animation: blink 1s infinite;
-}
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-/* --- AKHIR STYLE YOUTUBE PLAY BARU --- */
-
-.footer { text-align: center; font-size: 12px; opacity: .8; padding: 20px; color: #00ffff; text-shadow: 0 0 10px #00ffff; margin-top: 30px; }
-
-.ai-btn {
-  position: fixed; bottom: 25px; right: 25px;
-  background: linear-gradient(135deg,#00ffff,#7f00ff);
-  color: white; border: none; border-radius: 50px;
-  padding: 15px 20px; font-size: 15px; font-weight: 600;
-  box-shadow: 0 0 20px rgba(0,255,255,0.6);
-  cursor: pointer; transition: .3s;
-}
-.ai-btn:hover { box-shadow: 0 0 30px #00ffff; transform: scale(1.05); }
+  footer {
+    position: absolute;
+    bottom: 10px;
+    font-size: 0.9rem;
+    color: #88b0ff;
+  }
 </style>
 </head>
-<body class="loading">
-<div class="background"></div>
-<div class="overlay"></div>
-<div class="loader"></div>
+<body>
 
-<div class="header">
-  <button class="menu-btn" id="menuToggle">☰</button>
+<div class="hamburger" id="hamburger">
+  <div></div>
+  <div></div>
+  <div></div>
 </div>
 
-<div class="menu" id="menu">
-  <ul class="menu-btns">
-    <li><button onclick="window.location.href='index.html'">Home</button></li>
-    <li>
-      <button id="featuresBtn">List Fitur <span class="arrow">→</span></button>
-      <ul class="submenu" id="featuresSub">
-        <li><button onclick="window.location.href='tiktokdl.html'">TikTok Download</button></li>
-        <li><button onclick="window.location.href='youtube.html'">YouTube Play</button></li>
-        <li><button onclick="window.location.href='toqrcode.html'">Link To QR</button></li>
-        <li><button onclick="window.location.href='flux.html'">Flux AI</button></li>
-        <li><button onclick="window.location.href='cekresi.html'">Cek Resi Paket</button></li>
-        <li><button onclick="window.location.href='pinterest.html'">Pinterest Search</button></li>
-        <li><button onclick="window.location.href='ytdl.html'">Youtube Download</button></li>
-        <li><button onclick="window.location.href='iphoneqc.html'">Iphone QC</button></li>
-      </ul>
-    </li>
-    <li><button onclick="window.location.href='grupwa.html'">Grup WhatsApp</button></li>
-  </ul>
+<div class="sidebar" id="sidebar">
+  <!-- Judul Sidebar -->
+  <div style="color:#aa88ff; font-weight:bold; font-size:1.5rem; padding-bottom:10px; border-bottom:2px solid #8a6cff; margin-bottom:15px;">
+    SteveMC
+  </div>
+
+  <button class="active" onclick="activateButton(this,'beranda.html')">
+    <span class="btn-content">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8 3.293l6 6V15a1 1 0 0 1-1 1h-3v-4H6v4H3a1 1 0 0 1-1-1V9.293l6-6z"/>
+        <path fill-rule="evenodd" d="M7.293 1.5a1 1 0 0 1 1.414 0l7 7a1 1 0 0 1-1.414 1.414L8 3.414 1.707 9.914A1 1 0 0 1 .293 8.5l7-7z"/>
+      </svg>
+      Beranda
+    </span>
+  </button>
+
+<button onclick="window.location.href='tiktokdl.html'" style="font-weight: 600; font-size: 1.1rem;">
+  <!-- TikTok SVG icon -->
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 10px;">
+    <path d="M16.8218 5.1344C16.0887 4.29394 15.648 3.19805 15.648 2H14.7293C14.9659 3.3095 15.7454 4.43326 16.8218 5.1344Z"/>
+    <path d="M8.3218 11.9048C6.73038 11.9048 5.43591 13.2004 5.43591 14.7931C5.43591 15.903 6.06691 16.8688 6.98556 17.3517C6.64223 16.8781 6.43808 16.2977 6.43808 15.6661C6.43808 14.0734 7.73255 12.7778 9.324 12.7778C9.62093 12.7778 9.90856 12.8288 10.1777 12.9124V9.40192C9.89927 9.36473 9.61628 9.34149 9.324 9.34149C9.27294 9.34149 9.22654 9.34614 9.1755 9.34614V12.0394C8.90176 11.9558 8.61873 11.9048 8.3218 11.9048Z"/>
+    <path d="M19.4245 6.67608V9.34614C17.6429 9.34614 15.9912 8.77501 14.6456 7.80911V14.7977C14.6456 18.2851 11.8108 21.127 8.32172 21.127C6.97621 21.127 5.7235 20.6998 4.69812 19.98C5.8534 21.2198 7.50049 22 9.32392 22C12.8083 22 15.6478 19.1627 15.6478 15.6707V8.68211C16.9933 9.64801 18.645 10.2191 20.4267 10.2191V6.78293C20.0787 6.78293 19.7446 6.74574 19.4245 6.67608Z"/>
+    <path d="M14.6456 14.7977V7.80911C15.9912 8.77501 17.6429 9.34614 19.4245 9.34614V6.67608C18.3945 6.45788 17.4899 5.90063 16.8218 5.1344C15.7454 4.43326 14.9704 3.3095 14.7245 2H12.2098L12.2051 15.7775C12.1495 17.3192 10.8782 18.5591 9.32393 18.5591C8.35884 18.5591 7.50977 18.0808 6.98085 17.3564C6.06219 16.8688 5.4312 15.9076 5.4312 14.7977C5.4312 13.205 6.72567 11.9094 8.31708 11.9094C8.61402 11.9094 8.90168 11.9605 9.17079 12.0441V9.35079C5.75598 9.42509 3 12.2298 3 15.6707C3 17.3331 3.64492 18.847 4.69812 19.98C5.7235 20.6998 6.97621 21.127 8.32172 21.127C11.8061 21.127 14.6456 18.2851 14.6456 14.7977Z"/>
+  </svg>
+  Tiktok Download
+</button>
+
+  <button onclick="activateButton(this,'grupwa.html')">
+  <span class="btn-content">
+    <!-- SVG logo WhatsApp -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 32 32" fill="currentColor" style="vertical-align: middle; margin-right: 10px;">
+  <path d="M16 3C9.373 3 4 8.373 4 15c0 2.64.817 5.092 2.207 7.125L4 29l6.991-2.197A11.944 11.944 0 0 0 16 27c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 22c-1.81 0-3.553-.493-5.058-1.346l-.36-.213-4.15 1.3 1.3-4.11-.21-.36A9.96 9.96 0 0 1 6 15c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10zm5.34-7.438c-.28-.14-1.653-.813-1.91-.905-.256-.093-.44-.14-.625.14-.187.28-.72.906-.883 1.092-.16.187-.32.21-.593.07-.28-.14-1.18-.437-2.25-1.37-.832-.74-1.393-1.65-1.556-1.93-.16-.28-.017-.43.123-.57.127-.127.28-.32.42-.48.14-.16.187-.28.28-.46.093-.187.047-.35-.023-.488-.07-.14-.625-1.5-.855-2.058-.224-.54-.45-.47-.625-.48-.16-.007-.345-.01-.53-.01-.187 0-.488.07-.744.35-.256.28-.977.952-.977 2.324 0 1.373 1 2.7 1.14 2.887.14.187 1.968 3.015 4.773 4.22.668.288 1.19.46 1.596.59.67.22 1.28.19 1.76.115.538-.082 1.653-.675 1.887-1.33.233-.655.233-1.215.163-1.33-.07-.115-.256-.187-.537-.327z"/>
+</svg>
+    Grup WhatsApp
+  </span>
+</button>
 </div>
 
-<div class="content" id="mainContent">
-  <div class="video-container">
-    <img id="previewImage" src="https://qu.ax/PvZhT.jpg" alt="Thumbnail Video">
-    <video id="mainVideo" preload="none" loop playsinline>
-      <source src="thumbnail.mp4" type="video/mp4">
-    </video>
-    <button class="mute-btn" id="muteBtn">🔊</button>
-  </div>
+<!-- Header Image -->
+<div class="header-image">
+  <img src="https://files.catbox.moe/g8kzy8.png" alt="Header Image">
+</div>
 
-  <div class="welcome-text" id="welcomeText"></div>
+<div class="container">
+  <div class="site-title">SteveMC</div>
+  <div class="divider"></div>
+  <div class="development-note">Website ini masih dalam tahap pengembangan</div>
+  <div class="greeting" id="greeting"></div>
+  <div class="typing" id="typing"></div>
+</div>
 
-  <div class="info-section">
-    <div class="clock" id="clock">00:00:00 WIB</div>
-    <div class="date" id="date"></div>
-    <div class="device-info" id="deviceInfo"></div>
-    <div class="countdown" id="countdown">Menuju Tahun Baru 🎆</div>
-  </div>
-
-  <div class="youtube-play-section">
-    <h3>YouTube Play Musik</h3>
-    <input type="text" id="ytQuery" placeholder="Ketik judul video YouTube">
-    <button onclick="searchYouTube()">Cari Video</button>
-
-    <div id="loading-yt">Loading...</div>
-
-    <div class="youtube-result" id="youtubeResult">
-      <img id="cover" src="" alt="Cover YouTube">
-      <div class="title" id="title"></div>
-      <div class="channel" id="channel"></div>
-      <div class="duration" id="duration"></div>
-
-      <audio id="audioPlayer" controls></audio>
-      <div>
-        <button id="downloadBtn">⬇️ Download MP3</button>
-      </div>
-    </div>
-  </div>
-  </div>
-
-<button class="ai-btn" onclick="window.location.href='ai.html'">💬 Chat dengan Felo AI</button>
-<div class="footer">©2025 SteveMC Developer</div>
+<footer>©2025 SteveMC Developer</footer>
 
 <script>
-// Loading animasi
-window.addEventListener('load', () => {
-  const body = document.body;
-  const loader = document.querySelector('.loader');
-  const content = document.getElementById('mainContent');
-  setTimeout(() => {
-    body.classList.remove('loading');
-    loader.style.display = 'none';
-    content.classList.add('show');
+const greetingEl = document.getElementById('greeting');
+const hour = new Date().getHours();
+let greetingText = "Selamat pagi";
+if(hour >= 12 && hour < 15) greetingText = "Selamat siang";
+else if(hour >= 15 && hour < 18) greetingText = "Selamat sore";
+else if(hour >= 18 || hour < 4) greetingText = "Selamat malam";
+greetingEl.textContent = greetingText;
 
-    // Animasi ketik welcome text
-    const welcomeEl = document.getElementById('welcomeText');
-    const greeting = getGreeting();
-    typeEffect(welcomeEl, `${greeting}, Welcome To SteveMC Website`);
-  }, 1500);
-});
-
-// Menu sidebar
-document.getElementById('menuToggle').onclick = () => {
-  document.getElementById('menu').classList.toggle('open');
-};
-const fBtn=document.getElementById('featuresBtn');
-const fSub=document.getElementById('featuresSub');
-fBtn.onclick=()=>{fSub.style.display=fSub.style.display==='block'?'none':'block';fBtn.classList.toggle('active');};
-
-// Clock
-function updateClock(){
-  const now=new Date();
-  document.getElementById('clock').textContent=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')} WIB`;
-  document.getElementById('date').textContent=new Intl.DateTimeFormat('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).format(now);
-}
-setInterval(updateClock,1000); updateClock();
-
-// Countdown
-function updateCountdown(){
-  const now=new Date(),target=new Date('2026-01-01T00:00:00+07:00');
-  const diff=target-now;
-  const d=Math.floor(diff/86400000),h=Math.floor(diff/3600000)%24,m=Math.floor(diff/60000)%60,s=Math.floor(diff/1000)%60;
-  document.getElementById('countdown').innerHTML=`🎆 Menuju Tahun Baru 2026<br>${d} Hari ${h} Jam ${m} Menit ${s} Detik`;
-}
-setInterval(updateCountdown,1000); updateCountdown();
-
-// Video toggle
-const video=document.getElementById('mainVideo');
-const img=document.getElementById('previewImage');
-const muteBtn=document.getElementById('muteBtn');
-video.style.display='none'; img.style.display='block';
-img.onclick=()=>{
-  img.classList.add('zoom-in');
-  setTimeout(()=>{
-    img.style.display='none';
-    video.style.display='block';
-    video.classList.remove('zoom-out');
-    video.play();
-  },400);
-};
-video.onclick=()=>{
-  video.pause();
-  video.classList.add('zoom-out');
-  setTimeout(()=>{
-    video.style.display='none';
-    img.style.display='block';
-    img.classList.remove('zoom-in');
-  },400);
-};
-muteBtn.onclick=()=>{video.muted=!video.muted; muteBtn.textContent=video.muted?'🔇':'🔊';};
-
-// Animasi ketik
-function typeEffect(element, text, speed=80, callback=null){
-  let i=0;
-  element.textContent='';
-  const timer=setInterval(()=>{
-    element.textContent+=text.charAt(i);
-    i++;
-    if(i>=text.length){ clearInterval(timer); if(callback) callback(); }
-  },speed);
-}
-
-// Fungsi ucapan
-function getGreeting(){
-  const hour = new Date().getHours();
-  if(hour>=4 && hour<10) return "Selamat Pagi";
-  if(hour>=10 && hour<15) return "Selamat Siang";
-  if(hour>=15 && hour<18) return "Selamat Sore";
-  return "Selamat Malam";
-}
-
-// Device & Battery Info
-function updateDeviceInfo(){
-  const infoEl = document.getElementById('deviceInfo');
-  const ua = navigator.userAgent;
-  const batteryPromise = navigator.getBattery ? navigator.getBattery() : Promise.resolve({level: 1});
-  batteryPromise.then(battery => {
-    const level = Math.round(battery.level * 100);
-    infoEl.textContent = `Device: ${ua.match(/\(([^)]+)\)/)[1]}, Battery: ${level}%`;
-  }).catch(()=>{ infoEl.textContent = `Device: ${ua.match(/\(([^)]+)\)/)[1]}, Battery: N/A`; });
-}
-setInterval(updateDeviceInfo, 5000);
-updateDeviceInfo();
-
-
-// --- FUNGSI YOUTUBE PLAY BARU ---
-async function searchYouTube() {
-  const query = document.getElementById('ytQuery').value.trim();
-  if(!query) return alert('Ketik dulu judul video!');
-
-  const resultDiv = document.getElementById('youtubeResult');
-  const loadingDiv = document.getElementById('loading-yt');
-  resultDiv.style.display = 'none';
-  loadingDiv.style.display = 'block';
-
-  // Menggunakan API Allorigins sebagai proxy untuk menghindari masalah CORS
-  const apiUrl = `https://api.nekolabs.web.id/downloader/youtube/play/v1?q=${encodeURIComponent(query)}`;
-  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
-
-  try {
-    const res = await fetch(proxyUrl);
-    const wrap = await res.json();
-    
-    // Memastikan hasil parsing adalah JSON yang valid
-    let data;
-    try {
-        data = JSON.parse(wrap.contents);
-    } catch(e) {
-        console.error("Gagal parse JSON dari proxy:", e);
-        loadingDiv.style.display = 'none';
-        return alert('Gagal memproses data YouTube dari server.');
-    }
-
-
-    if(!data.success) {
-      loadingDiv.style.display = 'none';
-      return alert('Gagal fetch data YouTube: ' + (data.message || 'Pesan error tidak tersedia'));
-    }
-
-    const metadata = data.result.metadata;
-    const downloadUrl = data.result.downloadUrl;
-
-    document.getElementById('cover').src = metadata.cover;
-    document.getElementById('title').textContent = metadata.title;
-    document.getElementById('channel').textContent = metadata.channel;
-    document.getElementById('duration').textContent = `Durasi: ${metadata.duration}`;
-
-    const audioPlayer = document.getElementById('audioPlayer');
-    audioPlayer.src = downloadUrl;
-
-    document.getElementById('downloadBtn').onclick = () => {
-      window.open(downloadUrl, '_blank');
-    }
-
-    loadingDiv.style.display = 'none';
-    resultDiv.style.display = 'block';
-
-  } catch(e) {
-    console.error("Error saat fetch/proses data YouTube:", e);
-    loadingDiv.style.display = 'none';
-    alert('Terjadi error saat mencari data YouTube. Coba lagi.');
+const typingEl = document.getElementById('typing');
+const text = "Welcome to website SteveMC";
+let index = 0;
+function type() {
+  if(index < text.length){
+    typingEl.textContent += text.charAt(index);
+    index++;
+    setTimeout(type, 150);
   }
 }
-// --- AKHIR FUNGSI YOUTUBE PLAY BARU ---
+type();
 
+const hamburger = document.getElementById('hamburger');
+const sidebar = document.getElementById('sidebar');
+let open = false;
+hamburger.addEventListener('click', () => {
+  if(!open){
+    sidebar.style.left = '0';
+    document.body.style.marginLeft = '250px';
+  } else {
+    sidebar.style.left = '-250px';
+    document.body.style.marginLeft = '0';
+  }
+  open = !open;
+  hamburger.classList.toggle('active');
+});
+
+function activateButton(btn, url){
+  const buttons = document.querySelectorAll('.sidebar button');
+  buttons.forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  window.location.href = url;
+}
 </script>
+
 </body>
 </html>
