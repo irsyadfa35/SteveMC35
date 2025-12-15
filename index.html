@@ -203,6 +203,164 @@
   <div class="development-note">Website ini masih dalam tahap pengembangan</div>
   <div class="greeting" id="greeting"></div>
   <div class="typing" id="typing"></div>
+<!-- Baris Atas Kecil: Jam & Baterai -->
+<div style="
+  display:flex;
+  justify-content:space-between;
+  width:340px;
+  margin:30px auto 0 auto;
+">
+
+  <!-- Kotak Kiri: Jam & Tanggal -->
+  <div style="
+    flex:0 0 150px;
+    background:rgba(20,20,50,0.7);
+    backdrop-filter:blur(6px);
+    border-radius:15px;
+    padding:15px;
+    box-shadow:0 0 15px rgba(0,0,0,0.4);
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  ">
+    <!-- Icon Jam -->
+    <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none">
+      <path d="M12 7V12L14.5 10.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+        stroke="#aa88ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <div id="clockTime" style="font-size:0.95rem; color:#cce0ff;">--:--:-- WIB</div>
+    <div id="clockDate" style="font-size:0.85rem; color:#88b0ff;">---</div>
+  </div>
+
+  <!-- Kotak Kanan: Battery & Lokasi -->
+  <div style="
+    flex:0 0 150px;
+    background:rgba(20,20,50,0.7);
+    backdrop-filter:blur(6px);
+    border-radius:15px;
+    padding:15px;
+    box-shadow:0 0 15px rgba(0,0,0,0.4);
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  ">
+    <!-- Icon Battery -->
+    <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none">
+      <path d="M7.5 10V14M11.5 10V14M15.5 10V14M21 13V11M6.2 18H16.8C17.9201 18 18.4802 18 18.908 17.782C19.2843 17.5903 19.5903 17.2843 19.782 16.908C20 16.4802 20 15.9201 20 14.8V9.2C20 8.0799 20 7.51984 19.782 7.09202C19.5903 6.71569 19.2843 6.40973 18.908 6.21799C18.4802 6 17.9201 6 16.8 6H6.2C5.0799 6 4.51984 6 4.09202 6.21799C3.71569 6.40973 3.40973 6.71569 3.21799 7.09202C3 7.51984 3 8.07989 3 9.2V14.8C3 15.9201 3 16.4802 3.21799 16.908C3.40973 17.2843 3.71569 17.5903 4.09202 17.782C4.51984 18 5.07989 18 6.2 18Z"
+        stroke="#aa88ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <div id="batteryPercent" style="font-size:0.95rem; color:#cce0ff;">
+      Battery: --
+    </div>
+    <div style="font-size:0.85rem; color:#88b0ff;">Kendal</div>
+  </div>
+
+</div>
+
+<!-- Kotak Device -->
+<div style="
+  margin:20px auto 0 auto;
+  width:340px;
+  background:rgba(20,20,50,0.7);
+  backdrop-filter:blur(6px);
+  border-radius:15px;
+  padding:18px;
+  box-shadow:0 0 15px rgba(0,0,0,0.4);
+  display:flex;
+  align-items:center;
+  gap:15px;
+">
+
+  <!-- Icon Device (SVG BARU) -->
+<!-- Icon Device -->
+<svg width="42" height="42" viewBox="0 0 24 24"
+     xmlns="http://www.w3.org/2000/svg"
+     style="color:#aa88ff; flex-shrink:0">
+  <path
+    d="M12 20C12.8284 20 13.5 19.3284 13.5 18.5C13.5 17.6716 12.8284 17 12 17C11.1716 17 10.5 17.6716 10.5 18.5C10.5 19.3284 11.1716 20 12 20Z"
+    fill="currentColor"/>
+  <path fill-rule="evenodd" clip-rule="evenodd"
+    d="M5 20C5 21.5067 6.07616 23 7.71429 23H16.2857C17.9238 23 19 21.5067 19 20V4C19 2.49332 17.9238 1 16.2857 1H7.71429C6.07616 1 5 2.49332 5 4V20ZM7.71429 21C7.45886 21 7 20.7025 7 20V4C7 3.29754 7.45886 3 7.71429 3H16.2857C16.5411 3 17 3.29754 17 4V20C17 20.7025 16.5411 21 16.2857 21H7.71429Z"
+    fill="currentColor"/>
+</svg>
+
+  <!-- Info Device -->
+  <div style="color:#cce0ff; font-size:0.9rem; line-height:1.4;">
+    <strong>Device:</strong>
+    <div id="deviceInfo">Memuat...</div>
+  </div>
+
+</div>
+
+<script>
+function getDeviceInfo(){
+  const ua = navigator.userAgent;
+
+  // Ambil info inti aja
+  const match = ua.match(/\(([^)]+)\)/);
+  let device = match ? match[1] : ua;
+
+  device = device
+    .replace(/\s?wv/g, '')
+    .replace(/;\s?Build/g, ' Build')
+    .split(')')[0]
+    .split('AppleWebKit')[0]
+    .split('Chrome')[0]
+    .trim();
+
+  document.getElementById('deviceInfo').textContent = device;
+}
+
+getDeviceInfo();
+</script>
+
+<!-- SCRIPT JAM & BATTERY -->
+<script>
+/* JAM + DETIK + WIB & TANGGAL + TAHUN */
+function updateClock(){
+  const now = new Date();
+
+  const jam =
+  String(now.getHours()).padStart(2,'0') + ':' +
+  String(now.getMinutes()).padStart(2,'0') + ':' +
+  String(now.getSeconds()).padStart(2,'0') + ' WIB';
+
+  const tanggal = now.toLocaleDateString('id-ID', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+
+  document.getElementById('clockTime').textContent = jam;
+  document.getElementById('clockDate').textContent = tanggal;
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+
+/* BATTERY REAL HP */
+if ('getBattery' in navigator) {
+  navigator.getBattery().then(battery => {
+    function updateBattery(){
+      const persen = Math.round(battery.level * 100);
+      document.getElementById('batteryPercent').textContent =
+        `Battery: ${persen}%`;
+    }
+    updateBattery();
+    battery.addEventListener('levelchange', updateBattery);
+  });
+} else {
+  document.getElementById('batteryPercent').textContent =
+    'Battery: Tidak didukung';
+}
+</script>
 </div>
 
 <footer>©2025 SteveMC Developer</footer>

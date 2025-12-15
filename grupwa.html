@@ -1,186 +1,129 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Grup WhatsApp | SteveMC</title>
-  <style>
-    body {
-      font-family: "Poppins", sans-serif;
-      margin: 0;
-      padding: 0;
-      background: url('https://qu.ax/vneoG.jpg') no-repeat center center fixed;
-      background-size: cover;
-      overflow-x: hidden;
-      color: #fff;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grup WhatsApp | SteveMC</title>
 
-    .overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 20, 0.8);
-      backdrop-filter: blur(10px);
-      z-index: -1;
-    }
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
 
-    .header {
-      position: fixed;
-      top: 20px; left: 20px;
-      z-index: 100;
-    }
+body{
+  font-family:'Poppins',sans-serif;
+  min-height:100vh;
+  background:linear-gradient(135deg,#0d0f20,#1a1b3c);
+  color:#cce0ff;
+  overflow-x:hidden;
+}
 
-    .menu-btn {
-      background: rgba(0, 0, 40, 0.7);
-      color: #fff;
-      border: none;
-      font-size: 24px;
-      padding: 10px 15px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+/* TOMBOL HOME */
+.home-btn{
+  position:fixed;
+  top:20px;
+  left:20px;
+  z-index:1000;
+  background:rgba(20,20,50,.7);
+  backdrop-filter:blur(6px);
+  border:none;
+  border-radius:14px;
+  padding:10px 14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#cce0ff;
+  cursor:pointer;
+  transition:.3s;
+  box-shadow:0 0 15px rgba(0,0,0,.4);
+}
+.home-btn:hover{
+  color:#aa88ff;
+  box-shadow:0 0 20px rgba(170,136,255,.6);
+}
 
-    .menu-btn:hover {
-      background: rgba(0, 0, 60, 0.9);
-    }
+/* Container */
+.container{
+  text-align:center;
+  margin-top:140px;
+  padding:0 20px;
+}
 
-    .menu {
-      position: fixed;
-      top: 70px; left: 20px;
-      background: rgba(10, 10, 30, 0.95);
-      border-radius: 15px;
-      padding: 10px;
-      display: none;
-      z-index: 99;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
-    }
+/* Card */
+.group-card{
+  background:rgba(20,20,40,.6);
+  backdrop-filter:blur(8px);
+  margin:20px auto;
+  padding:25px;
+  border-radius:20px;
+  max-width:380px;
+  box-shadow:0 0 15px rgba(0,0,0,.4);
+  transition:.3s;
+}
+.group-card:hover{
+  transform:scale(1.02);
+  box-shadow:0 0 25px rgba(170,136,255,.7);
+}
 
-    .menu ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
+.join-btn{
+  padding:12px 25px;
+  border:none;
+  border-radius:25px;
+  background:linear-gradient(90deg,#6a0dad,#8a2be2);
+  color:#fff;
+  font-size:1.1rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:.3s;
+}
+.join-btn:hover{
+  transform:translateY(-3px) scale(1.03);
+}
 
-    .menu ul li {
-      margin: 10px 0;
-    }
-
-    .menu ul li button {
-      width: 180px;
-      background: #1a1a40;
-      border: none;
-      color: #fff;
-      padding: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .menu ul li button:hover {
-      background: #23235e;
-    }
-
-    .container {
-      text-align: center;
-      margin-top: 120px;
-    }
-
-    .group-card {
-      background: rgba(0, 0, 50, 0.7);
-      margin: 20px auto;
-      padding: 20px;
-      border-radius: 15px;
-      max-width: 350px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.4);
-      transition: 0.3s;
-    }
-
-    .group-card:hover {
-      background: rgba(0, 0, 70, 0.9);
-      transform: scale(1.02);
-    }
-
-    .group-card h2 {
-      margin: 0;
-      font-size: 1.4em;
-    }
-
-    .join-btn {
-      background: #0078ff;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-top: 10px;
-      font-weight: 600;
-      transition: 0.3s;
-    }
-
-    .join-btn:hover {
-      background: #005fcc;
-    }
-
-    footer {
-      text-align: center;
-      font-size: 12px;
-      color: #aaa;
-      margin-top: 40px;
-      padding-bottom: 20px;
-    }
-  </style>
+footer{
+  text-align:center;
+  font-size:12px;
+  color:#aaa;
+  margin-top:40px;
+  padding-bottom:20px;
+}
+</style>
 </head>
+
 <body>
 
-  <div class="overlay"></div>
+<!-- TOMBOL HOME SAJA -->
+<button class="home-btn" onclick="window.location.href='index.html'">
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+    fill="currentColor" viewBox="0 0 16 16">
+    <path d="M8 3.293l6 6V15a1 1 0 0 1-1 1h-3v-4H6v4H3a1 1 0 0 1-1-1V9.293l6-6z"/>
+    <path fill-rule="evenodd"
+      d="M7.293 1.5a1 1 0 0 1 1.414 0l7 7a1 1 0 0 1-1.414 1.414L8 3.414 1.707 9.914A1 1 0 0 1 .293 8.5l7-7z"/>
+  </svg>
+  Home
+</button>
 
-  <div class="header">
-    <button class="menu-btn" id="menuToggle">☰</button>
+<!-- CONTENT -->
+<div class="container">
+  <h1>💬 Grup WhatsApp SteveMC</h1>
+  <p>Gabung ke grup resmi kami di bawah ini!</p>
+
+  <div class="group-card">
+    <h2>🔥 Grup Bot WA</h2>
+    <button class="join-btn"
+      onclick="window.open('https://chat.whatsapp.com/IEzFm5hQz2fIwpI6NNDTvN','_blank')">
+      Gabung Sekarang
+    </button>
   </div>
 
-  <div class="menu" id="menu">
-    <ul class="menu-btns">
-      <li><button onclick="window.location.href='index.html'">Home</button></li>
-      <li><button onclick="window.location.href='tiktokdl.html'">TikTok Download</button></li>
-      <li><button onclick="window.location.href='youtube.html'">YouTube Play</button></li>
-      <li><button onclick="window.location.href='toqrcode.html'">Link To QR</button></li>
-      <li><button onclick="window.location.href='grupwa.html'">Grup WhatsApp</button></li>
-    </ul>
+  <div class="group-card">
+    <h2>⚡ Minecraft Java & Pojav Launcher</h2>
+    <button class="join-btn"
+      onclick="window.open('https://chat.whatsapp.com/FZtfxpSyYCN9FyCjWekyZN','_blank')">
+      Gabung Sekarang
+    </button>
   </div>
 
-  <div class="container">
-    <h1>💬 Grup WhatsApp SteveMC</h1>
-    <p>Gabung ke grup resmi kami di bawah ini!</p>
-
-    <div class="group-card">
-      <h2>🔥 Grup Bot WA</h2>
-      <button class="join-btn" onclick="window.open('https://chat.whatsapp.com/IEzFm5hQz2fIwpI6NNDTvN?mode=wwc', '_blank')">Gabung Sekarang</button>
-    </div>
-
-    <div class="group-card">
-      <h2>⚡ Minecraft Java & Pojav Launcher</h2>
-      <button class="join-btn" onclick="window.open('https://chat.whatsapp.com/FZtfxpSyYCN9FyCjWekyZN?mode=wwc', '_blank')">Gabung Sekarang</button>
-    </div>
-
-    <footer>©2025 SteveMC Developer</footer>
-  </div>
-
-  <script>
-    const menuToggle = document.getElementById("menuToggle");
-    const menu = document.getElementById("menu");
-
-    menuToggle.addEventListener("click", () => {
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
-    });
-
-    // Tutup menu otomatis kalo klik di luar
-    document.addEventListener("click", (e) => {
-      if (!menu.contains(e.target) && e.target !== menuToggle) {
-        menu.style.display = "none";
-      }
-    });
-  </script>
+  <footer>©2025 SteveMC Developer</footer>
+</div>
 
 </body>
 </html>
