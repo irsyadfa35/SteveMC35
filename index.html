@@ -221,27 +221,25 @@
   <div class="development-note">Website ini masih dalam tahap pengembangan</div>
   <div class="greeting" id="greeting"></div>
   <div class="typing" id="typing"></div>
-<!-- Baris Atas Kecil: Jam & Baterai -->
-<div style="
-  display:flex;
-  justify-content:space-between;
-  width:340px;
-  margin:30px auto 0 auto;
-">
 
-  <!-- Kotak Kiri: Jam & Tanggal -->
+<!-- HANYA KOTAK JAM & TANGGAL (BATERAI & LOKASI SUDAH DIHAPUS) -->
+<div style="
+  display: flex;
+  justify-content: center;
+  margin: 30px auto 0 auto;
+">
   <div style="
-    flex:0 0 150px;
-    background:rgba(20,20,50,0.7);
-    backdrop-filter:blur(6px);
-    border-radius:15px;
-    padding:15px;
-    box-shadow:0 0 15px rgba(0,0,0,0.4);
-    text-align:center;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:8px;
+    width: 340px;
+    background: rgba(20,20,50,0.7);
+    backdrop-filter: blur(6px);
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
   ">
     <!-- Icon Jam -->
     <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none">
@@ -252,36 +250,7 @@
     <div id="clockTime" style="font-size:0.95rem; color:#cce0ff;">--:--:-- WIB</div>
     <div id="clockDate" style="font-size:0.85rem; color:#88b0ff;">---</div>
   </div>
-
-  <!-- Kotak Kanan: Battery & Lokasi -->
-  <div style="
-    flex:0 0 150px;
-    background:rgba(20,20,50,0.7);
-    backdrop-filter:blur(6px);
-    border-radius:15px;
-    padding:15px;
-    box-shadow:0 0 15px rgba(0,0,0,0.4);
-    text-align:center;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:8px;
-  ">
-    <!-- Icon Battery -->
-    <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none">
-      <path d="M7.5 10V14M11.5 10V14M15.5 10V14M21 13V11M6.2 18H16.8C17.9201 18 18.4802 18 18.908 17.782C19.2843 17.5903 19.5903 17.2843 19.782 16.908C20 16.4802 20 15.9201 20 14.8V9.2C20 8.0799 20 7.51984 19.782 7.09202C19.5903 6.71569 19.2843 6.40973 18.908 6.21799C18.4802 6 17.9201 6 16.8 6H6.2C5.0799 6 4.51984 6 4.09202 6.21799C3.71569 6.40973 3.40973 6.71569 3.21799 7.09202C3 7.51984 3 8.07989 3 9.2V14.8C3 15.9201 3 16.4802 3.21799 16.908C3.40973 17.2843 3.71569 17.5903 4.09202 17.782C4.51984 18 5.07989 18 6.2 18Z"
-        stroke="#aa88ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-
-    <div id="batteryPercent" style="font-size:0.95rem; color:#cce0ff;">
-      Battery: --
-    </div>
-    <div style="font-size:0.85rem; color:#88b0ff;">Kendal</div>
-  </div>
-
 </div>
-
-<!-- ===== KOTAK DEVICE SUDAH DIHAPUS ===== -->
 
 </div>
 
@@ -332,6 +301,29 @@ function activateButton(btn, url){
   btn.classList.add('active');
   window.location.href = url;
 }
+
+// JAM & TANGGAL (tanpa baterai)
+function updateClock(){
+  const now = new Date();
+
+  const jam =
+  String(now.getHours()).padStart(2,'0') + ':' +
+  String(now.getMinutes()).padStart(2,'0') + ':' +
+  String(now.getSeconds()).padStart(2,'0') + ' WIB';
+
+  const tanggal = now.toLocaleDateString('id-ID', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+
+  document.getElementById('clockTime').textContent = jam;
+  document.getElementById('clockDate').textContent = tanggal;
+}
+
+setInterval(updateClock, 1000);
+updateClock();
 </script>
 
 </body>
