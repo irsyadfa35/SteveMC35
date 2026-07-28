@@ -253,7 +253,7 @@
             border-radius: 20px;
             padding: 22px 20px;
             border: 1px solid #e2eaf9;
-            margin-bottom: 10px;
+            margin-bottom: 35px;
         }
 
         .hari-piket {
@@ -308,9 +308,91 @@
             border-bottom: none;
         }
 
+        /* Lokasi */
+        .lokasi-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0a1e44;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .lokasi-title::before {
+            content: '📍';
+            font-size: 24px;
+        }
+
+        .lokasi-container {
+            background: #fafcff;
+            border-radius: 20px;
+            padding: 18px 20px 20px;
+            border: 1px solid #e2eaf9;
+            margin-bottom: 30px;
+        }
+
+        .lokasi-container .map-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 */
+            height: 0;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .lokasi-container .map-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .lokasi-container .lokasi-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 14px;
+            gap: 10px;
+        }
+
+        .lokasi-container .lokasi-info .koordinat {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f3a7a;
+            background: #eef3fe;
+            padding: 4px 16px;
+            border-radius: 30px;
+        }
+
+        .lokasi-container .lokasi-info .btn-maps {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #0a1e44;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 14px;
+            text-decoration: none;
+            transition: 0.2s;
+            box-shadow: 0 4px 10px rgba(10, 30, 68, 0.2);
+        }
+
+        .lokasi-container .lokasi-info .btn-maps:hover {
+            background: #1a3a7a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(10, 30, 68, 0.3);
+        }
+
         /* Footer dengan copyright & logo */
         .footer {
-            margin-top: 30px;
+            margin-top: 10px;
             text-align: center;
             font-size: 13px;
             color: #5b6f94;
@@ -409,6 +491,16 @@
                 grid-template-columns: 1fr 1fr;
                 padding: 16px;
                 gap: 12px;
+            }
+
+            .lokasi-container .lokasi-info {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .lokasi-container .lokasi-info .btn-maps {
+                justify-content: center;
             }
         }
 
@@ -638,24 +730,49 @@
 
         </div>
 
-        <!-- FOOTER dengan Copyright & Logo -->
-        <div class="footer">
-            <div class="footer-logo">
-                <img
-                src="https://c.termai.cc/i111/dgd.jpg"
-                alt="Logo SMK Muhammadiyah 3 Weleri"
-                width="40"
-                height="40"
-                />
-                <span>SMK Muhammadiyah 3 Weleri</span>
+        <!-- LOKASI -->
+        <div class="lokasi-title">Lokasi Sekolah</div>
+        <div class="lokasi-container">
+            <div class="map-wrapper">
+                <iframe
+                src="https://maps.google.com/maps?q=-6.966973,110.058658&z=16&output=embed&hl=id"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                title="Peta SMK Muhammadiyah 3 Weleri"
+                ></iframe>
             </div>
-            <div class="copyright">
-                &copy; 2026 — Kelas XI TAV/TE &bull; Total 32 siswa &bull; 
-                <a href="https://c.termai.cc/i111/dgd.jpg" target="_blank">Sumber Logo</a>
-            </div>
+            <div class="lokasi-info">
+                <span class="koordinat">📍 -6.966973, 110.058658</span>
+                <a
+                class="btn-maps"
+                href="https://maps.app.goo.gl/NJqQY5ZXW8E8anfU8"
+                target="_blank"
+                rel="noopener noreferrer"
+                >
+                🗺️ Buka di Google Maps
+            </a>
         </div>
-
     </div>
+
+    <!-- FOOTER dengan Copyright & Logo -->
+    <div class="footer">
+        <div class="footer-logo">
+            <img
+            src="https://c.termai.cc/i111/dgd.jpg"
+            alt="Logo SMK Muhammadiyah 3 Weleri"
+            width="40"
+            height="40"
+            />
+            <span>SMK Muhammadiyah 3 Weleri</span>
+        </div>
+        <div class="copyright">
+            &copy; 2026 — Kelas XI TAV/TE &bull; Total 32 siswa &bull;
+            <a href="https://c.termai.cc/i111/dgd.jpg" target="_blank">Sumber Logo</a>
+        </div>
+    </div>
+
+</div>
 
 </body>
 </html>
