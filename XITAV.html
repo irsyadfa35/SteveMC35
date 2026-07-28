@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Informasi Kelas XI TAV</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(145deg, #f0f4ff 0%, #e6edfa 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+        }
+
+        .card {
+            max-width: 1100px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 32px;
+            padding: 35px 40px 45px;
+            box-shadow: 0 20px 60px rgba(0, 20, 50, 0.15);
+            transition: 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(2px);
+        }
+
+        /* Header sekolah dengan logo */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            text-align: center;
+            border-bottom: 3px solid #1a3a7a;
+            padding-bottom: 20px;
+            margin-bottom: 28px;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: #f9b81b;
+            border-radius: 10px;
+        }
+
+        .logo-sekolah {
+            flex-shrink: 0;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #1a3a7a;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            padding: 4px;
+        }
+
+        .header-text {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header-text h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0a1e44;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .header-text h1 span {
+            color: #f9b81b;
+        }
+
+        .header-text .sub-judul {
+            font-size: 18px;
+            font-weight: 500;
+            color: #1f3a7a;
+            margin-top: 6px;
+            letter-spacing: 2px;
+        }
+
+        .header-text .kelas-badge {
+            display: inline-block;
+            background: #0a1e44;
+            color: #fff;
+            font-weight: 600;
+            font-size: 15px;
+            padding: 6px 22px;
+            border-radius: 50px;
+            margin-top: 12px;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(10, 30, 68, 0.25);
+        }
+
+        /* Info grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px 30px;
+            background: #f8faff;
+            border-radius: 20px;
+            padding: 20px 25px;
+            margin-bottom: 30px;
+            border: 1px solid #dce5f5;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .info-item .label {
+            font-weight: 600;
+            color: #1f3a7a;
+            font-size: 15px;
+            min-width: 110px;
+        }
+
+        .info-item .value {
+            font-weight: 500;
+            color: #0a1e44;
+            font-size: 15px;
+            background: #eef3fe;
+            padding: 2px 14px;
+            border-radius: 30px;
+        }
+
+        .info-item .value.total {
+            background: #0a1e44;
+            color: #fff;
+            padding: 4px 18px;
+        }
+
+        /* Struktur organisasi */
+        .struktur-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0a1e44;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .struktur-title::before {
+            content: '👥';
+            font-size: 24px;
+        }
+
+        .struktur-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px 20px;
+            background: #fafcff;
+            border-radius: 20px;
+            padding: 22px 25px;
+            border: 1px solid #e2eaf9;
+            margin-bottom: 35px;
+        }
+
+        .jabatan {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px dashed #cfdcee;
+            padding-bottom: 10px;
+            margin-bottom: 6px;
+        }
+
+        .jabatan:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .jabatan .jabatan-nama {
+            font-weight: 600;
+            color: #1a3a7a;
+            font-size: 15px;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .jabatan .jabatan-nama::before {
+            content: '▸';
+            color: #f9b81b;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .jabatan .orang {
+            font-weight: 500;
+            color: #1f2f5a;
+            font-size: 14px;
+            padding-left: 18px;
+            margin-top: 2px;
+            line-height: 1.5;
+        }
+
+        .jabatan .orang span {
+            display: inline-block;
+            background: #eef3fe;
+            padding: 0 10px;
+            border-radius: 20px;
+            margin-right: 4px;
+        }
+
+        /* Jadwal piket */
+        .piket-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0a1e44;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .piket-title::before {
+            content: '📅';
+            font-size: 24px;
+        }
+
+        .piket-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            background: #fafcff;
+            border-radius: 20px;
+            padding: 22px 20px;
+            border: 1px solid #e2eaf9;
+            margin-bottom: 10px;
+        }
+
+        .hari-piket {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 14px 12px 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e9effa;
+            transition: 0.2s;
+        }
+
+        .hari-piket:hover {
+            border-color: #b3c9f0;
+            box-shadow: 0 6px 16px rgba(26, 58, 122, 0.08);
+        }
+
+        .hari-piket .hari-nama {
+            font-weight: 700;
+            font-size: 16px;
+            color: #0a1e44;
+            background: #e6edfa;
+            display: inline-block;
+            padding: 0 16px 0 12px;
+            border-radius: 30px;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+            line-height: 1.8;
+        }
+
+        .hari-piket .hari-nama::before {
+            content: '• ';
+            color: #f9b81b;
+            font-weight: 700;
+        }
+
+        .hari-piket .daftar-nama {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .hari-piket .daftar-nama .nama {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1f2f5a;
+            padding: 2px 0 2px 8px;
+            border-bottom: 1px dashed #edf2fc;
+            line-height: 1.5;
+        }
+
+        .hari-piket .daftar-nama .nama:last-child {
+            border-bottom: none;
+        }
+
+        /* Footer dengan copyright & logo */
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 13px;
+            color: #5b6f94;
+            border-top: 1px solid #dce5f5;
+            padding-top: 20px;
+            letter-spacing: 0.5px;
+            font-weight: 400;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer .footer-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .footer .footer-logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #dce5f5;
+            padding: 2px;
+            background: #fff;
+        }
+
+        .footer .footer-logo span {
+            font-weight: 500;
+            color: #0a1e44;
+        }
+
+        .footer .copyright {
+            font-size: 12px;
+            color: #7a8aa8;
+        }
+
+        .footer .copyright a {
+            color: #1a3a7a;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer .copyright a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 700px) {
+            .card {
+                padding: 25px 18px 30px;
+            }
+
+            .header {
+                gap: 12px;
+            }
+
+            .logo-sekolah {
+                width: 70px;
+                height: 70px;
+            }
+
+            .header-text h1 {
+                font-size: 20px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                padding: 18px;
+            }
+
+            .info-item .label {
+                min-width: 100px;
+                font-size: 14px;
+            }
+
+            .struktur-grid {
+                grid-template-columns: 1fr;
+                padding: 18px;
+            }
+
+            .jabatan .jabatan-nama {
+                font-size: 14px;
+            }
+
+            .header-text .sub-judul {
+                font-size: 15px;
+            }
+
+            .piket-grid {
+                grid-template-columns: 1fr 1fr;
+                padding: 16px;
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-text h1 {
+                font-size: 17px;
+            }
+
+            .header-text .kelas-badge {
+                font-size: 13px;
+                padding: 4px 16px;
+            }
+
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 2px;
+            }
+
+            .info-item .label {
+                min-width: auto;
+            }
+
+            .jabatan .orang {
+                padding-left: 14px;
+                font-size: 13px;
+            }
+
+            .piket-grid {
+                grid-template-columns: 1fr;
+                padding: 14px;
+            }
+
+            .hari-piket .daftar-nama .nama {
+                font-size: 12px;
+            }
+
+            .footer .footer-logo img {
+                width: 32px;
+                height: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+
+        <!-- HEADER dengan Logo -->
+        <div class="header">
+            <img
+            class="logo-sekolah"
+            src="https://c.termai.cc/i111/dgd.jpg"
+            alt="Logo SMK Muhammadiyah 3 Weleri"
+            width="90"
+            height="90"
+            />
+            <div class="header-text">
+                <h1>SMK MUHAMMADIYAH <span>3</span> WELERI</h1>
+                <div class="sub-judul">KELAS XI TAV / TE</div>
+                <div class="kelas-badge">📋 INFORMASI KELAS</div>
+            </div>
+        </div>
+
+        <!-- INFO SINGKAT -->
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="label">📌 Jurusan</span>
+                <span class="value">XI TAV / TE</span>
+            </div>
+            <div class="info-item">
+                <span class="label">👨‍🎓 Total Siswa</span>
+                <span class="value total">32</span>
+            </div>
+            <div class="info-item">
+                <span class="label">🏫 Sekolah</span>
+                <span class="value">SMK Muhammadiyah 3 Weleri</span>
+            </div>
+            <div class="info-item">
+                <span class="label">📅 Tahun Ajaran</span>
+                <span class="value">2026/2027</span>
+            </div>
+        </div>
+
+        <!-- STRUKTUR KELAS -->
+        <div class="struktur-title">Struktur Kelas</div>
+        <div class="struktur-grid">
+
+            <div class="jabatan">
+                <div class="jabatan-nama">Ketua Kelas</div>
+                <div class="orang">Muhammad Nazilul Ar Zaki</div>
+            </div>
+
+            <div class="jabatan">
+                <div class="jabatan-nama">Wakil Ketua</div>
+                <div class="orang">Mohammad Rafiq Aditya</div>
+            </div>
+
+            <div class="jabatan">
+                <div class="jabatan-nama">Kebersihan</div>
+                <div class="orang">
+                    <span>Irsyad Fadil Atha Ullah</span>
+                    <span>Firman Abi Aryadi</span>
+                </div>
+            </div>
+
+            <div class="jabatan">
+                <div class="jabatan-nama">Sekretaris</div>
+                <div class="orang">
+                    <span>Daffa Alim Ardianto</span>
+                    <span>Ashhabi Nabil Athaya</span>
+                </div>
+            </div>
+
+            <div class="jabatan">
+                <div class="jabatan-nama">Bendahara</div>
+                <div class="orang">
+                    <span>Abel Dwi Putri Cantika</span>
+                    <span>Eva Anindita</span>
+                </div>
+            </div>
+
+            <div class="jabatan">
+                <div class="jabatan-nama">Kerohanian</div>
+                <div class="orang">
+                    <span>Rekhan Al Azim</span>
+                    <span>Revino Rizky Andrian</span>
+                </div>
+            </div>
+
+            <div class="jabatan">
+                <div class="jabatan-nama">Keamanan</div>
+                <div class="orang">
+                    <span>Fahri Ahmad Huzaini</span>
+                    <span>Mauldino Tegar Putra Yunardi</span>
+                </div>
+            </div>
+
+            <div class="jabatan">
+                <div class="jabatan-nama">Olahraga</div>
+                <div class="orang">
+                    <span>Nurul Khoirudin</span>
+                    <span>Satria Aldian Maulana</span>
+                </div>
+            </div>
+
+            <div class="jabatan">
+                <div class="jabatan-nama">Inventaris</div>
+                <div class="orang">
+                    <span>Bima Al Faruq</span>
+                    <span>Adittri Wibowo</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- JADWAL PIKET -->
+        <div class="piket-title">Jadwal Piket Kelas</div>
+        <div class="piket-grid">
+
+            <!-- SENIN -->
+            <div class="hari-piket">
+                <div class="hari-nama">Senin</div>
+                <div class="daftar-nama">
+                    <span class="nama">DAFFA ALIM ARDIANTO</span>
+                    <span class="nama">Rafif Adly Purnomo</span>
+                    <span class="nama">Irsyad Fadil Atha Ullah</span>
+                    <span class="nama">Mauldino Tegar Putra Yunardi</span>
+                    <span class="nama">Satria Aldian Maulana</span>
+                    <span class="nama">Mujib Musadad</span>
+                </div>
+            </div>
+
+            <!-- SELASA -->
+            <div class="hari-piket">
+                <div class="hari-nama">Selasa</div>
+                <div class="daftar-nama">
+                    <span class="nama">Ashhabi Nabil Athaya</span>
+                    <span class="nama">Adittri Wibowo</span>
+                    <span class="nama">Fahri Ahmad Huzaini</span>
+                    <span class="nama">Abel Dwi Putri Cantika</span>
+                    <span class="nama">Najwa Fitriyani</span>
+                    <span class="nama">Rizky Ananda</span>
+                </div>
+            </div>
+
+            <!-- RABU -->
+            <div class="hari-piket">
+                <div class="hari-nama">Rabu</div>
+                <div class="daftar-nama">
+                    <span class="nama">Rekhan Al Azim</span>
+                    <span class="nama">Tegar Dwi Satrio</span>
+                    <span class="nama">Mohammad Rafiq Aditya</span>
+                    <span class="nama">Guntur Ardyanto</span>
+                    <span class="nama">Achmad Faqih Arjuna</span>
+                    <span class="nama">Muhammad Daffa Annafi</span>
+                    <span class="nama">Revino Rizky Andrian</span>
+                </div>
+            </div>
+
+            <!-- KAMIS -->
+            <div class="hari-piket">
+                <div class="hari-nama">Kamis</div>
+                <div class="daftar-nama">
+                    <span class="nama">Nurul Khoirudin</span>
+                    <span class="nama">Muhammad Nazilul Ar Zaki</span>
+                    <span class="nama">Muhammad Abdul Rhozaqi</span>
+                    <span class="nama">Muhammad Bima Al Faruq</span>
+                    <span class="nama">Fiyani Kusyanto</span>
+                    <span class="nama">Daffa Sabian Batra</span>
+                </div>
+            </div>
+
+            <!-- JUMAT -->
+            <div class="hari-piket">
+                <div class="hari-nama">Jumat</div>
+                <div class="daftar-nama">
+                    <span class="nama">Bima Nur Archad</span>
+                    <span class="nama">Firman Abi Aryadi</span>
+                    <span class="nama">Zaki Nur Hidayah</span>
+                    <span class="nama">Guntur Putra Oetama</span>
+                    <span class="nama">Putri Gladys Shelomita</span>
+                    <span class="nama">Muhammad Ridho Akbar Nur Andika</span>
+                    <span class="nama">Eva Anindita</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FOOTER dengan Copyright & Logo -->
+        <div class="footer">
+            <div class="footer-logo">
+                <img
+                src="https://c.termai.cc/i111/dgd.jpg"
+                alt="Logo SMK Muhammadiyah 3 Weleri"
+                width="40"
+                height="40"
+                />
+                <span>SMK Muhammadiyah 3 Weleri</span>
+            </div>
+            <div class="copyright">
+                &copy; 2026 — Kelas XI TAV/TE &bull; Total 32 siswa &bull; 
+                <a href="https://c.termai.cc/i111/dgd.jpg" target="_blank">Sumber Logo</a>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
