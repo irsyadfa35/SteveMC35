@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Download TikTok Video & MP3</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        /* ── Reset & Base ── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(145deg, #0f0f1a 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 820px;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 40px 36px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        /* ── Header ── */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 20px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            transform: translateX(-3px);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .back-btn:active {
+            transform: scale(0.92);
+        }
+
+        .header-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #ff0050, #ff6b8a);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(255, 0, 80, 0.35);
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.3px;
+            line-height: 1.2;
+        }
+
+        .header h1 span {
+            background: linear-gradient(135deg, #ff0050, #ff6b8a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .sub {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 400;
+            margin-top: 2px;
+        }
+
+        /* ── Input Section ── */
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            min-width: 180px;
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .input-wrapper input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .input-wrapper input:focus {
+            border-color: #ff0050;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(255, 0, 80, 0.15);
+        }
+
+        .input-wrapper input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Tombol Paste */
+        .btn-paste {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .btn-paste:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .btn-paste:active {
+            transform: scale(0.92);
+        }
+
+        .btn-paste:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-paste.pasted {
+            color: #00e676;
+            border-color: #00e676;
+            background: rgba(0, 230, 118, 0.1);
+        }
+
+        .btn-convert {
+            padding: 16px 32px;
+            border-radius: 16px;
+            border: none;
+            background: linear-gradient(135deg, #ff0050, #ff6b8a);
+            color: #fff;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            font-family: inherit;
+            box-shadow: 0 4px 20px rgba(255, 0, 80, 0.3);
+            flex-shrink: 0;
+        }
+
+        .btn-convert:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 0, 80, 0.45);
+        }
+
+        .btn-convert:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn-convert:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-convert .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn-convert.loading .spinner {
+            display: block;
+        }
+        .btn-convert.loading .btn-text {
+            display: none;
+        }
+        .btn-convert.loading .btn-icon {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── Error Message ── */
+        .error-msg {
+            display: none;
+            margin-top: 12px;
+            padding: 14px 18px;
+            background: rgba(255, 0, 80, 0.12);
+            border-left: 4px solid #ff0050;
+            border-radius: 12px;
+            color: #ff6b8a;
+            font-size: 14px;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-msg.show {
+            display: flex;
+        }
+
+        .error-msg i {
+            font-size: 18px;
+        }
+
+        /* ── Result Section ── */
+        .result-section {
+            display: none;
+            margin-top: 32px;
+            animation: fadeUp 0.5s ease forwards;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Video Card ── */
+        .video-card {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            aspect-ratio: 16 / 9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            background: #0a0a0a;
+        }
+
+        /* ── Video Info ── */
+        .video-info {
+            padding: 20px 24px 24px;
+        }
+
+        .video-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px 24px;
+            margin-top: 12px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .meta-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .meta-author img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .meta-author .name {
+            color: #fff;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .meta-author .handle {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+        }
+
+        .meta-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px 20px;
+            margin-left: auto;
+        }
+
+        .meta-stats .stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+        }
+
+        .meta-stats .stat i {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .meta-stats .stat strong {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* ── Download Row ── */
+        .download-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .btn-download {
+            flex: 1;
+            min-width: 140px;
+            padding: 14px 24px;
+            border-radius: 14px;
+            border: none;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-family: inherit;
+        }
+
+        .btn-download i {
+            font-size: 16px;
+        }
+
+        .btn-download.mp4 {
+            background: linear-gradient(135deg, #00c853, #00e676);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(0, 200, 83, 0.3);
+        }
+
+        .btn-download.mp4:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 200, 83, 0.45);
+        }
+
+        .btn-download.mp3 {
+            background: linear-gradient(135deg, #7c4dff, #b388ff);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 77, 255, 0.3);
+        }
+
+        .btn-download.mp3:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(124, 77, 255, 0.45);
+        }
+
+        .btn-download.mp3:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-download.secondary {
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: none;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn-download.secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: none;
+            color: #fff;
+        }
+
+        .btn-download:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        /* ── Empty State ── */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 24px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .empty-state i {
+            font-size: 56px;
+            margin-bottom: 16px;
+            color: rgba(255, 255, 255, 0.08);
+        }
+
+        .empty-state p {
+            font-size: 15px;
+            max-width: 320px;
+            line-height: 1.6;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .container {
+                padding: 24px 18px;
+                border-radius: 24px;
+            }
+
+            .header {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .back-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+
+            .header-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .input-wrapper input {
+                padding: 14px 16px;
+                font-size: 14px;
+                min-width: 140px;
+            }
+
+            .btn-paste {
+                width: 48px;
+                height: 48px;
+                font-size: 18px;
+            }
+
+            .btn-convert {
+                padding: 14px 22px;
+                font-size: 14px;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .video-info {
+                padding: 16px 18px 18px;
+            }
+
+            .video-title {
+                font-size: 15px;
+            }
+
+            .meta-stats {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .download-row {
+                flex-direction: column;
+            }
+
+            .btn-download {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .container {
+                padding: 16px 12px;
+            }
+            .header h1 {
+                font-size: 17px;
+            }
+            .header .sub {
+                font-size: 12px;
+            }
+            .back-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+            .btn-paste {
+                width: 42px;
+                height: 42px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- ─── HEADER ─── -->
+        <div class="header">
+            <a href="index.html" class="back-btn" title="Kembali ke beranda">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+
+            <div class="header-icon">
+                <i class="fab fa-tiktok"></i>
+            </div>
+            <div>
+                <h1>Download <span>TikTok</span> MP4 & MP3</h1>
+                <div class="sub">Tempel link, konversi ke video atau audio</div>
+            </div>
+        </div>
+
+        <!-- ─── INPUT ─── -->
+        <div class="input-section">
+            <div class="input-wrapper">
+                <input
+                type="url"
+                id="urlInput"
+                placeholder="https://vt.tiktok.com/ZSxRTcWSe/ atau https://www.tiktok.com/@user/video/123..."
+                autocomplete="off"
+                spellcheck="false"
+                />
+                <button class="btn-paste" id="pasteBtn" title="Tempel dari clipboard">
+                    <i class="fas fa-paste"></i>
+                </button>
+                <button class="btn-convert" id="convertBtn">
+                    <span class="btn-icon"><i class="fas fa-arrow-right"></i></span>
+                    <span class="btn-text">Convert MP4</span>
+                    <span class="spinner"></span>
+                </button>
+            </div>
+
+            <div class="error-msg" id="errorMsg">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText">Terjadi kesalahan, silakan coba lagi.</span>
+            </div>
+        </div>
+
+        <!-- ─── RESULT ─── -->
+        <div class="result-section" id="resultSection">
+
+            <div class="video-card">
+                <div class="video-wrapper">
+                    <video id="videoPlayer" controls preload="metadata" playsinline></video>
+                </div>
+
+                <div class="video-info">
+                    <div class="video-title" id="videoTitle">—</div>
+
+                    <div class="video-meta">
+                        <div class="meta-author" id="authorInfo">
+                            <img id="authorAvatar" src="" alt="avatar" />
+                            <div>
+                                <div class="name" id="authorName">—</div>
+                                <div class="handle" id="authorHandle">@—</div>
+                            </div>
+                        </div>
+                        <div class="meta-stats" id="statsContainer">
+                            <span class="stat"><i class="fas fa-eye"></i> <strong id="statViews">—</strong></span>
+                            <span class="stat"><i class="fas fa-heart"></i> <strong id="statLikes">—</strong></span>
+                            <span class="stat"><i class="fas fa-comment"></i> <strong id="statComments">—</strong></span>
+                            <span class="stat"><i class="fas fa-share"></i> <strong id="statShares">—</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="download-row">
+                        <button class="btn-download mp4" id="downloadMp4Btn">
+                            <i class="fas fa-download"></i> Download MP4
+                        </button>
+                        <button class="btn-download mp3" id="downloadMp3Btn">
+                            <i class="fas fa-music"></i> Download MP3
+                        </button>
+                        <button class="btn-download secondary" id="copyLinkBtn">
+                            <i class="fas fa-copy"></i> Salin Link
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ─── EMPTY STATE ─── -->
+        <div class="empty-state" id="emptyState">
+            <i class="fas fa-video"></i>
+            <p>Masukkan link TikTok di atas, lalu klik <strong>Convert MP4</strong> untuk menampilkan video.</p>
+        </div>
+
+    </div>
+
+    <script>
+        // ─────────────────────────────────────────────
+        //  DOM refs
+        // ─────────────────────────────────────────────
+        const urlInput = document.getElementById('urlInput');
+        const convertBtn = document.getElementById('convertBtn');
+        const pasteBtn = document.getElementById('pasteBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const errorText = document.getElementById('errorText');
+        const resultSection = document.getElementById('resultSection');
+        const emptyState = document.getElementById('emptyState');
+
+        const videoPlayer = document.getElementById('videoPlayer');
+        const videoTitle = document.getElementById('videoTitle');
+        const authorAvatar = document.getElementById('authorAvatar');
+        const authorName = document.getElementById('authorName');
+        const authorHandle = document.getElementById('authorHandle');
+        const statViews = document.getElementById('statViews');
+        const statLikes = document.getElementById('statLikes');
+        const statComments = document.getElementById('statComments');
+        const statShares = document.getElementById('statShares');
+        const downloadMp4Btn = document.getElementById('downloadMp4Btn');
+        const downloadMp3Btn = document.getElementById('downloadMp3Btn');
+        const copyLinkBtn = document.getElementById('copyLinkBtn');
+
+        // ─────────────────────────────────────────────
+        //  State
+        // ─────────────────────────────────────────────
+        let currentVideoUrl = '';
+        let currentMusicUrl = '';
+        let currentTitle = '';
+
+        // ─────────────────────────────────────────────
+        //  Helpers
+        // ─────────────────────────────────────────────
+        function showError(msg) {
+            errorText.textContent = msg || 'Terjadi kesalahan, silakan coba lagi.';
+            errorMsg.classList.add('show');
+        }
+
+        function hideError() {
+            errorMsg.classList.remove('show');
+        }
+
+        function setLoading(isLoading) {
+            convertBtn.disabled = isLoading;
+            urlInput.disabled = isLoading;
+            pasteBtn.disabled = isLoading;
+            if (isLoading) {
+                convertBtn.classList.add('loading');
+            } else {
+                convertBtn.classList.remove('loading');
+            }
+        }
+
+        function formatNumber(num) {
+            if (!num) return '—';
+            if (typeof num === 'string') {
+                return num;
+            }
+            const n = Number(num);
+            if (isNaN(n)) return '—';
+            if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+            if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+            return n.toString();
+        }
+
+        // ─────────────────────────────────────────────
+        //  Core: fetch & render
+        // ─────────────────────────────────────────────
+        async function fetchTikTok(url) {
+            const encoded = encodeURIComponent(url.trim());
+            const apiUrl = `https://api.nexray.eu.cc/downloader/tiktok?url=${encoded}`;
+
+            const resp = await fetch(apiUrl);
+            if (!resp.ok) {
+                throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+            }
+            const data = await resp.json();
+            if (!data.status) {
+                throw new Error(data.message || 'API mengembalikan status false.');
+            }
+            if (!data.result || !data.result.data) {
+                throw new Error('Tidak ada video yang ditemukan untuk link ini.');
+            }
+            return data;
+        }
+
+        function renderResult(data) {
+            const r = data.result;
+
+            currentVideoUrl = r.data;
+            currentMusicUrl = r.music_info?.url || '';
+            currentTitle = r.title || 'TikTok Video';
+            videoPlayer.src = r.data;
+            videoPlayer.load();
+
+            videoTitle.textContent = r.title || 'TikTok Video';
+
+            if (r.author) {
+                authorAvatar.src = r.author.avatar || '';
+                authorAvatar.alt = r.author.nickname || 'Avatar';
+                authorName.textContent = r.author.nickname || '—';
+                authorHandle.textContent = r.author.fullname ? `@${r.author.fullname}` : '—';
+            } else {
+                authorAvatar.src = '';
+                authorAvatar.alt = 'Avatar';
+                authorName.textContent = '—';
+                authorHandle.textContent = '—';
+            }
+
+            if (r.stats) {
+                statViews.textContent = formatNumber(r.stats.views);
+                statLikes.textContent = formatNumber(r.stats.likes);
+                statComments.textContent = formatNumber(r.stats.comment);
+                statShares.textContent = formatNumber(r.stats.share);
+            } else {
+                statViews.textContent = '—';
+                statLikes.textContent = '—';
+                statComments.textContent = '—';
+                statShares.textContent = '—';
+            }
+
+            if (currentMusicUrl) {
+                downloadMp3Btn.disabled = false;
+                downloadMp3Btn.title = 'Download audio';
+            } else {
+                downloadMp3Btn.disabled = true;
+                downloadMp3Btn.title = 'Audio tidak tersedia';
+            }
+
+            resultSection.classList.add('show');
+            emptyState.style.display = 'none';
+        }
+
+        // ─────────────────────────────────────────────
+        //  Download handler
+        // ─────────────────────────────────────────────
+        async function downloadFile(url, filename, buttonElement) {
+            if (!url) {
+                showError('Tidak ada URL untuk diunduh.');
+                return;
+            }
+
+            try {
+                buttonElement.disabled = true;
+                const originalHtml = buttonElement.innerHTML;
+                buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengunduh...';
+
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error('Gagal mengunduh file');
+
+                const blob = await resp.blob();
+                const ext = filename.split('.').pop() || 'mp4';
+                const finalName = filename.endsWith(`.${ext}`) ? filename : `${filename}.${ext}`;
+
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = finalName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+
+                buttonElement.innerHTML = originalHtml;
+            } catch (err) {
+                try {
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = filename;
+                    link.target = '_blank';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } catch (_) {
+                    showError('Gagal mengunduh. Coba klik kanan dan "Save link as..."');
+                }
+                buttonElement.innerHTML = '<i class="fas fa-download"></i> ' + (buttonElement === downloadMp4Btn ? 'Download MP4' : 'Download MP3');
+            } finally {
+                buttonElement.disabled = false;
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        //  Paste from clipboard
+        // ─────────────────────────────────────────────
+        async function pasteFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    urlInput.value = text;
+                    urlInput.focus();
+                    // feedback visual
+                    pasteBtn.classList.add('pasted');
+                    setTimeout(() => pasteBtn.classList.remove('pasted'), 1500);
+                    // otomatis langsung konversi? tidak, biar user klik convert
+                } else {
+                    showError('Clipboard kosong.');
+                }
+            } catch (err) {
+                // fallback: coba dengan prompt
+                try {
+                    const text = prompt('Tidak dapat mengakses clipboard. Silakan tempel link secara manual:', '');
+                    if (text !== null && text.trim() !== '') {
+                        urlInput.value = text.trim();
+                        urlInput.focus();
+                    }
+                } catch (_) {
+                    showError('Gagal membaca clipboard. Silakan tempel link secara manual.');
+                }
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        //  Main action
+        // ─────────────────────────────────────────────
+        async function handleConvert() {
+            const raw = urlInput.value.trim();
+            if (!raw) {
+                showError('Silakan masukkan link TikTok terlebih dahulu.');
+                return;
+            }
+
+            if (!raw.includes('tiktok.com') && !raw.includes('vt.tiktok')) {
+                showError('Link tidak valid. Pastikan link berasal dari TikTok.');
+                return;
+            }
+
+            hideError();
+            setLoading(true);
+            resultSection.classList.remove('show');
+            emptyState.style.display = 'flex';
+
+            try {
+                const data = await fetchTikTok(raw);
+                renderResult(data);
+                hideError();
+            } catch (err) {
+                console.error(err);
+                showError(err.message || 'Gagal mengambil video. Periksa link dan coba lagi.');
+                resultSection.classList.remove('show');
+                emptyState.style.display = 'flex';
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        //  Event listeners
+        // ─────────────────────────────────────────────
+        convertBtn.addEventListener('click', handleConvert);
+
+        urlInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleConvert();
+            }
+        });
+
+        pasteBtn.addEventListener('click', pasteFromClipboard);
+
+        downloadMp4Btn.addEventListener('click', () => {
+            if (!currentVideoUrl) {
+                showError('Tidak ada video untuk diunduh.');
+                return;
+            }
+            const name = currentTitle.replace(/[^a-zA-Z0-9 ]/g, '').trim() || 'tiktok_video';
+            downloadFile(currentVideoUrl, name + '.mp4', downloadMp4Btn);
+        });
+
+        downloadMp3Btn.addEventListener('click', () => {
+            if (!currentMusicUrl) {
+                showError('Audio tidak tersedia untuk video ini.');
+                return;
+            }
+            const name = (currentTitle ? currentTitle.replace(/[^a-zA-Z0-9 ]/g, '').trim() : 'tiktok_audio') + '_audio';
+            downloadFile(currentMusicUrl, name + '.mp3', downloadMp3Btn);
+        });
+
+        copyLinkBtn.addEventListener('click', () => {
+            if (!currentVideoUrl) {
+                showError('Tidak ada link video untuk disalin.');
+                return;
+            }
+            navigator.clipboard.writeText(currentVideoUrl)
+                .then(() => {
+                    const orig = copyLinkBtn.innerHTML;
+                    copyLinkBtn.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
+                    setTimeout(() => { copyLinkBtn.innerHTML = orig; }, 2000);
+                })
+                .catch(() => {
+                    const ta = document.createElement('textarea');
+                    ta.value = currentVideoUrl;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    const orig = copyLinkBtn.innerHTML;
+                    copyLinkBtn.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
+                    setTimeout(() => { copyLinkBtn.innerHTML = orig; }, 2000);
+                });
+        });
+
+        // ─────────────────────────────────────────────
+        //  Init
+        // ─────────────────────────────────────────────
+        emptyState.style.display = 'flex';
+        resultSection.classList.remove('show');
+        hideError();
+        downloadMp3Btn.disabled = true;
+    </script>
+
+</body>
+</html>
