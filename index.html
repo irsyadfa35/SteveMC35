@@ -1,330 +1,531 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="theme-color" content="#0a0f23">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SteveMC Website</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { 
-    font-family: 'Arial', sans-serif;
-    background-color: #0a0f23;
-    color: #cce0ff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    overflow-x: hidden;
-    transition: margin-left 0.3s;
-  }
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#0a0f23" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SteveMC</title>
 
-  /* Hamburger */
-  .hamburger {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    cursor: pointer;
-    z-index: 1001;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    transition: 0.3s;
-  }
-  .hamburger div {
-    width: 30px;
-    height: 3px;
-    background-color: #cce0ff;
-    transition: 0.3s;
-  }
-  .hamburger.active div {
-    background-color: #aa88ff;
-  }
+  <!-- Font Awesome (untuk ikon menu) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-  /* Sidebar */
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: -250px;
-    width: 250px;
-    height: 100%;
-    background-color: #0c1735;
-    padding-top: 60px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    padding-left: 20px;
-    transition: left 0.3s;
-    z-index: 1000;
-  }
+  <!-- Font Digital-7 dari CDN -->
+  <link href="https://fonts.cdnfonts.com/css/digital-7" rel="stylesheet" />
 
-  .sidebar button {
-    background: none;
-    border: 2px solid transparent;
-    color: #cce0ff;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: left;
-    padding: 10px 12px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s;
-  }
+  <style>
+    /* ── Reset & Base ── */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  .sidebar button.active {
-    border-color: #8a6cff;
-    background-color: rgba(138,108,255,0.1);
-  }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0a0f23;
+      color: #cce0ff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: margin-left 0.3s;
+      padding: 0 20px;
+    }
 
-  .sidebar button:hover {
-    border-color: #8a6cff;
-    background-color: rgba(138,108,255,0.05);
-  }
+    /* ── Tombol Hamburger (seperti contoh kedua) ── */
+    .hamburger {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: background 0.3s;
+    }
+    .hamburger:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .hamburger span {
+      display: block;
+      width: 28px;
+      height: 3px;
+      background: #fff;
+      border-radius: 4px;
+      transition: all 0.3s;
+      transform-origin: center;
+    }
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(45deg) translate(6px, 6px);
+    }
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
+    }
 
-  .btn-content {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+    /* ── Menu Overlay ── */
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .menu-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
 
-  /* Header Image */
-  .header-image {
-    width: 90%;
-    max-width: 2048px;
-    margin: 120px auto 40px auto;
-    overflow: hidden;
-    border-radius: 20px;
-  }
-  .header-image img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
+    /* ── Menu Panel ── */
+    .menu-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100%;
+      background: rgba(20, 20, 35, 0.98);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 4px 0 40px rgba(0, 0, 0, 0.6);
+      z-index: 1000;
+      transform: translateX(-100%);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .menu-panel.open {
+      transform: translateX(0);
+    }
 
-  .container { 
-    text-align: center; 
-    width: 90%;
-    max-width: 1024px;
-  }
+    .menu-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 24px;
+    }
+    .menu-header .brand-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #ff0050, #ff6b8a);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #fff;
+    }
+    .menu-header .brand-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .menu-header .brand-text span {
+      color: rgba(255, 255, 255, 0.4);
+      font-weight: 400;
+    }
 
-  .site-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #aa88ff;
-    margin-bottom: 5px;
-  }
+    .menu-list {
+      list-style: none;
+      flex: 1;
+    }
+    .menu-list li {
+      margin-bottom: 4px;
+    }
+    .menu-list li a {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .menu-list li a:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+    }
+    .menu-list li a i {
+      width: 24px;
+      font-size: 18px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    .menu-list li a.active {
+      background: rgba(255, 0, 80, 0.12);
+      color: #ff6b8a;
+    }
+    .menu-list li a.active i {
+      color: #ff6b8a;
+    }
 
-  .divider {
-    width: 50%;
-    height: 3px;
-    background-color: #8a6cff;
-    margin: 0 auto 20px auto;
-    border-radius: 2px;
-  }
+    .menu-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 20px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.25);
+      text-align: center;
+    }
 
-  .development-note {
-    font-size: 1.2rem;
-    color: #aa88ff;
-    margin-bottom: 15px;
-  }
-  .greeting { font-size: 2rem; margin-bottom: 20px; }
-  .typing {
-    font-size: 1.5rem;
-    font-weight: bold;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-.footer{
-  text-align:center;
-  color:#aaa;
-  margin-top:40px;
-  padding-bottom:20px;
-  display:flex;
-  flex-direction:column;
-  gap:3px;
-}
+    /* ── Header Image ── */
+    .header-image {
+      width: 100%;
+      max-width: 1024px;
+      margin: 100px auto 30px auto;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .header-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
 
-.footer-main{
-  font-size:12px;
-}
+    /* ── Container ── */
+    .container {
+      text-align: center;
+      width: 100%;
+      max-width: 820px;
+      padding: 0 10px;
+    }
 
-.footer-sub{
-  font-size:10px;
-  opacity:0.7;
-}
+    .site-title {
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: #aa88ff;
+      margin-bottom: 4px;
+      letter-spacing: -0.5px;
+    }
+    .divider {
+      width: 60px;
+      height: 3px;
+      background: #8a6cff;
+      margin: 6px auto 16px auto;
+      border-radius: 4px;
+    }
+    .development-note {
+      font-size: 1.2rem;
+      color: #aa88ff;
+      margin-bottom: 10px;
+    }
+    .greeting {
+      font-size: 2rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    .typing {
+      font-size: 1.5rem;
+      font-weight: 300;
+      color: #cce0ff;
+      min-height: 2.2rem;
+    }
 
-  footer {
-    position: absolute;
-    bottom: 10px;
-    font-size: 0.9rem;
-    color: #88b0ff;
-  }
-</style>
+    /* ── Kotak Jam Digital ── */
+    .clock-box {
+      display: flex;
+      justify-content: center;
+      margin: 30px auto 0 auto;
+    }
+    .clock-card {
+      width: 340px;
+      background: rgba(20, 20, 50, 0.7);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border-radius: 18px;
+      padding: 18px 16px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .clock-icon svg {
+      width: 28px;
+      height: 28px;
+      stroke: #aa88ff;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    /* ── JAM dengan font Digital-7 ── */
+    #clockTime {
+      font-family: 'Digital-7', 'Courier New', monospace;
+      font-size: 2.6rem;
+      font-weight: 400;
+      color: #00f0ff;
+      text-shadow: 0 0 20px #00f0ff66, 0 0 60px #00f0ff33;
+      letter-spacing: 4px;
+      line-height: 1.2;
+    }
+    #clockDate {
+      font-size: 0.95rem;
+      color: #88b0ff;
+      letter-spacing: 1px;
+      margin-top: 2px;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      color: #aaa;
+      margin-top: 40px;
+      padding-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      width: 100%;
+    }
+    .footer-main {
+      font-size: 0.9rem;
+    }
+    .footer-sub {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .header-image {
+        margin-top: 80px;
+        border-radius: 14px;
+      }
+      .site-title {
+        font-size: 2.2rem;
+      }
+      .greeting {
+        font-size: 1.6rem;
+      }
+      .typing {
+        font-size: 1.2rem;
+      }
+      .clock-card {
+        width: 280px;
+        padding: 14px 12px;
+      }
+      #clockTime {
+        font-size: 2.2rem;
+        letter-spacing: 3px;
+      }
+      .menu-panel {
+        width: 260px;
+      }
+      .hamburger {
+        top: 16px;
+        left: 16px;
+        padding: 8px 10px;
+      }
+      .hamburger span {
+        width: 24px;
+        height: 2.5px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .header-image {
+        margin-top: 70px;
+      }
+      .site-title {
+        font-size: 1.8rem;
+      }
+      .greeting {
+        font-size: 1.3rem;
+      }
+      .typing {
+        font-size: 1rem;
+      }
+      .clock-card {
+        width: 250px;
+        padding: 12px 10px;
+      }
+      #clockTime {
+        font-size: 1.8rem;
+      }
+      #clockDate {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<div class="hamburger" id="hamburger">
-  <div></div>
-  <div></div>
-  <div></div>
-</div>
-
-<div class="sidebar" id="sidebar">
-  <!-- Judul Sidebar -->
-  <div style="color:#aa88ff; font-weight:bold; font-size:1.5rem; padding-bottom:10px; border-bottom:2px solid #8a6cff; margin-bottom:15px;">
-    SteveMC
+  <!-- ─── TOMBOL HAMBURGER ─── -->
+  <div class="hamburger" id="hamburgerBtn" aria-label="Buka menu">
+    <span></span>
+    <span></span>
+    <span></span>
   </div>
 
-  <button class="active" onclick="activateButton(this,'beranda.html')">
-    <span class="btn-content">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-        <path d="M8 3.293l6 6V15a1 1 0 0 1-1 1h-3v-4H6v4H3a1 1 0 0 1-1-1V9.293l6-6z"/>
-        <path fill-rule="evenodd" d="M7.293 1.5a1 1 0 0 1 1.414 0l7 7a1 1 0 0 1-1.414 1.414L8 3.414 1.707 9.914A1 1 0 0 1 .293 8.5l7-7z"/>
-      </svg>
-      Beranda
-    </span>
-  </button>
+  <!-- ─── MENU OVERLAY ─── -->
+  <div class="menu-overlay" id="menuOverlay"></div>
 
-<button onclick="window.location.href='tiktokdl.html'" style="font-weight: 600; font-size: 1.1rem;">
-  <!-- TikTok SVG icon -->
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 10px;">
-    <path d="M16.8218 5.1344C16.0887 4.29394 15.648 3.19805 15.648 2H14.7293C14.9659 3.3095 15.7454 4.43326 16.8218 5.1344Z"/>
-    <path d="M8.3218 11.9048C6.73038 11.9048 5.43591 13.2004 5.43591 14.7931C5.43591 15.903 6.06691 16.8688 6.98556 17.3517C6.64223 16.8781 6.43808 16.2977 6.43808 15.6661C6.43808 14.0734 7.73255 12.7778 9.324 12.7778C9.62093 12.7778 9.90856 12.8288 10.1777 12.9124V9.40192C9.89927 9.36473 9.61628 9.34149 9.324 9.34149C9.27294 9.34149 9.22654 9.34614 9.1755 9.34614V12.0394C8.90176 11.9558 8.61873 11.9048 8.3218 11.9048Z"/>
-    <path d="M19.4245 6.67608V9.34614C17.6429 9.34614 15.9912 8.77501 14.6456 7.80911V14.7977C14.6456 18.2851 11.8108 21.127 8.32172 21.127C6.97621 21.127 5.7235 20.6998 4.69812 19.98C5.8534 21.2198 7.50049 22 9.32392 22C12.8083 22 15.6478 19.1627 15.6478 15.6707V8.68211C16.9933 9.64801 18.645 10.2191 20.4267 10.2191V6.78293C20.0787 6.78293 19.7446 6.74574 19.4245 6.67608Z"/>
-    <path d="M14.6456 14.7977V7.80911C15.9912 8.77501 17.6429 9.34614 19.4245 9.34614V6.67608C18.3945 6.45788 17.4899 5.90063 16.8218 5.1344C15.7454 4.43326 14.9704 3.3095 14.7245 2H12.2098L12.2051 15.7775C12.1495 17.3192 10.8782 18.5591 9.32393 18.5591C8.35884 18.5591 7.50977 18.0808 6.98085 17.3564C6.06219 16.8688 5.4312 15.9076 5.4312 14.7977C5.4312 13.205 6.72567 11.9094 8.31708 11.9094C8.61402 11.9094 8.90168 11.9605 9.17079 12.0441V9.35079C5.75598 9.42509 3 12.2298 3 15.6707C3 17.3331 3.64492 18.847 4.69812 19.98C5.7235 20.6998 6.97621 21.127 8.32172 21.127C11.8061 21.127 14.6456 18.2851 14.6456 14.7977Z"/>
-  </svg>
-  Tiktok Download
-</button>
+  <!-- ─── MENU PANEL ─── -->
+  <nav class="menu-panel" id="menuPanel">
+    <div class="menu-header">
+      <div class="brand-icon"><i class="fas fa-download"></i></div>
+      <div class="brand-text">Media<span>Download</span></div>
+    </div>
+    <ul class="menu-list">
+      <li>
+        <a href="index.html" class="active">
+          <i class="fas fa-home"></i> Beranda
+        </a>
+      </li>
+      <li>
+        <a href="tiktokdl.html">
+          <i class="fab fa-tiktok"></i> TikTok Download
+        </a>
+      </li>
+      <li>
+        <a href="#" style="opacity:0.4; cursor:default;">
+          <i class="fab fa-instagram"></i> Instagram (Segera)
+        </a>
+      </li>
+      <li>
+        <a href="#" style="opacity:0.4; cursor:default;">
+          <i class="fab fa-youtube"></i> YouTube (Segera)
+        </a>
+      </li>
+    </ul>
+    <div class="menu-footer">
+      <i class="fas fa-code"></i> v1.0 &bull; by Nexray
+    </div>
+  </nav>
 
-  <button onclick="activateButton(this,'grupwa.html')">
-  <span class="btn-content">
-    <!-- SVG logo WhatsApp -->
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 32 32" fill="currentColor" style="vertical-align: middle; margin-right: 10px;">
-  <path d="M16 3C9.373 3 4 8.373 4 15c0 2.64.817 5.092 2.207 7.125L4 29l6.991-2.197A11.944 11.944 0 0 0 16 27c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 22c-1.81 0-3.553-.493-5.058-1.346l-.36-.213-4.15 1.3 1.3-4.11-.21-.36A9.96 9.96 0 0 1 6 15c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10zm5.34-7.438c-.28-.14-1.653-.813-1.91-.905-.256-.093-.44-.14-.625.14-.187.28-.72.906-.883 1.092-.16.187-.32.21-.593.07-.28-.14-1.18-.437-2.25-1.37-.832-.74-1.393-1.65-1.556-1.93-.16-.28-.017-.43.123-.57.127-.127.28-.32.42-.48.14-.16.187-.28.28-.46.093-.187.047-.35-.023-.488-.07-.14-.625-1.5-.855-2.058-.224-.54-.45-.47-.625-.48-.16-.007-.345-.01-.53-.01-.187 0-.488.07-.744.35-.256.28-.977.952-.977 2.324 0 1.373 1 2.7 1.14 2.887.14.187 1.968 3.015 4.773 4.22.668.288 1.19.46 1.596.59.67.22 1.28.19 1.76.115.538-.082 1.653-.675 1.887-1.33.233-.655.233-1.215.163-1.33-.07-.115-.256-.187-.537-.327z"/>
-</svg>
-    Grup WhatsApp
-  </span>
-</button>
-</div>
-
-<!-- Header Image -->
-<div class="header-image">
-  <img src="https://files.catbox.moe/g8kzy8.png" alt="Header Image">
-</div>
-
-<div class="container">
-  <div class="site-title">SteveMC</div>
-  <div class="divider"></div>
-  <div class="development-note">Website ini masih dalam tahap pengembangan</div>
-  <div class="greeting" id="greeting"></div>
-  <div class="typing" id="typing"></div>
-
-<!-- HANYA KOTAK JAM & TANGGAL (BATERAI & LOKASI SUDAH DIHAPUS) -->
-<div style="
-  display: flex;
-  justify-content: center;
-  margin: 30px auto 0 auto;
-">
-  <div style="
-    width: 340px;
-    background: rgba(20,20,50,0.7);
-    backdrop-filter: blur(6px);
-    border-radius: 15px;
-    padding: 15px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.4);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  ">
-    <!-- Icon Jam -->
-    <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none">
-      <path d="M12 7V12L14.5 10.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
-        stroke="#aa88ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-
-    <div id="clockTime" style="font-size:0.95rem; color:#cce0ff;">--:--:-- WIB</div>
-    <div id="clockDate" style="font-size:0.85rem; color:#88b0ff;">---</div>
+  <!-- ─── HEADER IMAGE ─── -->
+  <div class="header-image">
+    <img src="https://c.termai.cc/i183/m5ecz.jpg" alt="SteveMC Banner" loading="lazy" />
   </div>
-</div>
 
-</div>
+  <!-- ─── KONTEN UTAMA ─── -->
+  <div class="container">
+    <div class="site-title">SteveMC</div>
+    <div class="divider"></div>
+    <div class="development-note">Website ini masih dalam tahap pengembangan</div>
+    <div class="greeting" id="greeting"></div>
+    <div class="typing" id="typing"></div>
 
-<footer class="footer">
-  <div class="footer-main">©2025 SteveMC Developer</div>
-  <div class="footer-sub">Since 15 Desember 2025</div>
-</footer>
+    <!-- Kotak Jam Digital dengan font Digital-7 -->
+    <div class="clock-box">
+      <div class="clock-card">
+        <div class="clock-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 7V12L14.5 10.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div id="clockTime">00:00:00 WIB</div>
+        <div id="clockDate">---</div>
+      </div>
+    </div>
+  </div>
 
-<script>
-const greetingEl = document.getElementById('greeting');
-const hour = new Date().getHours();
-let greetingText = "Selamat pagi";
-if(hour >= 12 && hour < 15) greetingText = "Selamat siang";
-else if(hour >= 15 && hour < 18) greetingText = "Selamat sore";
-else if(hour >= 18 || hour < 4) greetingText = "Selamat malam";
-greetingEl.textContent = greetingText;
+  <!-- ─── FOOTER ─── -->
+  <footer class="footer">
+    <div class="footer-main">©2025 SteveMC Developer</div>
+    <div class="footer-sub">Since 15 Desember 2025</div>
+  </footer>
 
-const typingEl = document.getElementById('typing');
-const text = "Welcome to website SteveMC";
-let index = 0;
-function type() {
-  if(index < text.length){
-    typingEl.textContent += text.charAt(index);
-    index++;
-    setTimeout(type, 150);
-  }
-}
-type();
+  <script>
+    // ─────────────────────────────────────────────
+    //  MENU TOGGLE
+    // ─────────────────────────────────────────────
+    const hamburger = document.getElementById('hamburgerBtn');
+    const menuPanel = document.getElementById('menuPanel');
+    const menuOverlay = document.getElementById('menuOverlay');
 
-const hamburger = document.getElementById('hamburger');
-const sidebar = document.getElementById('sidebar');
-let open = false;
-hamburger.addEventListener('click', () => {
-  if(!open){
-    sidebar.style.left = '0';
-    document.body.style.marginLeft = '250px';
-  } else {
-    sidebar.style.left = '-250px';
-    document.body.style.marginLeft = '0';
-  }
-  open = !open;
-  hamburger.classList.toggle('active');
-});
+    function toggleMenu(forceState) {
+      const isOpen = typeof forceState === 'boolean' ? forceState : !menuPanel.classList.contains('open');
+      menuPanel.classList.toggle('open', isOpen);
+      menuOverlay.classList.toggle('open', isOpen);
+      hamburger.classList.toggle('active', isOpen);
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    }
 
-function activateButton(btn, url){
-  const buttons = document.querySelectorAll('.sidebar button');
-  buttons.forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  window.location.href = url;
-}
+    hamburger.addEventListener('click', () => toggleMenu());
+    menuOverlay.addEventListener('click', () => toggleMenu(false));
 
-// JAM & TANGGAL (tanpa baterai)
-function updateClock(){
-  const now = new Date();
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menuPanel.classList.contains('open')) {
+        toggleMenu(false);
+      }
+    });
 
-  const jam =
-  String(now.getHours()).padStart(2,'0') + ':' +
-  String(now.getMinutes()).padStart(2,'0') + ':' +
-  String(now.getSeconds()).padStart(2,'0') + ' WIB';
+    document.querySelectorAll('.menu-list a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (link.getAttribute('href') !== '#') {
+          toggleMenu(false);
+        }
+      });
+    });
 
-  const tanggal = now.toLocaleDateString('id-ID', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  });
+    // ─────────────────────────────────────────────
+    //  GREETING & TYPING EFFECT
+    // ─────────────────────────────────────────────
+    const greetingEl = document.getElementById('greeting');
+    const hour = new Date().getHours();
+    let greetingText = 'Selamat pagi';
+    if (hour >= 12 && hour < 15) greetingText = 'Selamat siang';
+    else if (hour >= 15 && hour < 18) greetingText = 'Selamat sore';
+    else if (hour >= 18 || hour < 4) greetingText = 'Selamat malam';
+    greetingEl.textContent = greetingText;
 
-  document.getElementById('clockTime').textContent = jam;
-  document.getElementById('clockDate').textContent = tanggal;
-}
+    const typingEl = document.getElementById('typing');
+    const text = 'Welcome to website SteveMC';
+    let index = 0;
+    function type() {
+      if (index < text.length) {
+        typingEl.textContent += text.charAt(index);
+        index++;
+        setTimeout(type, 120);
+      }
+    }
+    type();
 
-setInterval(updateClock, 1000);
-updateClock();
-</script>
+    // ─────────────────────────────────────────────
+    //  JAM DIGITAL (font Digital-7)
+    // ─────────────────────────────────────────────
+    function updateClock() {
+      const now = new Date();
+      const jam = String(now.getHours()).padStart(2, '0');
+      const menit = String(now.getMinutes()).padStart(2, '0');
+      const detik = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('clockTime').textContent = `${jam}:${menit}:${detik} WIB`;
+
+      const tanggal = now.toLocaleDateString('id-ID', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+      document.getElementById('clockDate').textContent = tanggal;
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
 
 </body>
 </html>
