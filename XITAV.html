@@ -113,7 +113,7 @@
             box-shadow: 0 4px 10px rgba(10, 30, 68, 0.25);
         }
 
-        /* Info grid - 3 kolom untuk desktop */
+        /* Info grid - 3 kolom */
         .info-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -121,7 +121,7 @@
             background: #f8faff;
             border-radius: 20px;
             padding: 20px 25px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             border: 1px solid #dce5f5;
         }
 
@@ -152,6 +152,82 @@
             background: #0a1e44;
             color: #fff;
             padding: 4px 18px;
+        }
+
+        /* Sosial Media */
+        .sosmed-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0a1e44;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sosmed-title::before {
+            content: '📱';
+            font-size: 24px;
+        }
+
+        .sosmed-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            background: #fafcff;
+            border-radius: 20px;
+            padding: 18px 22px 20px;
+            border: 1px solid #e2eaf9;
+            margin-bottom: 30px;
+        }
+
+        .sosmed-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #ffffff;
+            padding: 8px 18px 8px 14px;
+            border-radius: 50px;
+            border: 1px solid #dce5f5;
+            transition: 0.2s;
+            text-decoration: none;
+            color: #0a1e44;
+            font-weight: 500;
+            font-size: 14px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .sosmed-item:hover {
+            border-color: #1a3a7a;
+            background: #f0f6ff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(26, 58, 122, 0.10);
+        }
+
+        .sosmed-item .ig-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .sosmed-item .ig-icon svg {
+            width: 22px;
+            height: 22px;
+            fill: #E4405F; /* Warna khas Instagram */
+        }
+
+        .sosmed-item .ig-label {
+            font-weight: 500;
+        }
+
+        .sosmed-item .ig-username {
+            font-weight: 400;
+            color: #5b6f94;
+            font-size: 13px;
+            margin-left: 2px;
         }
 
         /* Struktur organisasi */
@@ -474,6 +550,17 @@
                 font-size: 14px;
             }
 
+            .sosmed-container {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 16px;
+            }
+
+            .sosmed-item {
+                justify-content: center;
+                padding: 10px 16px;
+            }
+
             .struktur-grid {
                 grid-template-columns: 1fr;
                 padding: 18px;
@@ -542,6 +629,10 @@
                 width: 32px;
                 height: 32px;
             }
+
+            .sosmed-item {
+                font-size: 13px;
+            }
         }
     </style>
 </head>
@@ -549,7 +640,7 @@
 
     <div class="card">
 
-        <!-- HEADER -->
+        <!-- HEADER dengan Logo -->
         <div class="header">
             <img
             class="logo-sekolah"
@@ -565,7 +656,7 @@
             </div>
         </div>
 
-        <!-- INFO SINGKAT (5 item) -->
+        <!-- INFO SINGKAT -->
         <div class="info-grid">
             <div class="info-item">
                 <span class="label">📌 Jurusan</span>
@@ -589,187 +680,224 @@
             </div>
         </div>
 
-        <!-- STRUKTUR KELAS -->
-        <div class="struktur-title">Struktur Kelas</div>
-        <div class="struktur-grid">
+        <!-- SOSIAL MEDIA dengan Logo SVG -->
+        <div class="sosmed-title">Ikuti Kami</div>
+        <div class="sosmed-container">
+            <a
+            class="sosmed-item"
+            href="https://www.instagram.com/smkmuh3.weleri/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >
+            <span class="ig-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="#E4405F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="#E4405F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="#E4405F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+            <span class="ig-label">Instagram Sekolah</span>
+            <span class="ig-username">@smkmuh3.weleri</span>
+        </a>
+        <a
+        class="sosmed-item"
+        href="https://www.instagram.com/xi.mugatav__/"
+        target="_blank"
+        rel="noopener noreferrer"
+        >
+        <span class="ig-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="#E4405F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="#E4405F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="#E4405F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </span>
+        <span class="ig-label">Instagram Kelas</span>
+        <span class="ig-username">@xi.mugatav__</span>
+    </a>
+</div>
 
-            <div class="jabatan">
-                <div class="jabatan-nama">Ketua Kelas</div>
-                <div class="orang">Muhammad Nazilul Ar Zaki</div>
-            </div>
+<!-- STRUKTUR KELAS -->
+<div class="struktur-title">Struktur Kelas</div>
+<div class="struktur-grid">
 
-            <div class="jabatan">
-                <div class="jabatan-nama">Wakil Ketua</div>
-                <div class="orang">Mohammad Rafiq Aditya</div>
-            </div>
+    <div class="jabatan">
+        <div class="jabatan-nama">Ketua Kelas</div>
+        <div class="orang">Muhammad Nazilul Ar Zaki</div>
+    </div>
 
-            <div class="jabatan">
-                <div class="jabatan-nama">Kebersihan</div>
-                <div class="orang">
-                    <span>Irsyad Fadil Atha Ullah</span>
-                    <span>Firman Abi Aryadi</span>
-                </div>
-            </div>
+    <div class="jabatan">
+        <div class="jabatan-nama">Wakil Ketua</div>
+        <div class="orang">Mohammad Rafiq Aditya</div>
+    </div>
 
-            <div class="jabatan">
-                <div class="jabatan-nama">Sekretaris</div>
-                <div class="orang">
-                    <span>Daffa Alim Ardianto</span>
-                    <span>Ashhabi Nabil Athaya</span>
-                </div>
-            </div>
-
-            <div class="jabatan">
-                <div class="jabatan-nama">Bendahara</div>
-                <div class="orang">
-                    <span>Abel Dwi Putri Cantika</span>
-                    <span>Eva Anindita</span>
-                </div>
-            </div>
-
-            <div class="jabatan">
-                <div class="jabatan-nama">Kerohanian</div>
-                <div class="orang">
-                    <span>Rekhan Al Azim</span>
-                    <span>Revino Rizky Andrian</span>
-                </div>
-            </div>
-
-            <div class="jabatan">
-                <div class="jabatan-nama">Keamanan</div>
-                <div class="orang">
-                    <span>Fahri Ahmad Huzaini</span>
-                    <span>Mauldino Tegar Putra Yunardi</span>
-                </div>
-            </div>
-
-            <div class="jabatan">
-                <div class="jabatan-nama">Olahraga</div>
-                <div class="orang">
-                    <span>Nurul Khoirudin</span>
-                    <span>Satria Aldian Maulana</span>
-                </div>
-            </div>
-
-            <div class="jabatan">
-                <div class="jabatan-nama">Inventaris</div>
-                <div class="orang">
-                    <span>Bima Al Faruq</span>
-                    <span>Adittri Wibowo</span>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- JADWAL PIKET -->
-        <div class="piket-title">Jadwal Piket Kelas</div>
-        <div class="piket-grid">
-
-            <div class="hari-piket">
-                <div class="hari-nama">Senin</div>
-                <div class="daftar-nama">
-                    <span class="nama">DAFFA ALIM ARDIANTO</span>
-                    <span class="nama">Rafif Adly Purnomo</span>
-                    <span class="nama">Irsyad Fadil Atha Ullah</span>
-                    <span class="nama">Mauldino Tegar Putra Yunardi</span>
-                    <span class="nama">Satria Aldian Maulana</span>
-                    <span class="nama">Mujib Musadad</span>
-                </div>
-            </div>
-
-            <div class="hari-piket">
-                <div class="hari-nama">Selasa</div>
-                <div class="daftar-nama">
-                    <span class="nama">Ashhabi Nabil Athaya</span>
-                    <span class="nama">Adittri Wibowo</span>
-                    <span class="nama">Fahri Ahmad Huzaini</span>
-                    <span class="nama">Abel Dwi Putri Cantika</span>
-                    <span class="nama">Najwa Fitriyani</span>
-                    <span class="nama">Rizky Ananda</span>
-                </div>
-            </div>
-
-            <div class="hari-piket">
-                <div class="hari-nama">Rabu</div>
-                <div class="daftar-nama">
-                    <span class="nama">Rekhan Al Azim</span>
-                    <span class="nama">Tegar Dwi Satrio</span>
-                    <span class="nama">Mohammad Rafiq Aditya</span>
-                    <span class="nama">Guntur Ardyanto</span>
-                    <span class="nama">Achmad Faqih Arjuna</span>
-                    <span class="nama">Muhammad Daffa Annafi</span>
-                    <span class="nama">Revino Rizky Andrian</span>
-                </div>
-            </div>
-
-            <div class="hari-piket">
-                <div class="hari-nama">Kamis</div>
-                <div class="daftar-nama">
-                    <span class="nama">Nurul Khoirudin</span>
-                    <span class="nama">Muhammad Nazilul Ar Zaki</span>
-                    <span class="nama">Muhammad Abdul Rhozaqi</span>
-                    <span class="nama">Muhammad Bima Al Faruq</span>
-                    <span class="nama">Fiyani Kusyanto</span>
-                    <span class="nama">Daffa Sabian Batra</span>
-                </div>
-            </div>
-
-            <div class="hari-piket">
-                <div class="hari-nama">Jumat</div>
-                <div class="daftar-nama">
-                    <span class="nama">Bima Nur Archad</span>
-                    <span class="nama">Firman Abi Aryadi</span>
-                    <span class="nama">Zaki Nur Hidayah</span>
-                    <span class="nama">Guntur Putra Oetama</span>
-                    <span class="nama">Putri Gladys Shelomita</span>
-                    <span class="nama">Muhammad Ridho Akbar Nur Andika</span>
-                    <span class="nama">Eva Anindita</span>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- LOKASI -->
-        <div class="lokasi-title">Lokasi Sekolah</div>
-        <div class="lokasi-container">
-            <div class="map-wrapper">
-                <iframe
-                src="https://maps.google.com/maps?q=-6.966973,110.058658&z=16&output=embed&hl=id"
-                allowfullscreen=""
-                loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"
-                title="Peta SMK Muhammadiyah 3 Weleri"
-                ></iframe>
-            </div>
-            <div class="lokasi-info">
-                <span class="koordinat">📍 -6.966973, 110.058658</span>
-                <a
-                class="btn-maps"
-                href="https://maps.app.goo.gl/NJqQY5ZXW8E8anfU8"
-                target="_blank"
-                rel="noopener noreferrer"
-                >
-                🗺️ Buka di Google Maps
-            </a>
+    <div class="jabatan">
+        <div class="jabatan-nama">Kebersihan</div>
+        <div class="orang">
+            <span>Irsyad Fadil Atha Ullah</span>
+            <span>Firman Abi Aryadi</span>
         </div>
     </div>
 
-    <!-- FOOTER -->
-    <div class="footer">
-        <div class="footer-logo">
-            <img
-            src="https://c.termai.cc/i111/dgd.jpg"
-            alt="Logo SMK Muhammadiyah 3 Weleri"
-            width="40"
-            height="40"
-            />
-            <span>SMK Muhammadiyah 3 Weleri</span>
-        </div>
-        <div class="copyright">
-            &copy; 2026 — Kelas XI TAV/TE &bull; Total 32 siswa &bull;
-            <a href="https://c.termai.cc/i111/dgd.jpg" target="_blank">Sumber Logo</a>
+    <div class="jabatan">
+        <div class="jabatan-nama">Sekretaris</div>
+        <div class="orang">
+            <span>Daffa Alim Ardianto</span>
+            <span>Ashhabi Nabil Athaya</span>
         </div>
     </div>
+
+    <div class="jabatan">
+        <div class="jabatan-nama">Bendahara</div>
+        <div class="orang">
+            <span>Abel Dwi Putri Cantika</span>
+            <span>Eva Anindita</span>
+        </div>
+    </div>
+
+    <div class="jabatan">
+        <div class="jabatan-nama">Kerohanian</div>
+        <div class="orang">
+            <span>Rekhan Al Azim</span>
+            <span>Revino Rizky Andrian</span>
+        </div>
+    </div>
+
+    <div class="jabatan">
+        <div class="jabatan-nama">Keamanan</div>
+        <div class="orang">
+            <span>Fahri Ahmad Huzaini</span>
+            <span>Mauldino Tegar Putra Yunardi</span>
+        </div>
+    </div>
+
+    <div class="jabatan">
+        <div class="jabatan-nama">Olahraga</div>
+        <div class="orang">
+            <span>Nurul Khoirudin</span>
+            <span>Satria Aldian Maulana</span>
+        </div>
+    </div>
+
+    <div class="jabatan">
+        <div class="jabatan-nama">Inventaris</div>
+        <div class="orang">
+            <span>Bima Al Faruq</span>
+            <span>Adittri Wibowo</span>
+        </div>
+    </div>
+
+</div>
+
+<!-- JADWAL PIKET -->
+<div class="piket-title">Jadwal Piket Kelas</div>
+<div class="piket-grid">
+
+    <div class="hari-piket">
+        <div class="hari-nama">Senin</div>
+        <div class="daftar-nama">
+            <span class="nama">DAFFA ALIM ARDIANTO</span>
+            <span class="nama">Rafif Adly Purnomo</span>
+            <span class="nama">Irsyad Fadil Atha Ullah</span>
+            <span class="nama">Mauldino Tegar Putra Yunardi</span>
+            <span class="nama">Satria Aldian Maulana</span>
+            <span class="nama">Mujib Musadad</span>
+        </div>
+    </div>
+
+    <div class="hari-piket">
+        <div class="hari-nama">Selasa</div>
+        <div class="daftar-nama">
+            <span class="nama">Ashhabi Nabil Athaya</span>
+            <span class="nama">Adittri Wibowo</span>
+            <span class="nama">Fahri Ahmad Huzaini</span>
+            <span class="nama">Abel Dwi Putri Cantika</span>
+            <span class="nama">Najwa Fitriyani</span>
+            <span class="nama">Rizky Ananda</span>
+        </div>
+    </div>
+
+    <div class="hari-piket">
+        <div class="hari-nama">Rabu</div>
+        <div class="daftar-nama">
+            <span class="nama">Rekhan Al Azim</span>
+            <span class="nama">Tegar Dwi Satrio</span>
+            <span class="nama">Mohammad Rafiq Aditya</span>
+            <span class="nama">Guntur Ardyanto</span>
+            <span class="nama">Achmad Faqih Arjuna</span>
+            <span class="nama">Muhammad Daffa Annafi</span>
+            <span class="nama">Revino Rizky Andrian</span>
+        </div>
+    </div>
+
+    <div class="hari-piket">
+        <div class="hari-nama">Kamis</div>
+        <div class="daftar-nama">
+            <span class="nama">Nurul Khoirudin</span>
+            <span class="nama">Muhammad Nazilul Ar Zaki</span>
+            <span class="nama">Muhammad Abdul Rhozaqi</span>
+            <span class="nama">Muhammad Bima Al Faruq</span>
+            <span class="nama">Fiyani Kusyanto</span>
+            <span class="nama">Daffa Sabian Batra</span>
+        </div>
+    </div>
+
+    <div class="hari-piket">
+        <div class="hari-nama">Jumat</div>
+        <div class="daftar-nama">
+            <span class="nama">Bima Nur Archad</span>
+            <span class="nama">Firman Abi Aryadi</span>
+            <span class="nama">Zaki Nur Hidayah</span>
+            <span class="nama">Guntur Putra Oetama</span>
+            <span class="nama">Putri Gladys Shelomita</span>
+            <span class="nama">Muhammad Ridho Akbar Nur Andika</span>
+            <span class="nama">Eva Anindita</span>
+        </div>
+    </div>
+
+</div>
+
+<!-- LOKASI -->
+<div class="lokasi-title">Lokasi Sekolah</div>
+<div class="lokasi-container">
+    <div class="map-wrapper">
+        <iframe
+        src="https://maps.google.com/maps?q=-6.966973,110.058658&z=16&output=embed&hl=id"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Peta SMK Muhammadiyah 3 Weleri"
+        ></iframe>
+    </div>
+    <div class="lokasi-info">
+        <span class="koordinat">📍 -6.966973, 110.058658</span>
+        <a
+        class="btn-maps"
+        href="https://maps.app.goo.gl/NJqQY5ZXW8E8anfU8"
+        target="_blank"
+        rel="noopener noreferrer"
+        >
+        🗺️ Buka di Google Maps
+    </a>
+</div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <div class="footer-logo">
+        <img
+        src="https://c.termai.cc/i111/dgd.jpg"
+        alt="Logo SMK Muhammadiyah 3 Weleri"
+        width="40"
+        height="40"
+        />
+        <span>SMK Muhammadiyah 3 Weleri</span>
+    </div>
+    <div class="copyright">
+        &copy; 2026 — Kelas XI TAV/TE &bull; Total 32 siswa &bull;
+        <a href="https://c.termai.cc/i111/dgd.jpg" target="_blank">Sumber Logo</a>
+    </div>
+</div>
 
 </div>
 
