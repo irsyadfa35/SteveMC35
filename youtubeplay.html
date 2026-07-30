@@ -122,7 +122,7 @@
             visibility: visible;
         }
 
-        .menu-panel {
+        #menuContainer .menu-panel {
             position: fixed;
             top: 0;
             left: 0;
@@ -139,11 +139,11 @@
             overflow-y: auto;
         }
 
-        .menu-panel.open {
+        #menuContainer .menu-panel.open {
             transform: translateX(0);
         }
 
-        .menu-header {
+        #menuContainer .menu-header {
             display: flex;
             align-items: center;
             gap: 14px;
@@ -152,7 +152,7 @@
             margin-bottom: 20px;
         }
 
-        .brand-icon {
+        #menuContainer .brand-icon {
             width: 40px;
             height: 40px;
             background: linear-gradient(135deg, #FF0000, #cc0000);
@@ -164,27 +164,27 @@
             font-size: 20px;
         }
 
-        .brand-text {
+        #menuContainer .brand-text {
             font-size: 20px;
             font-weight: 700;
             color: #fff;
         }
 
-        .brand-text span {
+        #menuContainer .brand-text span {
             color: #FF0000;
         }
 
-        .menu-list {
+        #menuContainer .menu-list {
             list-style: none;
             flex: 1;
             padding: 0;
         }
 
-        .menu-list li {
+        #menuContainer .menu-list li {
             margin-bottom: 8px;
         }
 
-        .menu-list li a {
+        #menuContainer .menu-list li a {
             display: flex;
             align-items: center;
             gap: 14px;
@@ -197,23 +197,23 @@
             font-weight: 500;
         }
 
-        .menu-list li a i {
+        #menuContainer .menu-list li a i {
             width: 22px;
             font-size: 18px;
             text-align: center;
         }
 
-        .menu-list li a:hover {
+        #menuContainer .menu-list li a:hover {
             background: rgba(255, 255, 255, 0.06);
             color: #fff;
         }
 
-        .menu-list li a.active {
+        #menuContainer .menu-list li a.active {
             background: rgba(255, 0, 0, 0.15);
             color: #FF0000;
         }
 
-        .menu-footer {
+        #menuContainer .menu-footer {
             margin-top: 20px;
             padding-top: 16px;
             border-top: 1px solid rgba(255, 255, 255, 0.06);
@@ -224,7 +224,7 @@
             gap: 8px;
         }
 
-        .menu-footer i {
+        #menuContainer .menu-footer i {
             font-size: 14px;
         }
 
@@ -420,60 +420,33 @@
             border-radius: 20px;
             padding: 24px;
             border: 1px solid rgba(255, 255, 255, 0.06);
-            display: flex;
-            gap: 24px;
-            align-items: flex-start;
         }
 
-        .result-thumbnail {
-            flex-shrink: 0;
-            width: 160px;
-            height: 160px;
+        /* Video Preview (Embed) */
+        .video-preview {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 */
+            background: #000;
             border-radius: 16px;
             overflow: hidden;
-            background: #282828;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            position: relative;
+            margin-bottom: 20px;
         }
 
-        .result-thumbnail img {
+        .video-preview iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .result-thumbnail .play-badge {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .result-thumbnail .play-badge i {
-            font-size: 10px;
-        }
-
-        .result-info {
-            flex: 1;
-            min-width: 0;
+            border: none;
         }
 
         .result-title {
             font-size: 22px;
-            font-weight: 700;
+            font-weight: 600;
             color: #fff;
-            margin-bottom: 4px;
-            line-height: 1.3;
+            margin-bottom: 8px;
         }
 
         .result-channel {
@@ -701,15 +674,6 @@
                 width: 100%;
                 justify-content: center;
             }
-            .result-card {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-            .result-thumbnail {
-                width: 140px;
-                height: 140px;
-            }
             .result-title {
                 font-size: 18px;
             }
@@ -725,7 +689,7 @@
             .audio-player-wrapper audio {
                 height: 42px;
             }
-            .menu-panel {
+            #menuContainer .menu-panel {
                 width: 260px;
             }
         }
@@ -750,11 +714,7 @@
                 height: 42px;
                 font-size: 16px;
             }
-            .result-thumbnail {
-                width: 120px;
-                height: 120px;
-            }
-            .menu-panel {
+            #menuContainer .menu-panel {
                 width: 240px;
                 padding: 20px 16px;
             }
@@ -781,7 +741,7 @@
             </div>
             <div>
                 <h1>YouTube <span>Play</span></h1>
-                <div class="sub">Cari lagu, preview, unduh MP3</div>
+                <div class="sub">Cari lagu, tonton video, unduh MP3</div>
             </div>
         </div>
 
@@ -814,46 +774,43 @@
         <!-- ─── RESULT ─── -->
         <div class="result-section" id="resultSection">
             <div class="result-card">
-                <div class="result-thumbnail" id="thumbnailContainer">
-                    <img id="thumbnailImg" src="" alt="Thumbnail" />
-                    <div class="play-badge" id="durationBadge">
-                        <i class="fas fa-play"></i> <span id="durationBadgeText">—</span>
-                    </div>
+                <!-- Video Preview (Embed) -->
+                <div class="video-preview" id="videoPreview">
+                    <iframe id="videoIframe" src="" allowfullscreen></iframe>
                 </div>
-                <div class="result-info">
-                    <div class="result-title" id="resultTitle">—</div>
-                    <div class="result-channel" id="resultChannel">
-                        <i class="fas fa-user"></i>
-                        <a href="#" id="channelLink" target="_blank">—</a>
-                    </div>
-                    <div class="result-description" id="resultDescription">—</div>
-                    <div class="result-meta">
-                        <span class="meta-item"><i class="fas fa-eye"></i> <strong id="metaViews">—</strong></span>
-                        <span class="meta-item"><i class="fas fa-clock"></i> <strong id="metaDuration">—</strong></span>
-                        <span class="meta-item"><i class="fas fa-calendar-alt"></i> <strong id="metaUpload">—</strong></span>
-                    </div>
 
-                    <!-- Audio Player Preview -->
-                    <div class="audio-player-wrapper">
-                        <audio id="audioPlayer" controls preload="metadata">
-                            <source id="audioSource" src="" type="audio/mpeg" />
-                            Browser Anda tidak mendukung pemutar audio.
-                        </audio>
-                    </div>
+                <div class="result-title" id="resultTitle">—</div>
+                <div class="result-channel" id="resultChannel">
+                    <i class="fas fa-user"></i>
+                    <a href="#" id="channelLink" target="_blank">—</a>
+                </div>
+                <div class="result-description" id="resultDescription">—</div>
+                <div class="result-meta">
+                    <span class="meta-item"><i class="fas fa-eye"></i> <strong id="metaViews">—</strong></span>
+                    <span class="meta-item"><i class="fas fa-clock"></i> <strong id="metaDuration">—</strong></span>
+                    <span class="meta-item"><i class="fas fa-calendar-alt"></i> <strong id="metaUpload">—</strong></span>
+                </div>
 
-                    <div class="download-row">
-                        <button class="btn-download mp3" id="downloadBtn">
-                            <span class="btn-icon"><i class="fas fa-download"></i></span>
-                            <span class="btn-text">Download MP3</span>
-                            <span class="spinner-small"></span>
-                        </button>
-                        <button class="btn-download secondary" id="copyLinkBtn">
-                            <i class="fas fa-copy"></i> Salin Link YouTube
-                        </button>
-                        <button class="btn-download secondary" id="openYoutubeBtn">
-                            <i class="fab fa-youtube"></i> Buka di YouTube
-                        </button>
-                    </div>
+                <!-- Audio Player Preview -->
+                <div class="audio-player-wrapper">
+                    <audio id="audioPlayer" controls preload="metadata">
+                        <source id="audioSource" src="" type="audio/mpeg" />
+                        Browser Anda tidak mendukung pemutar audio.
+                    </audio>
+                </div>
+
+                <div class="download-row">
+                    <button class="btn-download mp3" id="downloadBtn">
+                        <span class="btn-icon"><i class="fas fa-download"></i></span>
+                        <span class="btn-text">Download MP3</span>
+                        <span class="spinner-small"></span>
+                    </button>
+                    <button class="btn-download secondary" id="copyLinkBtn">
+                        <i class="fas fa-copy"></i> Salin Link YouTube
+                    </button>
+                    <button class="btn-download secondary" id="openYoutubeBtn">
+                        <i class="fab fa-youtube"></i> Buka di YouTube
+                    </button>
                 </div>
             </div>
         </div>
@@ -861,7 +818,7 @@
         <!-- ─── EMPTY STATE ─── -->
         <div class="empty-state" id="emptyState">
             <i class="fas fa-music"></i>
-            <p>Masukkan judul lagu atau nama artis di atas, lalu klik <strong>Cari & Play</strong> untuk mendengarkan dan mengunduh.</p>
+            <p>Masukkan judul lagu atau nama artis di atas, lalu klik <strong>Cari & Play</strong> untuk menonton dan mengunduh.</p>
         </div>
 
     </div>
@@ -876,8 +833,7 @@
         const resultSection = document.getElementById('resultSection');
         const emptyState = document.getElementById('emptyState');
 
-        const thumbnailImg = document.getElementById('thumbnailImg');
-        const durationBadgeText = document.getElementById('durationBadgeText');
+        const videoIframe = document.getElementById('videoIframe');
         const resultTitle = document.getElementById('resultTitle');
         const channelLink = document.getElementById('channelLink');
         const resultDescription = document.getElementById('resultDescription');
@@ -889,12 +845,6 @@
         const openYoutubeBtn = document.getElementById('openYoutubeBtn');
         const audioPlayer = document.getElementById('audioPlayer');
         const audioSource = document.getElementById('audioSource');
-
-        // ─── State ──────────────────────────────────────────────────
-        let currentDownloadUrl = '';
-        let currentTitle = '';
-        let currentChannel = '';
-        let currentYoutubeUrl = '';
 
         // ─── Load Menu dengan Active Link Otomatis ─────────────────
         const menuContainer = document.getElementById('menuContainer');
@@ -919,36 +869,55 @@
                     const href = link.getAttribute('href');
                     link.classList.remove('active');
 
-                    // Jika href sama dengan halaman saat ini
                     if (href === currentPage) {
                         link.classList.add('active');
-                    }
-                    // Jika href adalah folder (contoh: tiktokdl/)
-                    else if (href.endsWith('/') && currentPage.startsWith(href.replace('/', ''))) {
+                    } else if (href.endsWith('/') && currentPage.startsWith(href.replace('/', ''))) {
                         link.classList.add('active');
                     }
                 });
 
-                // ── Fungsi toggle menu ──────────────────────────
-                function toggleMenu() {
-                    menuPanel.classList.toggle('open');
-                    menuOverlay.classList.toggle('active');
-                    document.body.style.overflow = menuPanel.classList.contains('open') ? 'hidden' : '';
+                // ── Fungsi toggle menu ──────────────────────────────
+                function toggleMenu(forceState) {
+                    const isOpen = typeof forceState === 'boolean' ? forceState : !menuPanel.classList.contains('open');
+                    menuPanel.classList.toggle('open', isOpen);
+                    menuOverlay.classList.toggle('active', isOpen);
+                    document.body.style.overflow = isOpen ? 'hidden' : '';
                 }
 
                 function closeMenu() {
-                    menuPanel.classList.remove('open');
-                    menuOverlay.classList.remove('active');
-                    document.body.style.overflow = '';
+                    toggleMenu(false);
                 }
 
-                if (menuToggle) menuToggle.addEventListener('click', toggleMenu);
+                // ── Event listeners ──────────────────────────────────
+                if (menuToggle) menuToggle.addEventListener('click', () => toggleMenu());
                 if (menuOverlay) menuOverlay.addEventListener('click', closeMenu);
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && menuPanel.classList.contains('open')) {
+                        closeMenu();
+                    }
+                });
+
+                // Tutup menu saat klik link
+                menuPanel.querySelectorAll('.menu-list a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (link.getAttribute('href') !== '#') {
+                            closeMenu();
+                        }
+                    });
+                });
             })
             .catch(err => {
                 console.warn('Gagal memuat menu:', err);
                 menuContainer.innerHTML = '<p style="color:rgba(255,255,255,0.3);padding:12px;">Menu tidak tersedia</p>';
             });
+
+        // ─── State ──────────────────────────────────────────────────
+        let currentDownloadUrl = '';
+        let currentTitle = '';
+        let currentChannel = '';
+        let currentYoutubeUrl = '';
+        let currentVideoId = '';
 
         // ─── Helpers ────────────────────────────────────────────────
         function showError(msg) {
@@ -987,6 +956,19 @@
             return views.toString();
         }
 
+        // ─── Extract YouTube Video ID ─────────────────────────────
+        function extractVideoId(url) {
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([a-zA-Z0-9_-]{11})(?:[?&]|$)/,
+                /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/
+            ];
+            for (let pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) return match[1];
+            }
+            return null;
+        }
+
         // ─── API call ──────────────────────────────────────────────
         async function fetchYtPlay(query) {
             const encoded = encodeURIComponent(query.trim());
@@ -1001,22 +983,21 @@
             return data;
         }
 
-        function renderResult(data) {
+        function renderResult(data, videoId) {
             const r = data.result;
             currentDownloadUrl = r.download_url || '';
             currentTitle = r.title || 'Unknown Title';
             currentChannel = r.channel || 'Unknown Channel';
             currentYoutubeUrl = r.url || '';
+            currentVideoId = videoId || '';
 
-            if (r.thumbnail) {
-                thumbnailImg.src = r.thumbnail;
-                thumbnailImg.alt = r.title || 'Thumbnail';
+            // Set video embed
+            if (currentVideoId) {
+                videoIframe.src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=0&rel=0`;
             } else {
-                thumbnailImg.src = '';
-                thumbnailImg.alt = 'No thumbnail';
+                videoIframe.src = '';
             }
 
-            durationBadgeText.textContent = r.duration || '—';
             resultTitle.textContent = r.title || '—';
             channelLink.textContent = r.channel || '—';
             channelLink.href = r.channel_url || '#';
@@ -1026,6 +1007,7 @@
             metaDuration.textContent = r.duration || '—';
             metaUpload.textContent = r.upload_at || '—';
 
+            // Set audio player
             if (currentDownloadUrl) {
                 audioSource.src = currentDownloadUrl;
                 audioPlayer.load();
@@ -1111,13 +1093,17 @@
             setLoading(true);
             resultSection.classList.remove('show');
             emptyState.style.display = 'flex';
+            // Reset player
             audioPlayer.pause();
             audioSource.src = '';
             audioPlayer.load();
+            videoIframe.src = '';
 
             try {
                 const data = await fetchYtPlay(raw);
-                renderResult(data);
+                // Ekstrak video ID dari URL hasil API atau dari input
+                const videoId = extractVideoId(data.result.url || raw);
+                renderResult(data, videoId);
                 hideError();
             } catch (err) {
                 console.error(err);
