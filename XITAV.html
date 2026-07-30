@@ -113,10 +113,10 @@
             box-shadow: 0 4px 10px rgba(10, 30, 68, 0.25);
         }
 
-        /* Info grid */
+        /* Info grid - 3 kolom untuk desktop */
         .info-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px 30px;
             background: #f8faff;
             border-radius: 20px;
@@ -335,7 +335,7 @@
         .lokasi-container .map-wrapper {
             position: relative;
             width: 100%;
-            padding-bottom: 56.25%; /* 16:9 */
+            padding-bottom: 56.25%;
             height: 0;
             overflow: hidden;
             border-radius: 16px;
@@ -390,7 +390,7 @@
             box-shadow: 0 6px 16px rgba(10, 30, 68, 0.3);
         }
 
-        /* Footer dengan copyright & logo */
+        /* Footer */
         .footer {
             margin-top: 10px;
             text-align: center;
@@ -549,7 +549,7 @@
 
     <div class="card">
 
-        <!-- HEADER dengan Logo -->
+        <!-- HEADER -->
         <div class="header">
             <img
             class="logo-sekolah"
@@ -565,7 +565,7 @@
             </div>
         </div>
 
-        <!-- INFO SINGKAT -->
+        <!-- INFO SINGKAT (5 item) -->
         <div class="info-grid">
             <div class="info-item">
                 <span class="label">📌 Jurusan</span>
@@ -582,6 +582,10 @@
             <div class="info-item">
                 <span class="label">📅 Tahun Ajaran</span>
                 <span class="value">2026/2027</span>
+            </div>
+            <div class="info-item">
+                <span class="label">👩‍🏫 Wali Kelas</span>
+                <span class="value">Hesty Marliana</span>
             </div>
         </div>
 
@@ -661,7 +665,6 @@
         <div class="piket-title">Jadwal Piket Kelas</div>
         <div class="piket-grid">
 
-            <!-- SENIN -->
             <div class="hari-piket">
                 <div class="hari-nama">Senin</div>
                 <div class="daftar-nama">
@@ -674,7 +677,6 @@
                 </div>
             </div>
 
-            <!-- SELASA -->
             <div class="hari-piket">
                 <div class="hari-nama">Selasa</div>
                 <div class="daftar-nama">
@@ -687,7 +689,6 @@
                 </div>
             </div>
 
-            <!-- RABU -->
             <div class="hari-piket">
                 <div class="hari-nama">Rabu</div>
                 <div class="daftar-nama">
@@ -701,7 +702,6 @@
                 </div>
             </div>
 
-            <!-- KAMIS -->
             <div class="hari-piket">
                 <div class="hari-nama">Kamis</div>
                 <div class="daftar-nama">
@@ -714,7 +714,6 @@
                 </div>
             </div>
 
-            <!-- JUMAT -->
             <div class="hari-piket">
                 <div class="hari-nama">Jumat</div>
                 <div class="daftar-nama">
@@ -746,7 +745,7 @@
                 <span class="koordinat">📍 -6.966973, 110.058658</span>
                 <a
                 class="btn-maps"
-                href="https://maps.app.goo.gl/DiDZMWannrXtaa4v6"
+                href="https://maps.app.goo.gl/NJqQY5ZXW8E8anfU8"
                 target="_blank"
                 rel="noopener noreferrer"
                 >
@@ -755,7 +754,7 @@
         </div>
     </div>
 
-    <!-- FOOTER dengan Copyright & Logo -->
+    <!-- FOOTER -->
     <div class="footer">
         <div class="footer-logo">
             <img
