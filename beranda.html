@@ -9,9 +9,6 @@
   <!-- Font Awesome (untuk ikon menu) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-  <!-- Font Digital-7 dari CDN -->
-  <link href="https://fonts.cdnfonts.com/css/digital-7" rel="stylesheet" />
-
   <style>
     /* ── Reset & Base ── */
     * {
@@ -29,11 +26,10 @@
       align-items: center;
       min-height: 100vh;
       overflow-x: hidden;
-      transition: margin-left 0.3s;
       padding: 0 20px;
     }
 
-    /* ── Tombol Hamburger (seperti contoh kedua) ── */
+    /* ── Tombol Hamburger ── */
     .hamburger {
       position: fixed;
       top: 24px;
@@ -188,20 +184,68 @@
       text-align: center;
     }
 
-    /* ── Header Image ── */
+    /* ── Header Image dengan Border Lighting (dari contoh) ── */
     .header-image {
+      position: relative;
       width: 100%;
       max-width: 1024px;
       margin: 100px auto 30px auto;
-      border-radius: 20px;
+      border-radius: 24px;
       overflow: hidden;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      /* Glow luar */
+      filter: drop-shadow(0 0 25px rgba(0, 255, 255, 0.25));
     }
+
+    /* Border Lighting (conic-gradient berputar) */
+    .header-image::before {
+      content: "";
+      position: absolute;
+      width: 250%;
+      height: 250%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: conic-gradient(
+        transparent 0deg,
+        transparent 310deg,
+        #00e5ff 325deg,
+        #00ff88 340deg,
+        #7c4dff 355deg,
+        transparent 360deg
+      );
+      animation: spin 3s linear infinite;
+      z-index: 0;
+    }
+
+    /* Background dalam (lapisan gelap di atas border) */
+    .header-image::after {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border-radius: 21px;
+      background: #0a0f23;
+      z-index: 1;
+    }
+
+    /* Gambar di dalam */
     .header-image img {
-      width: 100%;
-      height: auto;
+      position: relative;
       display: block;
+      width: calc(100% - 12px);
+      height: calc(100% - 12px);
+      margin: 6px;
+      object-fit: cover;
+      border-radius: 18px;
+      z-index: 2;
+    }
+
+    @keyframes spin {
+      from {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+      to {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
     }
 
     /* ── Container ── */
@@ -243,53 +287,6 @@
       min-height: 2.2rem;
     }
 
-    /* ── Kotak Jam Digital ── */
-    .clock-box {
-      display: flex;
-      justify-content: center;
-      margin: 30px auto 0 auto;
-    }
-    .clock-card {
-      width: 340px;
-      background: rgba(20, 20, 50, 0.7);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      border-radius: 18px;
-      padding: 18px 16px;
-      box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-    .clock-icon svg {
-      width: 28px;
-      height: 28px;
-      stroke: #aa88ff;
-      stroke-width: 2;
-      fill: none;
-    }
-
-    /* ── JAM dengan font Digital-7 ── */
-    #clockTime {
-      font-family: 'Digital-7', 'Courier New', monospace;
-      font-size: 2.6rem;
-      font-weight: 400;
-      color: #00f0ff;
-      text-shadow: 0 0 20px #00f0ff66, 0 0 60px #00f0ff33;
-      letter-spacing: 4px;
-      line-height: 1.2;
-    }
-    #clockDate {
-      font-size: 0.95rem;
-      color: #88b0ff;
-      letter-spacing: 1px;
-      margin-top: 2px;
-      font-family: 'Segoe UI', sans-serif;
-    }
-
     /* ── Footer ── */
     .footer {
       text-align: center;
@@ -313,6 +310,21 @@
     @media (max-width: 640px) {
       .header-image {
         margin-top: 80px;
+        border-radius: 18px;
+        filter: drop-shadow(0 0 18px rgba(0, 255, 255, 0.2));
+      }
+      .header-image::before {
+        width: 300%;
+        height: 300%;
+      }
+      .header-image::after {
+        inset: 2px;
+        border-radius: 15px;
+      }
+      .header-image img {
+        width: calc(100% - 8px);
+        height: calc(100% - 8px);
+        margin: 4px;
         border-radius: 14px;
       }
       .site-title {
@@ -323,14 +335,6 @@
       }
       .typing {
         font-size: 1.2rem;
-      }
-      .clock-card {
-        width: 280px;
-        padding: 14px 12px;
-      }
-      #clockTime {
-        font-size: 2.2rem;
-        letter-spacing: 3px;
       }
       #menuContainer .menu-panel {
         width: 260px;
@@ -349,6 +353,22 @@
     @media (max-width: 420px) {
       .header-image {
         margin-top: 70px;
+        border-radius: 14px;
+        filter: drop-shadow(0 0 12px rgba(0, 255, 255, 0.15));
+      }
+      .header-image::before {
+        width: 350%;
+        height: 350%;
+      }
+      .header-image::after {
+        inset: 1.5px;
+        border-radius: 12px;
+      }
+      .header-image img {
+        width: calc(100% - 6px);
+        height: calc(100% - 6px);
+        margin: 3px;
+        border-radius: 11px;
       }
       .site-title {
         font-size: 1.8rem;
@@ -358,16 +378,6 @@
       }
       .typing {
         font-size: 1rem;
-      }
-      .clock-card {
-        width: 250px;
-        padding: 12px 10px;
-      }
-      #clockTime {
-        font-size: 1.8rem;
-      }
-      #clockDate {
-        font-size: 0.8rem;
       }
       #menuContainer .menu-panel {
         width: 240px;
@@ -391,7 +401,7 @@
   <!-- ─── CONTAINER UNTUK MENU (diisi dari menu.html) ─── -->
   <div id="menuContainer"></div>
 
-  <!-- ─── HEADER IMAGE ─── -->
+  <!-- ─── HEADER IMAGE DENGAN BORDER LIGHTING ─── -->
   <div class="header-image">
     <img src="https://c.termai.cc/i183/m5ecz.jpg" alt="SteveMC Banner" loading="lazy" />
   </div>
@@ -403,17 +413,6 @@
     <div class="development-note">Website ini masih dalam tahap pengembangan</div>
     <div class="greeting" id="greeting"></div>
     <div class="typing" id="typing"></div>
-
-    <!-- Kotak Jam Digital dengan font Digital-7 -->
-    <div class="clock-box">
-      <div class="clock-card">
-        <div class="clock-icon">
-          <svg viewBox="0 0 24 24"><path d="M12 7V12L14.5 10.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div id="clockTime">00:00:00 WIB</div>
-        <div id="clockDate">---</div>
-      </div>
-    </div>
   </div>
 
   <!-- ─── FOOTER ─── -->
@@ -510,28 +509,6 @@
       }
     }
     type();
-
-    // ─────────────────────────────────────────────
-    //  JAM DIGITAL (font Digital-7)
-    // ─────────────────────────────────────────────
-    function updateClock() {
-      const now = new Date();
-      const jam = String(now.getHours()).padStart(2, '0');
-      const menit = String(now.getMinutes()).padStart(2, '0');
-      const detik = String(now.getSeconds()).padStart(2, '0');
-      document.getElementById('clockTime').textContent = `${jam}:${menit}:${detik} WIB`;
-
-      const tanggal = now.toLocaleDateString('id-ID', {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric'
-      });
-      document.getElementById('clockDate').textContent = tanggal;
-    }
-
-    updateClock();
-    setInterval(updateClock, 1000);
   </script>
 
 </body>
