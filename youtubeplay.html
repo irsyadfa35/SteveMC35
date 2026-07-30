@@ -896,7 +896,7 @@
         let currentChannel = '';
         let currentYoutubeUrl = '';
 
-        // ─── Load Menu ─────────────────────────────────────────────
+        // ─── Load Menu dengan Active Link Otomatis ─────────────────
         const menuContainer = document.getElementById('menuContainer');
         const menuToggle = document.getElementById('menuToggle');
         const menuOverlay = document.getElementById('menuOverlay');
@@ -911,6 +911,25 @@
                 const menuPanel = document.getElementById('menuPanel');
                 if (!menuPanel) return;
 
+                // ── Tandai link aktif berdasarkan halaman saat ini ──
+                const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+                const allLinks = menuPanel.querySelectorAll('.menu-list a');
+
+                allLinks.forEach(link => {
+                    const href = link.getAttribute('href');
+                    link.classList.remove('active');
+
+                    // Jika href sama dengan halaman saat ini
+                    if (href === currentPage) {
+                        link.classList.add('active');
+                    }
+                    // Jika href adalah folder (contoh: tiktokdl/)
+                    else if (href.endsWith('/') && currentPage.startsWith(href.replace('/', ''))) {
+                        link.classList.add('active');
+                    }
+                });
+
+                // ── Fungsi toggle menu ──────────────────────────
                 function toggleMenu() {
                     menuPanel.classList.toggle('open');
                     menuOverlay.classList.toggle('active');
@@ -989,7 +1008,6 @@
             currentChannel = r.channel || 'Unknown Channel';
             currentYoutubeUrl = r.url || '';
 
-            // Thumbnail
             if (r.thumbnail) {
                 thumbnailImg.src = r.thumbnail;
                 thumbnailImg.alt = r.title || 'Thumbnail';
@@ -998,21 +1016,16 @@
                 thumbnailImg.alt = 'No thumbnail';
             }
 
-            // Duration badge
             durationBadgeText.textContent = r.duration || '—';
-
-            // Info
             resultTitle.textContent = r.title || '—';
             channelLink.textContent = r.channel || '—';
             channelLink.href = r.channel_url || '#';
             resultDescription.textContent = r.description || '—';
 
-            // Meta
             metaViews.textContent = formatViews(r.views);
             metaDuration.textContent = r.duration || '—';
             metaUpload.textContent = r.upload_at || '—';
 
-            // Set audio player
             if (currentDownloadUrl) {
                 audioSource.src = currentDownloadUrl;
                 audioPlayer.load();
