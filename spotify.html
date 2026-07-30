@@ -33,6 +33,7 @@
             border: 1px solid rgba(255, 255, 255, 0.06);
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
             position: relative;
+            z-index: 1;
         }
 
         /* ── Header ── */
@@ -43,7 +44,8 @@
             margin-bottom: 32px;
         }
 
-        .back-btn {
+        /* Tombol Menu (Hamburger) */
+        .menu-toggle {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -52,21 +54,20 @@
             border-radius: 14px;
             background: rgba(255, 255, 255, 0.06);
             color: rgba(255, 255, 255, 0.6);
-            font-size: 20px;
-            text-decoration: none;
+            font-size: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            cursor: pointer;
             transition: all 0.3s ease;
             flex-shrink: 0;
-            border: 1px solid rgba(255, 255, 255, 0.04);
         }
 
-        .back-btn:hover {
+        .menu-toggle:hover {
             background: rgba(255, 255, 255, 0.12);
             color: #fff;
-            transform: translateX(-3px);
             border-color: rgba(255, 255, 255, 0.15);
         }
 
-        .back-btn:active {
+        .menu-toggle:active {
             transform: scale(0.92);
         }
 
@@ -101,6 +102,131 @@
             color: rgba(255, 255, 255, 0.4);
             font-weight: 400;
             margin-top: 2px;
+        }
+
+        /* ── MENU PANEL (sidebar) ── */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .menu-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100%;
+            background: #1e1e1e;
+            z-index: 1000;
+            padding: 24px 20px;
+            box-shadow: 4px 0 30px rgba(0, 0, 0, 0.6);
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .menu-panel.open {
+            transform: translateX(0);
+        }
+
+        .menu-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            margin-bottom: 20px;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #1DB954, #1ed760);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 20px;
+        }
+
+        .brand-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .brand-text span {
+            color: #1DB954;
+        }
+
+        .menu-list {
+            list-style: none;
+            flex: 1;
+            padding: 0;
+        }
+
+        .menu-list li {
+            margin-bottom: 8px;
+        }
+
+        .menu-list li a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .menu-list li a i {
+            width: 22px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .menu-list li a:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+
+        .menu-list li a.active {
+            background: rgba(29, 185, 84, 0.15);
+            color: #1DB954;
+        }
+
+        .menu-footer {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu-footer i {
+            font-size: 14px;
         }
 
         /* ── Input ── */
@@ -507,7 +633,7 @@
                 flex-wrap: wrap;
                 gap: 10px;
             }
-            .back-btn {
+            .menu-toggle {
                 width: 40px;
                 height: 40px;
                 font-size: 18px;
@@ -560,6 +686,9 @@
             .audio-player-wrapper audio {
                 height: 42px;
             }
+            .menu-panel {
+                width: 260px;
+            }
         }
 
         @media (max-width: 420px) {
@@ -572,7 +701,7 @@
             .header .sub {
                 font-size: 12px;
             }
-            .back-btn {
+            .menu-toggle {
                 width: 36px;
                 height: 36px;
                 font-size: 16px;
@@ -586,18 +715,27 @@
                 width: 120px;
                 height: 120px;
             }
+            .menu-panel {
+                width: 240px;
+                padding: 20px 16px;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- ─── OVERLAY ─── -->
+<div class="menu-overlay" id="menuOverlay"></div>
+
+<div id="menuContainer"></div>
+
     <div class="container">
 
         <!-- ─── HEADER ─── -->
         <div class="header">
-            <a href="index.html" class="back-btn" title="Kembali ke beranda">
-                <i class="fas fa-arrow-left"></i>
-            </a>
+            <button class="menu-toggle" id="menuToggle" title="Buka menu">
+                <i class="fas fa-bars"></i>
+            </button>
             <div class="header-icon">
                 <i class="fab fa-spotify"></i>
             </div>
@@ -932,6 +1070,26 @@
         hideError();
         downloadBtn.disabled = true;
         audioPlayer.style.display = 'none';
+        // Load menu.html
+fetch("menu.html")
+  .then(res => res.text())
+  .then(html => {
+    document.getElementById("menuContainer").innerHTML = html;
+
+    const menuToggle = document.getElementById("menuToggle");
+    const menuPanel = document.getElementById("menuPanel");
+    const menuOverlay = document.getElementById("menuOverlay");
+
+    menuToggle.addEventListener("click", () => {
+      menuPanel.classList.add("open");
+      menuOverlay.classList.add("active");
+    });
+
+    menuOverlay.addEventListener("click", () => {
+      menuPanel.classList.remove("open");
+      menuOverlay.classList.remove("active");
+    });
+  });
     </script>
 
 </body>
