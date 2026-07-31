@@ -29,7 +29,7 @@
       padding: 0 20px;
     }
 
-    /* ── Tombol Hamburger ── */
+    /* ── Tombol Hamburger (tanpa efek silang) ── */
     .hamburger {
       position: fixed;
       top: 24px;
@@ -54,17 +54,7 @@
       height: 3px;
       background: #fff;
       border-radius: 4px;
-      transition: all 0.3s;
-      transform-origin: center;
-    }
-    .hamburger.active span:nth-child(1) {
-      transform: rotate(45deg) translate(6px, 6px);
-    }
-    .hamburger.active span:nth-child(2) {
-      opacity: 0;
-    }
-    .hamburger.active span:nth-child(3) {
-      transform: rotate(-45deg) translate(6px, -6px);
+      transition: none; /* tidak ada transisi agar tidak berubah */
     }
 
     /* ── Menu Overlay ── */
@@ -184,7 +174,7 @@
       text-align: center;
     }
 
-    /* ── Header Image dengan Border Lighting (dari contoh) ── */
+    /* ── Header Image dengan Border Lighting ── */
     .header-image {
       position: relative;
       width: 100%;
@@ -192,11 +182,9 @@
       margin: 100px auto 30px auto;
       border-radius: 24px;
       overflow: hidden;
-      /* Glow luar */
       filter: drop-shadow(0 0 25px rgba(0, 255, 255, 0.25));
     }
 
-    /* Border Lighting (conic-gradient berputar) */
     .header-image::before {
       content: "";
       position: absolute;
@@ -217,7 +205,6 @@
       z-index: 0;
     }
 
-    /* Background dalam (lapisan gelap di atas border) */
     .header-image::after {
       content: "";
       position: absolute;
@@ -227,7 +214,6 @@
       z-index: 1;
     }
 
-    /* Gambar di dalam */
     .header-image img {
       position: relative;
       display: block;
@@ -285,6 +271,28 @@
       font-weight: 300;
       color: #cce0ff;
       min-height: 2.2rem;
+    }
+
+    /* ── Tombol Download Map ── */
+    .btn-map {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 16px 40px;
+      background: linear-gradient(135deg, #00e5ff, #7c4dff);
+      border-radius: 16px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #fff;
+      text-decoration: none;
+      box-shadow: 0 4px 24px rgba(124, 77, 255, 0.4);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .btn-map:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 8px 40px rgba(124, 77, 255, 0.6);
+    }
+    .btn-map i {
+      margin-right: 10px;
     }
 
     /* ── Footer ── */
@@ -348,6 +356,10 @@
         width: 24px;
         height: 2.5px;
       }
+      .btn-map {
+        padding: 14px 28px;
+        font-size: 1rem;
+      }
     }
 
     @media (max-width: 420px) {
@@ -383,6 +395,10 @@
         width: 240px;
         padding: 20px 16px;
       }
+      .btn-map {
+        padding: 12px 20px;
+        font-size: 0.95rem;
+      }
     }
   </style>
 </head>
@@ -413,6 +429,11 @@
     <div class="development-note">Website ini masih dalam tahap pengembangan</div>
     <div class="greeting" id="greeting"></div>
     <div class="typing" id="typing"></div>
+
+    <!-- ─── TOMBOL DOWNLOAD MAP MINECRAFT ─── -->
+    <a href="downloadmap.html" class="btn-map">
+      <i class="fas fa-map"></i> Download Map Minecraft
+    </a>
   </div>
 
   <!-- ─── FOOTER ─── -->
@@ -454,12 +475,12 @@
           }
         });
 
-        // ── Fungsi toggle menu ──────────────────────────────
+        // ── Fungsi toggle menu (tanpa efek silang) ──
         function toggleMenu(forceState) {
           const isOpen = typeof forceState === 'boolean' ? forceState : !menuPanel.classList.contains('open');
           menuPanel.classList.toggle('open', isOpen);
           menuOverlay.classList.toggle('open', isOpen);
-          hamburger.classList.toggle('active', isOpen);
+          // TIDAK menambahkan class 'active' pada hamburger
           document.body.style.overflow = isOpen ? 'hidden' : '';
         }
 
