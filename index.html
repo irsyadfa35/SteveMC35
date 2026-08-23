@@ -129,6 +129,7 @@
       justify-content: center;
       z-index: 9999;
       transition: opacity 0.5s ease;
+      pointer-events: none;
     }
 
     #authLoading.hidden {
@@ -159,7 +160,7 @@
     }
 
     /* ============================================
-       OWNER BADGE DI HEADER
+       OWNER BADGE
     ============================================ */
     .owner-badge {
       display: none;
@@ -1417,7 +1418,6 @@
       <div class="badge">
         <i class="fas fa-code"></i>
         <span>Developer &amp; Creator</span>
-        <!-- ===== OWNER BADGE ===== -->
         <span id="ownerBadge" style="display:none;"></span>
       </div>
 
@@ -1432,7 +1432,6 @@
         Membangun dunia digital melalui kode, kreativitas, dan passion terhadap teknologi.
       </p>
 
-      <!-- CTA Buttons -->
       <div class="cta-group">
         <a href="#mapSection" class="btn-primary">
           <i class="fas fa-map"></i> Download Map
@@ -1463,7 +1462,7 @@
       </div>
     </div>
 
-    <!-- ===== SLIDER / CAROUSEL ===== -->
+    <!-- ===== SLIDER ===== -->
     <div class="slider-section">
       <div class="section-label">
         <h2><i class="fas fa-images"></i> Galeri Map</h2>
@@ -1478,18 +1477,14 @@
           <img src="https://c.termai.cc/i107/X0t9.jpg" alt="City Map 4" loading="lazy" />
         </div>
 
-        <button class="slider-btn prev" id="prevBtn" aria-label="Sebelumnya">
-          <i class="fas fa-chevron-left"></i>
-        </button>
-        <button class="slider-btn next" id="nextBtn" aria-label="Berikutnya">
-          <i class="fas fa-chevron-right"></i>
-        </button>
+        <button class="slider-btn prev" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+        <button class="slider-btn next" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
 
         <div class="slider-dots" id="sliderDots"></div>
       </div>
     </div>
 
-    <!-- ===== MAP DOWNLOAD SECTION ===== -->
+    <!-- ===== MAP DOWNLOAD ===== -->
     <div class="map-section" id="mapSection">
       <div class="section-label">
         <h2><i class="fas fa-map"></i> Download Map Minecraft</h2>
@@ -1578,7 +1573,7 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ============================================================
-    // 2. OWNER SYSTEM - KONFIGURASI
+    // 2. OWNER SYSTEM
     // ============================================================
     const OWNER_ID = 'ce5879ba-007c-4258-acd1-75246073a151';
 
@@ -1591,7 +1586,6 @@
     // 3. FLAG UNTUK MENCEGAH EKSEKUSI BERGANDA
     // ============================================================
     let isInitialized = false;
-    let isRedirecting = false;
 
     // ============================================================
     // 4. ELEMENT REFERENSI
@@ -1616,17 +1610,15 @@
       authLoading.classList.add('hidden');
       isInitialized = true;
 
-      // ===== Tampilkan badge owner jika user adalah owner =====
       if (session && isOwner(session.user)) {
         ownerBadge.style.display = 'inline-flex';
         ownerBadge.innerHTML = '<i class="fas fa-crown"></i> Owner';
-        console.log('👑 Status Owner: TRUE - User adalah pemilik website');
+        console.log('👑 Status Owner: TRUE');
       } else {
         ownerBadge.style.display = 'none';
-        console.log('👤 Status Owner: FALSE - User adalah pengguna biasa');
+        console.log('👤 Status Owner: FALSE');
       }
 
-      // Jalankan semua fungsi setelah konten tampil (hanya sekali)
       initializeSlider();
       fetchData();
       initializeGreetingAndTyping();
@@ -1634,16 +1626,14 @@
     }
 
     // ============================================================
-    // 6. CEK SESSION - Tampilkan konten tanpa paksa login
+    // 6. CEK SESSION - TANPA LOOP
     // ============================================================
     async function checkSession() {
       try {
-        // ===== PERBAIKAN: Cek flag skipLogin dari sessionStorage =====
+        // ===== CEK FLAG SKIP LOGIN =====
         const skipLogin = sessionStorage.getItem('skipLogin') === 'true';
-        
         if (skipLogin) {
-          console.log('⏭️ User memilih "Login Nanti", tampilkan website tanpa login');
-          // Hapus flag agar tidak terus menerus skip
+          console.log('⏭️ User memilih "Login Nanti"');
           sessionStorage.removeItem('skipLogin');
         }
 
@@ -1651,19 +1641,16 @@
 
         if (error) {
           console.warn('Error get session:', error);
-          // Tetap tampilkan konten meskipun error
           showMainContent(null);
           return;
         }
 
         if (!session) {
-          console.log('❌ Tidak ada session, tampilkan website sebagai tamu');
-          // Tetap tampilkan konten (tanpa redirect)
+          console.log('👤 User sebagai tamu');
           showMainContent(null);
           return;
         }
 
-        // User sudah login, tampilkan konten dengan data user
         console.log('✅ User sudah login:', session.user.email);
         console.log('🆔 User ID:', session.user.id);
         console.log('👑 Status Owner:', isOwner(session.user) ? 'TRUE ✅' : 'FALSE ❌');
@@ -1672,13 +1659,12 @@
 
       } catch (err) {
         console.error('Error checking session:', err);
-        // Tetap tampilkan konten jika error
         showMainContent(null);
       }
     }
 
     // ============================================================
-    // 7. LOAD MENU - Memilih menu berdasarkan status owner
+    // 7. LOAD MENU
     // ============================================================
     function loadMenu(session) {
       const menuContainer = document.getElementById('menuContainer');
@@ -1687,11 +1673,10 @@
 
       if (!menuContainer) return;
 
-      // ===== Cek status owner =====
       const isOwnerUser = session && isOwner(session.user);
       const menuFile = isOwnerUser ? 'menu_owner.html' : 'menu.html';
 
-      console.log(`📋 Memuat menu: ${menuFile} (${isOwnerUser ? 'Owner' : 'User'})`);
+      console.log(`📋 Memuat menu: ${menuFile}`);
 
       fetch(menuFile)
         .then(res => {
@@ -1725,7 +1710,6 @@
             document.body.style.overflow = isOpen ? 'hidden' : '';
           }
 
-          // Hapus event listener lama
           const newHamburger = hamburger.cloneNode(true);
           hamburger.parentNode.replaceChild(newHamburger, hamburger);
 
@@ -1748,7 +1732,6 @@
         })
         .catch(err => {
           console.warn('Gagal memuat menu:', err);
-          // Fallback menu
           menuContainer.innerHTML = `
             <nav class="menu-panel" id="menuPanel">
               <div class="menu-header">
@@ -1803,7 +1786,7 @@
     })();
 
     // ============================================================
-    // 9. GREETING & TYPING EFFECT
+    // 9. GREETING & TYPING
     // ============================================================
     function initializeGreetingAndTyping() {
       const greetingEl = document.getElementById('greeting');
@@ -1831,7 +1814,7 @@
     }
 
     // ============================================================
-    // 10. SLIDER / CAROUSEL (hanya sekali)
+    // 10. SLIDER
     // ============================================================
     function initializeSlider() {
       const wrapper = document.getElementById('sliderWrapper');
@@ -1865,15 +1848,10 @@
         });
       }
 
-      function nextSlide() { goToSlide(currentIndex + 1); }
-      function prevSlide() { goToSlide(currentIndex - 1); }
+      if (prevBtn) prevBtn.addEventListener('click', () => goToSlide(currentIndex - 1));
+      if (nextBtn) nextBtn.addEventListener('click', () => goToSlide(currentIndex + 1));
 
-      if (prevBtn) prevBtn.addEventListener('click', prevSlide);
-      if (nextBtn) nextBtn.addEventListener('click', nextSlide);
-
-      // Touch support
-      let touchStartX = 0;
-      let touchEndX = 0;
+      let touchStartX = 0, touchEndX = 0;
       const sliderContainer = document.getElementById('sliderContainer');
       if (sliderContainer) {
         sliderContainer.addEventListener('touchstart', (e) => {
@@ -1884,21 +1862,20 @@
           touchEndX = e.changedTouches[0].screenX;
           const diff = touchStartX - touchEndX;
           if (Math.abs(diff) > 50) {
-            if (diff > 0) nextSlide();
-            else prevSlide();
+            if (diff > 0) goToSlide(currentIndex + 1);
+            else goToSlide(currentIndex - 1);
           }
         }, { passive: true });
       }
 
-      // Keyboard support
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight') nextSlide();
-        if (e.key === 'ArrowLeft') prevSlide();
+        if (e.key === 'ArrowRight') goToSlide(currentIndex + 1);
+        if (e.key === 'ArrowLeft') goToSlide(currentIndex - 1);
       });
     }
 
     // ============================================================
-    // 11. FETCH DATA DARI API (hanya sekali)
+    // 11. FETCH DATA API
     // ============================================================
     async function fetchData() {
       const dataArea = document.getElementById('dataArea');
@@ -1991,65 +1968,41 @@
     }
 
     // ============================================================
-    // 12. SUPABASE AUTH STATE CHANGE (TANPA RELOAD!)
+    // 12. SUPABASE AUTH STATE CHANGE
     // ============================================================
     supabaseClient.auth.onAuthStateChange((event, session) => {
-      console.log('🔐 Auth state changed:', event);
+      console.log('🔐 Auth event:', event);
 
       if (event === 'SIGNED_IN' && session) {
-        console.log('✅ User signed in (session restored)');
-        console.log('🆔 User ID:', session.user.id);
-        console.log('👑 Status Owner:', isOwner(session.user) ? 'TRUE ✅' : 'FALSE ❌');
-
-        // Jika konten belum ditampilkan, tampilkan
+        console.log('✅ User signed in');
         if (!isInitialized) {
           showMainContent(session);
         } else {
-          // Update badge owner saja
           if (isOwner(session.user)) {
             ownerBadge.style.display = 'inline-flex';
             ownerBadge.innerHTML = '<i class="fas fa-crown"></i> Owner';
           } else {
             ownerBadge.style.display = 'none';
           }
-          // Reload menu jika perlu
           loadMenu(session);
         }
       }
 
       if (event === 'SIGNED_OUT') {
         console.log('👋 User signed out');
-        // Refresh halaman untuk update UI (tampilkan tombol login)
         window.location.reload();
       }
 
       if (event === 'TOKEN_REFRESHED') {
-        console.log('🔄 Token refreshed (no action needed)');
-        // TIDAK ADA RELOAD!
-      }
-
-      if (event === 'USER_UPDATED') {
-        console.log('📝 User updated');
-        if (session) {
-          if (isOwner(session.user)) {
-            ownerBadge.style.display = 'inline-flex';
-            ownerBadge.innerHTML = '<i class="fas fa-crown"></i> Owner';
-          } else {
-            ownerBadge.style.display = 'none';
-          }
-        }
+        console.log('🔄 Token refreshed (no reload)');
       }
     });
 
     // ============================================================
-    // 13. JALANKAN
+    // 13. JALANKAN (HANYA SEKALI)
     // ============================================================
+    console.log('%c🚀 SteveMC Starting...', 'font-size:16px;font-weight:bold;color:#7c4dff;');
     checkSession();
-
-    console.log('%c👑 SteveMC - Dengan Tombol "Login Nanti"', 'font-size:16px;font-weight:bold;color:#ffd700;');
-    console.log('📌 Owner ID:', OWNER_ID);
-    console.log('📌 Supabase URL:', SUPABASE_URL);
-    console.log('✅ User bisa "Login Nanti" dan tetap akses website');
   </script>
 
 </body>
