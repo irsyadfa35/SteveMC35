@@ -1077,7 +1077,7 @@
     }
 
     // ============================================================
-    // 8. LOAD MENU
+    // 8. LOAD MENU - TANPA cloneNode() (seperti mediadownload.html)
     // ============================================================
     function loadMenu() {
       const menuContainer = document.getElementById('menuContainer');
@@ -1108,11 +1108,13 @@
               }
             });
 
+            // ===== FUNGSI TOGGLE MENU (SEDERHANA) =====
             function toggleMenu(forceState) {
               const isOpen = typeof forceState === 'boolean' ? forceState : !menuPanel.classList.contains('open');
               menuPanel.classList.toggle('open', isOpen);
               menuOverlay.classList.toggle('open', isOpen);
 
+              // HAMBURGER HILANG SAAT MENU TERBUKA
               if (isOpen) {
                 hamburger.classList.add('hidden');
               } else {
@@ -1122,18 +1124,20 @@
               document.body.style.overflow = isOpen ? 'hidden' : '';
             }
 
-            const newHamburger = hamburger.cloneNode(true);
-            hamburger.parentNode.replaceChild(newHamburger, hamburger);
+            // ===== EVENT LISTENER UNTUK HAMBURGER =====
+            hamburger.addEventListener('click', () => toggleMenu());
 
-            newHamburger.addEventListener('click', () => toggleMenu());
+            // ===== EVENT LISTENER UNTUK OVERLAY =====
             menuOverlay.addEventListener('click', () => toggleMenu(false));
 
+            // ===== EVENT LISTENER UNTUK ESC =====
             document.addEventListener('keydown', (e) => {
               if (e.key === 'Escape' && menuPanel.classList.contains('open')) {
                 toggleMenu(false);
               }
             });
 
+            // ===== EVENT LISTENER UNTUK LINK DI MENU =====
             menuPanel.querySelectorAll('.menu-list a').forEach(link => {
               link.addEventListener('click', () => {
                 if (link.getAttribute('href') !== '#') {
@@ -1161,18 +1165,15 @@
             `;
             const menuPanel = document.getElementById('menuPanel');
             if (menuPanel) {
-              const newHamburger = hamburger.cloneNode(true);
-              hamburger.parentNode.replaceChild(newHamburger, hamburger);
-
-              newHamburger.addEventListener('click', () => {
+              hamburger.addEventListener('click', () => {
                 menuPanel.classList.toggle('open');
                 menuOverlay.classList.toggle('open');
-                newHamburger.classList.toggle('hidden');
+                hamburger.classList.toggle('hidden');
               });
               menuOverlay.addEventListener('click', () => {
                 menuPanel.classList.remove('open');
                 menuOverlay.classList.remove('open');
-                newHamburger.classList.remove('hidden');
+                hamburger.classList.remove('hidden');
               });
             }
           });
