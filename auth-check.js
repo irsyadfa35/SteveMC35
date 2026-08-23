@@ -97,7 +97,7 @@ async function checkAuth() {
 }
 
 /**
- * Cek login dan redirect jika belum login
+ * Cek login dan redirect jika belum login (hanya untuk halaman yang membutuhkan login)
  * @param {string} redirectUrl - URL tujuan jika belum login (default: 'https://stevemc.my.id/login.html')
  * @param {boolean} redirectIfLoggedOut - Jika true, redirect ke login jika belum login
  * @returns {Promise<{isLoggedIn: boolean, session: object, user: object, isOwner: boolean}>}
@@ -163,7 +163,6 @@ function onAuthChange(callback) {
  * @param {string} message - Pesan loading
  */
 function showAuthLoading(message = 'Memeriksa session...') {
-    // Cek apakah sudah ada loading screen
     let loadingEl = document.getElementById('authLoading');
     
     if (!loadingEl) {
@@ -249,7 +248,6 @@ function updateMenuWithUser(session, menuContainerId = 'menuContainer') {
     const menuContainer = document.getElementById(menuContainerId);
     if (!menuContainer) return;
 
-    // Tunggu sampai menu selesai di-render
     setTimeout(() => {
         const menuPanel = document.getElementById('menuPanel');
         if (!menuPanel) return;
@@ -260,17 +258,14 @@ function updateMenuWithUser(session, menuContainerId = 'menuContainer') {
         const avatar = user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
         const initial = name.charAt(0).toUpperCase();
 
-        // Cari elemen untuk menyisipkan profile
         const menuList = menuPanel.querySelector('.menu-list');
         if (!menuList) return;
 
-        // Hapus profile lama jika ada
         const existingProfile = menuPanel.querySelector('.user-profile');
         if (existingProfile) existingProfile.remove();
         const existingLogout = menuPanel.querySelector('.btn-logout-sidebar');
         if (existingLogout) existingLogout.remove();
 
-        // Buat profile
         const profileDiv = document.createElement('div');
         profileDiv.className = 'user-profile';
         profileDiv.style.cssText = `
@@ -295,7 +290,6 @@ function updateMenuWithUser(session, menuContainerId = 'menuContainer') {
             </div>
         `;
 
-        // Buat tombol logout
         const logoutBtn = document.createElement('button');
         logoutBtn.className = 'btn-logout-sidebar';
         logoutBtn.style.cssText = `
@@ -319,11 +313,15 @@ function updateMenuWithUser(session, menuContainerId = 'menuContainer') {
         logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
         logoutBtn.addEventListener('click', async () => {
             await logoutUser();
+            window.location.reload();
         });
 
-        // Sisipkan setelah menu-list
         menuList.parentNode.insertBefore(profileDiv, menuList.nextSibling);
         menuList.parentNode.insertBefore(logoutBtn, profileDiv.nextSibling);
+
+        // Sembunyikan tombol login
+        const loginMenuItem = document.getElementById('loginMenuItem');
+        if (loginMenuItem) loginMenuItem.style.display = 'none';
 
     }, 100);
 }
@@ -332,11 +330,6 @@ function updateMenuWithUser(session, menuContainerId = 'menuContainer') {
 // 6. FUNGSI UNTUK MENAMPILKAN OWNER BADGE
 // ============================================================
 
-/**
- * Tampilkan owner badge di elemen tertentu
- * @param {string} elementId - ID elemen untuk badge
- * @param {boolean} isOwner - Apakah user adalah owner
- */
 function showOwnerBadge(elementId, isOwner) {
     const element = document.getElementById(elementId);
     if (!element) return;
@@ -401,6 +394,7 @@ window.steveMC = {
  * @param {string} options.menuContainerId - ID container menu
  * @param {string} options.redirectUrl - URL redirect jika belum login
  * @param {boolean} options.showLoading - Tampilkan loading screen
+ * @param {boolean} options.autoRedirect - Jika true, redirect ke login jika belum login (default: false)
  */
 async function initAuthPage(options = {}) {
     const {
@@ -409,62 +403,48 @@ async function initAuthPage(options = {}) {
         ownerBadgeId = 'ownerBadge',
         menuContainerId = 'menuContainer',
         redirectUrl = 'https://stevemc.my.id/login.html',
-        showLoading = true
+        showLoading = true,
+        autoRedirect = false // ===== PERUBAHAN: default false =====
     } = options;
 
-    // Tampilkan loading
     if (showLoading) {
         showAuthLoading('Memeriksa session...');
     }
 
-    // Cek auth
-    const result = await requireAuth(redirectUrl, true);
+    // ===== PERUBAHAN: Gunakan checkAuth() langsung, bukan requireAuth() =====
+    const result = await checkAuth();
 
-    // Jika redirecting, berhenti
-    if (result.redirecting) {
-        return result;
+    if (!result.isLoggedIn && autoRedirect && !isRedirecting) {
+        console.log('🔒 User belum login, redirect ke login...');
+        isRedirecting = true;
+        window.location.replace(redirectUrl);
+        return { isLoggedIn: false, session: null, user: null, isOwner: false, redirecting: true };
     }
 
-    // Jika tidak login (tapi redirectIfLoggedOut false), return
     if (!result.isLoggedIn) {
         hideAuthLoading();
+        // ===== TAMPILKAN KONTEN TETAP (tanpa redirect) =====
+        showMainContent(mainContentId, footerId);
         return result;
     }
 
-    // Tampilkan konten
     showMainContent(mainContentId, footerId);
 
-    // Tampilkan owner badge
     if (ownerBadgeId) {
         showOwnerBadge(ownerBadgeId, result.isOwner);
     }
 
-    // Update menu dengan user profile (jika menu container ada)
     if (menuContainerId) {
         updateMenuWithUser(result.session, menuContainerId);
     }
 
-    console.log('✅ Page initialized with auth');
+    console.log('✅ Page initialized with auth (no auto-redirect)');
 
     return result;
 }
 
-// Ekspose initAuthPage ke window
 window.steveMC.auth.initAuthPage = initAuthPage;
 
 console.log('%c🔐 Auth Check Module Loaded!', 'font-size:14px;font-weight:bold;color:#7c4dff;');
-console.log('📌 Cara penggunaan:');
-console.log('   1. Tambahkan auth-check.js di <head>');
-console.log('   2. Panggil: await steveMC.auth.initAuthPage()');
-console.log('   3. Atau: await steveMC.auth.requireAuth()');
-console.log('');
-console.log('📌 Contoh di halaman HTML:');
-console.log('   <script src="auth-check.js"></script>');
-console.log('   <script>');
-console.log('     (async function() {');
-console.log('       await steveMC.auth.initAuthPage({');
-console.log('         mainContentId: "mainContent",');
-console.log('         ownerBadgeId: "ownerBadge"');
-console.log('       });');
-console.log('     })();');
-console.log('   </script>');
+console.log('📌 Mode: Tanpa auto-redirect (user bisa lihat website dulu)');
+console.log('📌 Tombol Login muncul di menu jika belum login');
