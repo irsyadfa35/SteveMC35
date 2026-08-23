@@ -21,7 +21,8 @@
 
   <style>
     /* ============================================
-       SEMUA STYLE TETAP SAMA (Tidak ada perubahan)
+       SEMUA STYLE TETAP SAMA SEPERTI SEBELUMNYA
+       (Tidak ada perubahan pada desain)
     ============================================ */
     * {
       margin: 0;
@@ -149,6 +150,78 @@
     ::-webkit-scrollbar-thumb {
       background: linear-gradient(180deg, #7c4dff, #00e5ff);
       border-radius: 10px;
+    }
+
+    /* ===== USER AVATAR DI SIDEBAR ===== */
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-top: 8px;
+      margin-bottom: 12px;
+    }
+
+    .user-profile .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #7c4dff;
+      flex-shrink: 0;
+    }
+
+    .user-profile .info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-profile .info .name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-profile .info .email {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.4);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .btn-logout-sidebar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      color: #ff6b6b;
+      background: rgba(255, 0, 0, 0.06);
+      border: 1px solid rgba(255, 0, 0, 0.08);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      width: 100%;
+      text-align: left;
+    }
+
+    .btn-logout-sidebar:hover {
+      background: rgba(255, 0, 0, 0.12);
+      border-color: rgba(255, 0, 0, 0.15);
+    }
+
+    .btn-logout-sidebar i {
+      width: 20px;
+      text-align: center;
     }
 
     /* ============================================
@@ -1546,34 +1619,21 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ============================================================
-    // 2. FLAG UNTUK MENCEGAH EKSEKUSI BERGANDA
-    // ============================================================
-    let isInitialized = false;
-    let isRedirecting = false;
-
-    // ============================================================
-    // 3. ELEMENT REFERENSI
+    // 2. ELEMENT REFERENSI
     // ============================================================
     const authLoading = document.getElementById('authLoading');
     const mainContent = document.getElementById('mainContent');
     const mainFooter = document.getElementById('mainFooter');
 
     // ============================================================
-    // 4. FUNGSI - TAMPILKAN KONTEN (hanya sekali)
+    // 3. FUNGSI - TAMPILKAN KONTEN
     // ============================================================
     function showMainContent() {
-      if (isInitialized) {
-        console.log('⚠️ Konten sudah ditampilkan, skip');
-        return;
-      }
-
-      console.log('✅ Menampilkan konten utama');
       mainContent.style.display = 'block';
       mainFooter.style.display = 'block';
       authLoading.classList.add('hidden');
-      isInitialized = true;
 
-      // Jalankan semua fungsi setelah konten tampil (hanya sekali)
+      // Jalankan semua fungsi setelah konten tampil
       initializeSlider();
       fetchData();
       initializeGreetingAndTyping();
@@ -1581,7 +1641,7 @@
     }
 
     // ============================================================
-    // 5. CEK SESSION - Redirect jika tidak login
+    // 4. CEK SESSION - Redirect jika tidak login
     // ============================================================
     async function checkSession() {
       try {
@@ -1589,19 +1649,14 @@
 
         if (error) {
           console.warn('Error get session:', error);
-          if (!isRedirecting) {
-            isRedirecting = true;
-            window.location.replace('https://stevemc.my.id/login.html');
-          }
+          window.location.replace('https://stevemc.my.id/login.html');
           return;
         }
 
         if (!session) {
+          // Tidak ada session, redirect ke login
           console.log('❌ Tidak ada session, redirect ke login');
-          if (!isRedirecting) {
-            isRedirecting = true;
-            window.location.replace('https://stevemc.my.id/login.html');
-          }
+          window.location.replace('https://stevemc.my.id/login.html');
           return;
         }
 
@@ -1609,12 +1664,68 @@
         console.log('✅ User sudah login:', session.user.email);
         showMainContent();
 
+        // Update menu dengan user info setelah menu dimuat
+        setTimeout(() => {
+          updateMenuWithUser(session);
+        }, 500);
+
       } catch (err) {
         console.error('Error checking session:', err);
-        if (!isRedirecting) {
-          isRedirecting = true;
-          window.location.replace('https://stevemc.my.id/login.html');
+        window.location.replace('https://stevemc.my.id/login.html');
+      }
+    }
+
+    // ============================================================
+    // 5. UPDATE MENU DENGAN USER INFO
+    // ============================================================
+    function updateMenuWithUser(session) {
+      const menuPanel = document.getElementById('menuPanel');
+      if (!menuPanel) return;
+
+      const user = session.user;
+      const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
+      const email = user.email || '';
+      const avatar = user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+
+      // Cari posisi untuk menambahkan user profile (setelah menu-list)
+      const menuList = menuPanel.querySelector('.menu-list');
+      if (menuList) {
+        // Cek apakah sudah ada user profile sebelumnya
+        const existingProfile = menuPanel.querySelector('.user-profile');
+        if (existingProfile) {
+          existingProfile.remove();
         }
+
+        // Buat elemen user profile
+        const profileDiv = document.createElement('div');
+        profileDiv.className = 'user-profile';
+        profileDiv.innerHTML = `
+          ${avatar ? `<img class="avatar" src="${avatar}" alt="Avatar" />` : `<div class="avatar" style="background:linear-gradient(135deg,#7c4dff,#00e5ff);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;color:#fff;">${name.charAt(0).toUpperCase()}</div>`}
+          <div class="info">
+            <div class="name">${name}</div>
+            <div class="email">${email}</div>
+          </div>
+        `;
+
+        // Sisipkan setelah menu-list
+        menuList.parentNode.insertBefore(profileDiv, menuList.nextSibling);
+
+        // Tambahkan tombol logout di menu
+        const existingLogout = menuPanel.querySelector('.btn-logout-sidebar');
+        if (existingLogout) {
+          existingLogout.remove();
+        }
+
+        const logoutBtn = document.createElement('button');
+        logoutBtn.className = 'btn-logout-sidebar';
+        logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+        logoutBtn.addEventListener('click', async () => {
+          await supabaseClient.auth.signOut();
+          window.location.replace('https://stevemc.my.id/login.html');
+        });
+
+        // Sisipkan setelah user profile
+        profileDiv.parentNode.insertBefore(logoutBtn, profileDiv.nextSibling);
       }
     }
 
@@ -1665,7 +1776,7 @@
     }
 
     // ============================================================
-    // 8. SLIDER / CAROUSEL (hanya sekali)
+    // 8. SLIDER / CAROUSEL
     // ============================================================
     function initializeSlider() {
       const wrapper = document.getElementById('sliderWrapper');
@@ -1732,7 +1843,7 @@
     }
 
     // ============================================================
-    // 9. FETCH DATA DARI API (hanya sekali)
+    // 9. FETCH DATA DARI API
     // ============================================================
     async function fetchData() {
       const dataArea = document.getElementById('dataArea');
@@ -1825,7 +1936,7 @@
     }
 
     // ============================================================
-    // 10. LOAD MENU DARI menu.html (hanya sekali)
+    // 10. LOAD MENU DARI menu.html
     // ============================================================
     function loadMenu() {
       const menuContainer = document.getElementById('menuContainer');
@@ -1852,8 +1963,12 @@
             }
           });
 
-          // ===== USER PROFILE DI-HANDLE OLEH menu.html =====
-          // Tidak perlu updateMenuWithUser() lagi
+          // Tambahkan user profile setelah menu dimuat
+          supabaseClient.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+              updateMenuWithUser(session);
+            }
+          });
 
           function toggleMenu(forceState) {
             const isOpen = typeof forceState === 'boolean' ? forceState : !menuPanel.classList.contains('open');
@@ -1869,11 +1984,7 @@
             document.body.style.overflow = isOpen ? 'hidden' : '';
           }
 
-          // Hapus event listener lama jika ada (mencegah duplikasi)
-          const newHamburger = hamburger.cloneNode(true);
-          hamburger.parentNode.replaceChild(newHamburger, hamburger);
-
-          newHamburger.addEventListener('click', () => toggleMenu());
+          hamburger.addEventListener('click', () => toggleMenu());
           menuOverlay.addEventListener('click', () => toggleMenu(false));
 
           document.addEventListener('keydown', (e) => {
@@ -1909,55 +2020,39 @@
           `;
           const menuPanel = document.getElementById('menuPanel');
           if (menuPanel) {
-            const newHamburger = hamburger.cloneNode(true);
-            hamburger.parentNode.replaceChild(newHamburger, hamburger);
-
-            newHamburger.addEventListener('click', () => {
+            hamburger.addEventListener('click', () => {
               menuPanel.classList.toggle('open');
               menuOverlay.classList.toggle('open');
-              newHamburger.classList.toggle('hidden');
+              hamburger.classList.toggle('hidden');
             });
             menuOverlay.addEventListener('click', () => {
               menuPanel.classList.remove('open');
               menuOverlay.classList.remove('open');
-              newHamburger.classList.remove('hidden');
+              hamburger.classList.remove('hidden');
             });
           }
         });
     }
 
     // ============================================================
-    // 11. SUPABASE AUTH STATE CHANGE LISTENER (TANPA RELOAD)
+    // 11. SUPABASE AUTH STATE CHANGE LISTENER
     // ============================================================
     supabaseClient.auth.onAuthStateChange((event, session) => {
-      console.log('🔐 Auth state changed:', event);
-
-      if (event === 'SIGNED_IN' && session) {
-        console.log('✅ User signed in (session restored)');
-        
-        // Jika konten belum ditampilkan, tampilkan
-        if (!isInitialized) {
-          showMainContent();
-        }
-        // ===== TIDAK ADA RELOAD! =====
-      }
+      console.log('Auth state changed:', event);
 
       if (event === 'SIGNED_OUT') {
         console.log('👋 User signed out, redirecting to login...');
-        if (!isRedirecting) {
-          isRedirecting = true;
-          window.location.replace('https://stevemc.my.id/login.html');
-        }
+        window.location.replace('https://stevemc.my.id/login.html');
+      }
+
+      if (event === 'SIGNED_IN' && session) {
+        console.log('✅ User signed in');
+        // Refresh halaman untuk update UI
+        window.location.reload();
       }
 
       if (event === 'TOKEN_REFRESHED') {
-        console.log('🔄 Token refreshed (no action needed)');
-        // TIDAK ADA RELOAD!
-      }
-
-      if (event === 'USER_UPDATED') {
-        console.log('📝 User updated');
-        // menu.html akan menangani update profile otomatis
+        console.log('🔄 Token refreshed');
       }
     });
 
@@ -1966,10 +2061,9 @@
     // ============================================================
     checkSession();
 
-    console.log('%c🔐 SteveMC Auth Fixed!', 'font-size:16px;font-weight:bold;color:#7c4dff;');
-    console.log('📌 Infinite reload loop telah diperbaiki');
-    console.log('📌 User profile di-handle oleh menu.html');
+    console.log('%c🔐 SteveMC Auth Ready!', 'font-size:16px;font-weight:bold;color:#7c4dff;');
     console.log('📌 Supabase URL:', SUPABASE_URL);
+    console.log('📌 Redirect URL: https://stevemc.my.id/');
   </script>
 
 </body>
