@@ -156,7 +156,90 @@
     }
 
     /* ============================================
-       OWNER BADGE
+       TOP NAVBAR - USER PROFILE
+    ============================================ */
+    .top-nav {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 1002;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-profile-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px 8px 8px;
+      border-radius: 60px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: #c8d6e5;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .user-profile-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(124, 77, 255, 0.3);
+    }
+
+    .user-profile-btn .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #7c4dff;
+      flex-shrink: 0;
+    }
+
+    .user-profile-btn .avatar-placeholder {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c4dff, #00e5ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .user-profile-btn .user-name {
+      font-size: 0.85rem;
+      font-weight: 500;
+      max-width: 120px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-profile-btn .login-text {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #a78bfa;
+      padding: 0 4px;
+    }
+
+    .user-profile-btn .login-text i {
+      margin-right: 6px;
+    }
+
+    .user-profile-btn .owner-crown {
+      color: #ffd700;
+      font-size: 0.7rem;
+    }
+
+    /* ============================================
+       OWNER BADGE DI HEADER
     ============================================ */
     .owner-badge {
       display: none;
@@ -183,14 +266,14 @@
     ============================================ */
     .hamburger {
       position: fixed;
-      top: 24px;
-      left: 24px;
+      top: 16px;
+      left: 20px;
       z-index: 1001;
       display: flex;
       flex-direction: column;
       gap: 5px;
       cursor: pointer;
-      padding: 12px 14px;
+      padding: 10px 12px;
       border-radius: 14px;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.06);
@@ -207,7 +290,7 @@
 
     .hamburger span {
       display: block;
-      width: 28px;
+      width: 26px;
       height: 2.5px;
       background: #c8d6e5;
       border-radius: 4px;
@@ -400,7 +483,7 @@
     ============================================ */
     .hero-banner {
       position: relative;
-      margin-top: 90px;
+      margin-top: 80px;
       margin-bottom: 50px;
       border-radius: 28px;
       overflow: hidden;
@@ -1247,6 +1330,24 @@
       .whatsapp-links a {
         justify-content: center;
       }
+
+      /* Top nav responsive */
+      .top-nav {
+        padding: 12px 16px;
+      }
+      .user-profile-btn .user-name {
+        max-width: 80px;
+        font-size: 0.75rem;
+      }
+      .user-profile-btn {
+        padding: 6px 10px 6px 6px;
+      }
+      .user-profile-btn .avatar,
+      .user-profile-btn .avatar-placeholder {
+        width: 28px;
+        height: 28px;
+        font-size: 0.7rem;
+      }
     }
 
     @media (max-width: 480px) {
@@ -1362,6 +1463,26 @@
         font-size: 13px;
         padding: 14px 16px;
       }
+
+      /* Top nav responsive */
+      .top-nav {
+        padding: 10px 12px;
+      }
+      .user-profile-btn .user-name {
+        display: none;
+      }
+      .user-profile-btn .login-text {
+        font-size: 0.75rem;
+      }
+      .user-profile-btn {
+        padding: 6px 8px 6px 6px;
+      }
+      .user-profile-btn .avatar,
+      .user-profile-btn .avatar-placeholder {
+        width: 24px;
+        height: 24px;
+        font-size: 0.6rem;
+      }
     }
   </style>
 </head>
@@ -1373,6 +1494,15 @@
   <div id="authLoading">
     <div class="spinner"></div>
     <p>Memuat website...</p>
+  </div>
+
+  <!-- ============================================
+       TOP NAV - USER PROFILE / LOGIN
+  ============================================ -->
+  <div class="top-nav" id="topNav">
+    <a href="account.html" class="user-profile-btn" id="profileBtn">
+      <!-- Akan diisi oleh JavaScript -->
+    </a>
   </div>
 
   <!-- ============================================
@@ -1585,11 +1715,49 @@
     const mainContent = document.getElementById('mainContent');
     const mainFooter = document.getElementById('mainFooter');
     const ownerBadge = document.getElementById('ownerBadge');
+    const profileBtn = document.getElementById('profileBtn');
 
     let isInitialized = false;
 
     // ============================================================
-    // 4. FUNGSI - FORCE HIDE LOADING
+    // 4. FUNGSI - UPDATE TOP NAV PROFILE
+    // ============================================================
+    function updateTopNav(session) {
+      if (session && session.user) {
+        const user = session.user;
+        const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
+        const email = user.email || '';
+        const avatar = user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+        const initial = name.charAt(0).toUpperCase();
+        const isOwnerUser = isOwner(user);
+
+        let avatarHtml = '';
+        if (avatar) {
+          avatarHtml = `<img class="avatar" src="${avatar}" alt="${name}" />`;
+        } else {
+          avatarHtml = `<div class="avatar-placeholder">${initial}</div>`;
+        }
+
+        const crownHtml = isOwnerUser ? `<span class="owner-crown"><i class="fas fa-crown"></i></span>` : '';
+
+        profileBtn.innerHTML = `
+          ${avatarHtml}
+          <span class="user-name">${name}</span>
+          ${crownHtml}
+        `;
+        profileBtn.href = 'account.html';
+
+      } else {
+        // Belum login - tampilkan tombol Login
+        profileBtn.innerHTML = `
+          <span class="login-text"><i class="fas fa-sign-in-alt"></i> Login</span>
+        `;
+        profileBtn.href = 'login.html';
+      }
+    }
+
+    // ============================================================
+    // 5. FUNGSI - FORCE HIDE LOADING
     // ============================================================
     function forceShowContent() {
       if (isInitialized) return;
@@ -1602,7 +1770,7 @@
     }
 
     // ============================================================
-    // 5. FUNGSI - TAMPILKAN KONTEN DENGAN DATA SESSION
+    // 6. FUNGSI - TAMPILKAN KONTEN DENGAN DATA SESSION
     // ============================================================
     function showMainContent(session) {
       if (isInitialized) {
@@ -1615,6 +1783,9 @@
       mainFooter.style.display = 'block';
       authLoading.classList.add('hidden');
       isInitialized = true;
+
+      // Update top nav profile
+      updateTopNav(session);
 
       if (session && isOwner(session.user)) {
         ownerBadge.style.display = 'inline-flex';
@@ -1635,7 +1806,7 @@
     }
 
     // ============================================================
-    // 6. CEK SESSION
+    // 7. CEK SESSION
     // ============================================================
     async function checkSession() {
       try {
@@ -1673,7 +1844,7 @@
     }
 
     // ============================================================
-    // 7. LOAD MENU
+    // 8. LOAD MENU
     // ============================================================
     function loadMenu(session) {
       const menuContainer = document.getElementById('menuContainer');
@@ -1777,7 +1948,7 @@
     }
 
     // ============================================================
-    // 8. PARTICLES BACKGROUND
+    // 9. PARTICLES BACKGROUND
     // ============================================================
     (function createParticles() {
       const container = document.getElementById('particles');
@@ -1795,7 +1966,7 @@
     })();
 
     // ============================================================
-    // 9. GREETING & TYPING
+    // 10. GREETING & TYPING
     // ============================================================
     function initializeGreetingAndTyping() {
       const greetingEl = document.getElementById('greeting');
@@ -1823,7 +1994,7 @@
     }
 
     // ============================================================
-    // 10. SLIDER
+    // 11. SLIDER
     // ============================================================
     function initializeSlider() {
       const wrapper = document.getElementById('sliderWrapper');
@@ -1884,7 +2055,7 @@
     }
 
     // ============================================================
-    // 11. FETCH DATA API
+    // 12. FETCH DATA API
     // ============================================================
     async function fetchData() {
       const dataArea = document.getElementById('dataArea');
@@ -1977,13 +2148,14 @@
     }
 
     // ============================================================
-    // 12. SUPABASE AUTH STATE CHANGE
+    // 13. SUPABASE AUTH STATE CHANGE
     // ============================================================
     supabaseClient.auth.onAuthStateChange((event, session) => {
       console.log('🔐 Auth event:', event);
 
       if (event === 'SIGNED_IN' && session) {
         console.log('✅ User signed in');
+        updateTopNav(session);
         if (!isInitialized) {
           showMainContent(session);
         } else {
@@ -1999,29 +2171,32 @@
 
       if (event === 'SIGNED_OUT') {
         console.log('👋 User signed out');
+        updateTopNav(null);
         window.location.reload();
       }
 
       if (event === 'TOKEN_REFRESHED') {
         console.log('🔄 Token refreshed (no reload)');
+        // Update top nav jika session berubah
+        if (session) {
+          updateTopNav(session);
+        }
       }
     });
 
     // ============================================================
-    // 13. JALANKAN - DENGAN TIMEOUT FALLBACK
+    // 14. JALANKAN
     // ============================================================
     console.log('%c🚀 SteveMC Starting...', 'font-size:16px;font-weight:bold;color:#7c4dff;');
     
-    // ===== PERBAIKAN: Timeout 3 detik untuk force show content =====
+    // Timeout 3 detik untuk force show content
     const timeoutId = setTimeout(() => {
       console.warn('⚠️ Timeout 3 detik, force show content');
       forceShowContent();
     }, 3000);
 
-    // Jalankan check session
     checkSession().finally(() => {
       clearTimeout(timeoutId);
-      // Jika masih loading setelah 1 detik lagi, force show
       setTimeout(() => {
         if (!isInitialized) {
           console.warn('⚠️ Force show content (final fallback)');
