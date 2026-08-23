@@ -129,7 +129,6 @@
       justify-content: center;
       z-index: 9999;
       transition: opacity 0.5s ease;
-      pointer-events: none;
     }
 
     #authLoading.hidden {
@@ -1607,6 +1606,8 @@
       console.log('✅ Menampilkan konten utama');
       mainContent.style.display = 'block';
       mainFooter.style.display = 'block';
+      
+      // ===== PERBAIKAN: Pastikan loading hilang =====
       authLoading.classList.add('hidden');
       isInitialized = true;
 
@@ -1626,7 +1627,20 @@
     }
 
     // ============================================================
-    // 6. CEK SESSION - TANPA LOOP
+    // 6. FUNGSI - FORCE HIDE LOADING (FALLBACK)
+    // ============================================================
+    function forceHideLoading() {
+      if (!isInitialized) {
+        console.log('⚠️ Force hide loading sebagai fallback');
+        mainContent.style.display = 'block';
+        mainFooter.style.display = 'block';
+        authLoading.classList.add('hidden');
+        isInitialized = true;
+      }
+    }
+
+    // ============================================================
+    // 7. CEK SESSION - TANPA LOOP
     // ============================================================
     async function checkSession() {
       try {
@@ -1642,6 +1656,8 @@
         if (error) {
           console.warn('Error get session:', error);
           showMainContent(null);
+          // ===== FALLBACK: Hapus loading jika error =====
+          forceHideLoading();
           return;
         }
 
@@ -1660,11 +1676,13 @@
       } catch (err) {
         console.error('Error checking session:', err);
         showMainContent(null);
+        // ===== FALLBACK: Hapus loading jika error =====
+        forceHideLoading();
       }
     }
 
     // ============================================================
-    // 7. LOAD MENU
+    // 8. LOAD MENU
     // ============================================================
     function loadMenu(session) {
       const menuContainer = document.getElementById('menuContainer');
@@ -1768,7 +1786,7 @@
     }
 
     // ============================================================
-    // 8. PARTICLES BACKGROUND
+    // 9. PARTICLES BACKGROUND
     // ============================================================
     (function createParticles() {
       const container = document.getElementById('particles');
@@ -1786,7 +1804,7 @@
     })();
 
     // ============================================================
-    // 9. GREETING & TYPING
+    // 10. GREETING & TYPING
     // ============================================================
     function initializeGreetingAndTyping() {
       const greetingEl = document.getElementById('greeting');
@@ -1814,7 +1832,7 @@
     }
 
     // ============================================================
-    // 10. SLIDER
+    // 11. SLIDER
     // ============================================================
     function initializeSlider() {
       const wrapper = document.getElementById('sliderWrapper');
@@ -1875,7 +1893,7 @@
     }
 
     // ============================================================
-    // 11. FETCH DATA API
+    // 12. FETCH DATA API
     // ============================================================
     async function fetchData() {
       const dataArea = document.getElementById('dataArea');
@@ -1968,7 +1986,7 @@
     }
 
     // ============================================================
-    // 12. SUPABASE AUTH STATE CHANGE
+    // 13. SUPABASE AUTH STATE CHANGE
     // ============================================================
     supabaseClient.auth.onAuthStateChange((event, session) => {
       console.log('🔐 Auth event:', event);
@@ -1999,10 +2017,20 @@
     });
 
     // ============================================================
-    // 13. JALANKAN (HANYA SEKALI)
+    // 14. JALANKAN - DENGAN FALLBACK LOADING
     // ============================================================
     console.log('%c🚀 SteveMC Starting...', 'font-size:16px;font-weight:bold;color:#7c4dff;');
-    checkSession();
+    
+    // ===== PERBAIKAN: Jalankan checkSession dengan timeout =====
+    // Jika checkSession tidak selesai dalam 5 detik, force hide loading
+    const timeoutId = setTimeout(() => {
+      console.warn('⚠️ Session check timeout, force hide loading');
+      forceHideLoading();
+    }, 5000);
+
+    checkSession().finally(() => {
+      clearTimeout(timeoutId);
+    });
   </script>
 
 </body>
