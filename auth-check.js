@@ -24,9 +24,10 @@ function getSupabaseClient() {
 const OWNER_ID = 'ce5879ba-007c-4258-acd1-75246073a151';
 
 // ============================================================
-// 3. FLAG UNTUK MENCEGAH REDIRECT BERGANDA
+// 3. FLAG UNTUK MENCEGAH EKSEKUSI BERGANDA
 // ============================================================
 let isRedirecting = false;
+let isInitialized = false; // ===== PERBAIKAN: Cegah inisialisasi ganda =====
 
 // ============================================================
 // 4. FUNGSI PENGECEKAN
@@ -248,7 +249,8 @@ function updateMenuWithUser(session, menuContainerId = 'menuContainer') {
     const menuContainer = document.getElementById(menuContainerId);
     if (!menuContainer) return;
 
-    setTimeout(() => {
+    // ===== PERBAIKAN: Gunakan setTimeout dengan clearTimeout =====
+    const timeoutId = setTimeout(() => {
         const menuPanel = document.getElementById('menuPanel');
         if (!menuPanel) return;
 
@@ -313,7 +315,6 @@ function updateMenuWithUser(session, menuContainerId = 'menuContainer') {
         logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
         logoutBtn.addEventListener('click', async () => {
             await logoutUser();
-            window.location.reload();
         });
 
         menuList.parentNode.insertBefore(profileDiv, menuList.nextSibling);
@@ -324,6 +325,9 @@ function updateMenuWithUser(session, menuContainerId = 'menuContainer') {
         if (loginMenuItem) loginMenuItem.style.display = 'none';
 
     }, 100);
+
+    // ===== PERBAIKAN: Simpan timeoutId untuk dibersihkan =====
+    window._updateMenuTimeout = timeoutId;
 }
 
 // ============================================================
@@ -397,6 +401,12 @@ window.steveMC = {
  * @param {boolean} options.autoRedirect - Jika true, redirect ke login jika belum login (default: false)
  */
 async function initAuthPage(options = {}) {
+    // ===== PERBAIKAN: Cegah inisialisasi ganda =====
+    if (isInitialized) {
+        console.log('⚠️ Auth sudah diinisialisasi, skip');
+        return await getAuthStatus();
+    }
+
     const {
         mainContentId = 'mainContent',
         footerId = 'mainFooter',
@@ -404,16 +414,17 @@ async function initAuthPage(options = {}) {
         menuContainerId = 'menuContainer',
         redirectUrl = 'https://stevemc.my.id/login.html',
         showLoading = true,
-        autoRedirect = false // ===== PERUBAHAN: default false =====
+        autoRedirect = false
     } = options;
 
     if (showLoading) {
         showAuthLoading('Memeriksa session...');
     }
 
-    // ===== PERUBAHAN: Gunakan checkAuth() langsung, bukan requireAuth() =====
+    // ===== PERBAIKAN: Gunakan checkAuth() langsung =====
     const result = await checkAuth();
 
+    // ===== PERBAIKAN: Auto redirect jika diminta =====
     if (!result.isLoggedIn && autoRedirect && !isRedirecting) {
         console.log('🔒 User belum login, redirect ke login...');
         isRedirecting = true;
@@ -421,30 +432,47 @@ async function initAuthPage(options = {}) {
         return { isLoggedIn: false, session: null, user: null, isOwner: false, redirecting: true };
     }
 
-    if (!result.isLoggedIn) {
-        hideAuthLoading();
-        // ===== TAMPILKAN KONTEN TETAP (tanpa redirect) =====
-        showMainContent(mainContentId, footerId);
-        return result;
-    }
+    // ===== PERBAIKAN: Tandai sudah diinisialisasi =====
+    isInitialized = true;
 
+    // Tampilkan konten (baik login maupun tidak)
     showMainContent(mainContentId, footerId);
 
-    if (ownerBadgeId) {
-        showOwnerBadge(ownerBadgeId, result.isOwner);
+    if (result.isLoggedIn) {
+        if (ownerBadgeId) {
+            showOwnerBadge(ownerBadgeId, result.isOwner);
+        }
+        if (menuContainerId) {
+            updateMenuWithUser(result.session, menuContainerId);
+        }
+        console.log('✅ Page initialized with auth (user logged in)');
+    } else {
+        console.log('✅ Page initialized with auth (user as guest)');
+        // ===== PERBAIKAN: Tampilkan tombol login di menu =====
+        const loginMenuItem = document.getElementById('loginMenuItem');
+        if (loginMenuItem) loginMenuItem.style.display = 'block';
     }
-
-    if (menuContainerId) {
-        updateMenuWithUser(result.session, menuContainerId);
-    }
-
-    console.log('✅ Page initialized with auth (no auto-redirect)');
 
     return result;
 }
 
+// ============================================================
+// 9. FUNGSI RESET UNTUK TESTING
+// ============================================================
+
+function resetAuthState() {
+    isInitialized = false;
+    isRedirecting = false;
+    if (window._updateMenuTimeout) {
+        clearTimeout(window._updateMenuTimeout);
+        window._updateMenuTimeout = null;
+    }
+}
+
 window.steveMC.auth.initAuthPage = initAuthPage;
+window.steveMC.auth.resetAuthState = resetAuthState;
 
 console.log('%c🔐 Auth Check Module Loaded!', 'font-size:14px;font-weight:bold;color:#7c4dff;');
 console.log('📌 Mode: Tanpa auto-redirect (user bisa lihat website dulu)');
 console.log('📌 Tombol Login muncul di menu jika belum login');
+console.log('📌 Inisialisasi hanya terjadi SEKALI (cegah loop)');
