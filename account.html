@@ -929,7 +929,6 @@
           minute: '2-digit'
         }) : 'Tidak diketahui';
 
-        // ===== CEK APAKAH USER ADALAH OWNER =====
         const isOwnerUser = isOwner(user);
         console.log('🆔 User ID:', user.id);
         console.log('👑 Status Owner:', isOwnerUser ? 'TRUE ✅' : 'FALSE ❌');
@@ -967,7 +966,6 @@
     function renderAccountData(data) {
       const initial = data.name.charAt(0).toUpperCase();
 
-      // ===== OWNER BADGE =====
       const ownerBadgeHTML = data.isOwner
         ? `<span class="owner-badge" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#ffd700,#f59e0b);color:#1a1a2e;padding:2px 12px;border-radius:60px;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-left:8px;box-shadow:0 0 20px rgba(255,215,0,0.2);"><i class="fas fa-crown"></i> Owner</span>`
         : '';
@@ -1028,7 +1026,6 @@
               <span class="label"><i class="fas fa-clock"></i> Terakhir Login</span>
               <span class="value">${data.lastSignIn}</span>
             </div>
-            <!-- ===== ROLE ===== -->
             <div class="detail-row">
               <span class="label"><i class="fas fa-user-tag"></i> Role</span>
               <span class="value">${roleBadgeHTML}</span>
@@ -1053,7 +1050,6 @@
         </div>
       `;
 
-      // Event listener logout
       document.getElementById('logoutBtn').addEventListener('click', async () => {
         await supabaseClient.auth.signOut();
         window.location.href = 'https://stevemc.my.id/login.html';
@@ -1090,7 +1086,6 @@
 
       if (!menuContainer) return;
 
-      // Cek apakah user owner untuk menentukan menu
       supabaseClient.auth.getSession().then(({ data: { session } }) => {
         const isOwnerUser = session && isOwner(session.user);
         const menuFile = isOwnerUser ? 'menu_owner.html' : 'menu.html';
