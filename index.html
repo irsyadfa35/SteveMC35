@@ -1586,7 +1586,13 @@
     }
 
     // ============================================================
-    // 4. ELEMENT REFERENSI
+    // 4. FLAG UNTUK MENCEGAH EKSEKUSI BERGANDA
+    // ============================================================
+    let isInitialized = false;
+    let isRedirecting = false;
+
+    // ============================================================
+    // 5. ELEMENT REFERENSI
     // ============================================================
     const authLoading = document.getElementById('authLoading');
     const mainContent = document.getElementById('mainContent');
@@ -1594,12 +1600,19 @@
     const ownerBadge = document.getElementById('ownerBadge');
 
     // ============================================================
-    // 5. FUNGSI - TAMPILKAN KONTEN
+    // 6. FUNGSI - TAMPILKAN KONTEN (hanya sekali)
     // ============================================================
     function showMainContent(session) {
+      if (isInitialized) {
+        console.log('⚠️ Konten sudah ditampilkan, skip');
+        return;
+      }
+
+      console.log('✅ Menampilkan konten utama');
       mainContent.style.display = 'block';
       mainFooter.style.display = 'block';
       authLoading.classList.add('hidden');
+      isInitialized = true;
 
       // ===== OWNER SYSTEM: Tampilkan badge owner jika user adalah owner =====
       if (session && isOwner(session.user)) {
@@ -1611,7 +1624,7 @@
         console.log('👤 Status Owner: FALSE - User adalah pengguna biasa');
       }
 
-      // Jalankan semua fungsi setelah konten tampil
+      // Jalankan semua fungsi setelah konten tampil (hanya sekali)
       initializeSlider();
       fetchData();
       initializeGreetingAndTyping();
@@ -1619,7 +1632,7 @@
     }
 
     // ============================================================
-    // 6. CEK SESSION - Redirect jika tidak login
+    // 7. CEK SESSION - Redirect jika tidak login
     // ============================================================
     async function checkSession() {
       try {
@@ -1627,13 +1640,19 @@
 
         if (error) {
           console.warn('Error get session:', error);
-          window.location.replace('https://stevemc.my.id/login.html');
+          if (!isRedirecting) {
+            isRedirecting = true;
+            window.location.replace('https://stevemc.my.id/login.html');
+          }
           return;
         }
 
         if (!session) {
           console.log('❌ Tidak ada session, redirect ke login');
-          window.location.replace('https://stevemc.my.id/login.html');
+          if (!isRedirecting) {
+            isRedirecting = true;
+            window.location.replace('https://stevemc.my.id/login.html');
+          }
           return;
         }
 
@@ -1647,12 +1666,15 @@
 
       } catch (err) {
         console.error('Error checking session:', err);
-        window.location.replace('https://stevemc.my.id/login.html');
+        if (!isRedirecting) {
+          isRedirecting = true;
+          window.location.replace('https://stevemc.my.id/login.html');
+        }
       }
     }
 
     // ============================================================
-    // 7. LOAD MENU - Memilih menu berdasarkan status owner
+    // 8. LOAD MENU - Memilih menu berdasarkan status owner
     // ============================================================
     function loadMenu(session) {
       const menuContainer = document.getElementById('menuContainer');
@@ -1699,6 +1721,7 @@
             document.body.style.overflow = isOpen ? 'hidden' : '';
           }
 
+          // Hapus event listener lama
           const newHamburger = hamburger.cloneNode(true);
           hamburger.parentNode.replaceChild(newHamburger, hamburger);
 
@@ -1721,7 +1744,7 @@
         })
         .catch(err => {
           console.warn('Gagal memuat menu:', err);
-          // Fallback ke menu normal
+          // Fallback menu
           menuContainer.innerHTML = `
             <nav class="menu-panel" id="menuPanel">
               <div class="menu-header">
@@ -1758,7 +1781,7 @@
     }
 
     // ============================================================
-    // 8. PARTICLES BACKGROUND
+    // 9. PARTICLES BACKGROUND
     // ============================================================
     (function createParticles() {
       const container = document.getElementById('particles');
@@ -1776,7 +1799,7 @@
     })();
 
     // ============================================================
-    // 9. GREETING & TYPING EFFECT
+    // 10. GREETING & TYPING EFFECT
     // ============================================================
     function initializeGreetingAndTyping() {
       const greetingEl = document.getElementById('greeting');
@@ -1804,7 +1827,7 @@
     }
 
     // ============================================================
-    // 10. SLIDER / CAROUSEL
+    // 11. SLIDER / CAROUSEL (hanya sekali)
     // ============================================================
     function initializeSlider() {
       const wrapper = document.getElementById('sliderWrapper');
@@ -1871,7 +1894,7 @@
     }
 
     // ============================================================
-    // 11. FETCH DATA DARI API
+    // 12. FETCH DATA DARI API (hanya sekali)
     // ============================================================
     async function fetchData() {
       const dataArea = document.getElementById('dataArea');
@@ -1964,37 +1987,69 @@
     }
 
     // ============================================================
-    // 12. SUPABASE AUTH STATE CHANGE LISTENER
+    // 13. SUPABASE AUTH STATE CHANGE LISTENER (TANPA RELOAD!)
     // ============================================================
     supabaseClient.auth.onAuthStateChange((event, session) => {
       console.log('🔐 Auth state changed:', event);
 
-      if (event === 'SIGNED_OUT') {
-        console.log('👋 User signed out, redirecting to login...');
-        window.location.replace('https://stevemc.my.id/login.html');
-      }
-
       if (event === 'SIGNED_IN' && session) {
-        console.log('✅ User signed in');
+        console.log('✅ User signed in (session restored)');
         console.log('🆔 User ID:', session.user.id);
         console.log('👑 Status Owner:', isOwner(session.user) ? 'TRUE ✅' : 'FALSE ❌');
-        // Refresh halaman untuk update UI
-        window.location.reload();
+
+        // ===== PERBAIKAN: TIDAK ADA RELOAD! =====
+        // Jika konten belum ditampilkan, tampilkan
+        if (!isInitialized) {
+          showMainContent(session);
+        } else {
+          // Update badge owner saja
+          if (isOwner(session.user)) {
+            ownerBadge.style.display = 'inline-flex';
+            ownerBadge.innerHTML = '<i class="fas fa-crown"></i> Owner';
+          } else {
+            ownerBadge.style.display = 'none';
+          }
+          // Reload menu jika perlu
+          loadMenu(session);
+        }
+      }
+
+      if (event === 'SIGNED_OUT') {
+        console.log('👋 User signed out, redirecting to login...');
+        if (!isRedirecting) {
+          isRedirecting = true;
+          window.location.replace('https://stevemc.my.id/login.html');
+        }
       }
 
       if (event === 'TOKEN_REFRESHED') {
-        console.log('🔄 Token refreshed');
+        console.log('🔄 Token refreshed (no action needed)');
+        // TIDAK ADA RELOAD!
+      }
+
+      if (event === 'USER_UPDATED') {
+        console.log('📝 User updated');
+        // Update UI jika perlu
+        if (session) {
+          if (isOwner(session.user)) {
+            ownerBadge.style.display = 'inline-flex';
+            ownerBadge.innerHTML = '<i class="fas fa-crown"></i> Owner';
+          } else {
+            ownerBadge.style.display = 'none';
+          }
+        }
       }
     });
 
     // ============================================================
-    // 13. JALANKAN CEK SESSION
+    // 14. JALANKAN CEK SESSION
     // ============================================================
     checkSession();
 
     console.log('%c👑 SteveMC dengan Owner System!', 'font-size:16px;font-weight:bold;color:#ffd700;');
     console.log('📌 Owner ID:', OWNER_ID);
     console.log('📌 Supabase URL:', SUPABASE_URL);
+    console.log('✅ Infinite reload loop telah diperbaiki');
   </script>
 
 </body>
