@@ -1,980 +1,1714 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="theme-color" content="#0a0f23" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login - SteveMC</title>
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/jpeg" href="https://c.termai.cc/i131/K4M.jpg" />
-
-  <!-- Font Awesome 6 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-
-  <!-- ===== SUPABASE JS SDK v2 ===== -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-    /* ============================================
-       RESET & BASE
-    ============================================ */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #080c1a;
-      color: #c8d6e5;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow-x: hidden;
-      position: relative;
-      padding: 20px;
-    }
-
-    /* Animated background */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: 
-        radial-gradient(ellipse at 20% 50%, rgba(124, 77, 255, 0.08) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 20%, rgba(0, 229, 255, 0.06) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 80%, rgba(255, 0, 80, 0.05) 0%, transparent 50%);
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    /* Floating particles */
-    .particles {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      pointer-events: none;
-      overflow: hidden;
-    }
-
-    .particle {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      background: rgba(167, 139, 250, 0.3);
-      border-radius: 50%;
-      animation: float-particle linear infinite;
-    }
-
-    @keyframes float-particle {
-      0% {
-        transform: translateY(100vh) scale(0);
-        opacity: 0;
-      }
-      10% {
-        opacity: 1;
-      }
-      90% {
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(-10vh) scale(1);
-        opacity: 0;
-      }
-    }
-
-    /* ============================================
-       SCROLLBAR
-    ============================================ */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #080c1a;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, #7c4dff, #00e5ff);
-      border-radius: 10px;
-    }
-
-    /* ============================================
-       LOGIN CONTAINER
-    ============================================ */
-    .login-container {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      max-width: 440px;
-    }
-
-    .login-card {
-      background: rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-radius: 28px;
-      padding: 40px 36px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    }
-
-    /* Back button */
-    .back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: rgba(255, 255, 255, 0.4);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      margin-bottom: 24px;
-    }
-
-    .back-btn:hover {
-      color: #a78bfa;
-      transform: translateX(-4px);
-    }
-
-    .back-btn i {
-      font-size: 0.8rem;
-    }
-
-    /* Header */
-    .login-header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .login-header .brand-icon {
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(135deg, #7c4dff, #00e5ff);
-      border-radius: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      color: #fff;
-      margin: 0 auto 16px;
-      box-shadow: 0 8px 30px rgba(124, 77, 255, 0.3);
-    }
-
-    .login-header h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -0.5px;
-    }
-
-    .login-header h1 span {
-      background: linear-gradient(135deg, #7c4dff, #00e5ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .login-header p {
-      color: rgba(255, 255, 255, 0.4);
-      font-size: 0.95rem;
-      margin-top: 6px;
-    }
-
-    /* ===== ERROR MESSAGE ===== */
-    .error-message {
-      display: none;
-      background: rgba(255, 0, 0, 0.1);
-      border: 1px solid rgba(255, 0, 0, 0.2);
-      border-radius: 12px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-      color: #ff6b6b;
-      font-size: 0.9rem;
-      text-align: center;
-    }
-
-    .error-message.show {
-      display: block;
-    }
-
-    .error-message i {
-      margin-right: 8px;
-    }
-
-    /* ===== SUCCESS MESSAGE ===== */
-    .success-message {
-      display: none;
-      background: rgba(37, 211, 102, 0.1);
-      border: 1px solid rgba(37, 211, 102, 0.2);
-      border-radius: 12px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-      color: #25D366;
-      font-size: 0.9rem;
-      text-align: center;
-    }
-
-    .success-message.show {
-      display: block;
-    }
-
-    .success-message i {
-      margin-right: 8px;
-    }
-
-    /* Form */
-    .form-group {
-      margin-bottom: 18px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: rgba(255, 255, 255, 0.6);
-      margin-bottom: 6px;
-    }
-
-    .form-group .input-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 14px;
-      transition: all 0.3s ease;
-    }
-
-    .form-group .input-wrapper:focus-within {
-      border-color: rgba(124, 77, 255, 0.4);
-      box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.1);
-    }
-
-    .form-group .input-wrapper i {
-      position: absolute;
-      left: 16px;
-      color: rgba(255, 255, 255, 0.2);
-      font-size: 1.1rem;
-      transition: color 0.3s;
-    }
-
-    .form-group .input-wrapper:focus-within i {
-      color: #7c4dff;
-    }
-
-    .form-group .input-wrapper input {
-      width: 100%;
-      padding: 14px 16px 14px 48px;
-      background: transparent;
-      border: none;
-      color: #c8d6e5;
-      font-size: 0.95rem;
-      font-family: inherit;
-      outline: none;
-    }
-
-    .form-group .input-wrapper input::placeholder {
-      color: rgba(255, 255, 255, 0.2);
-    }
-
-    .form-group .input-wrapper .toggle-password {
-      position: absolute;
-      right: 16px;
-      background: none;
-      border: none;
-      color: rgba(255, 255, 255, 0.2);
-      cursor: pointer;
-      font-size: 1rem;
-      transition: color 0.3s;
-      padding: 4px;
-    }
-
-    .form-group .input-wrapper .toggle-password:hover {
-      color: rgba(255, 255, 255, 0.5);
-    }
-
-    /* Options */
-    .form-options {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 6px 0 24px;
-    }
-
-    .form-options label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.85rem;
-      color: rgba(255, 255, 255, 0.4);
-      cursor: pointer;
-    }
-
-    .form-options label input[type="checkbox"] {
-      appearance: none;
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(255, 255, 255, 0.15);
-      border-radius: 6px;
-      background: transparent;
-      cursor: pointer;
-      position: relative;
-      transition: all 0.3s ease;
-      flex-shrink: 0;
-    }
-
-    .form-options label input[type="checkbox"]:checked {
-      background: linear-gradient(135deg, #7c4dff, #00e5ff);
-      border-color: #7c4dff;
-    }
-
-    .form-options label input[type="checkbox"]:checked::after {
-      content: '\f00c';
-      font-family: 'Font Awesome 6 Free';
-      font-weight: 900;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 10px;
-      color: #fff;
-    }
-
-    .form-options a {
-      color: rgba(167, 139, 250, 0.7);
-      text-decoration: none;
-      font-size: 0.85rem;
-      transition: color 0.3s;
-    }
-
-    .form-options a:hover {
-      color: #a78bfa;
-    }
-
-    /* Button */
-    .btn-login {
-      width: 100%;
-      padding: 16px;
-      background: linear-gradient(135deg, #7c4dff, #00e5ff);
-      border: none;
-      border-radius: 14px;
-      color: #fff;
-      font-size: 1.05rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-family: inherit;
-      box-shadow: 0 4px 30px rgba(124, 77, 255, 0.3);
-    }
-
-    .btn-login:hover:not(:disabled) {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 50px rgba(124, 77, 255, 0.5);
-    }
-
-    .btn-login:active:not(:disabled) {
-      transform: scale(0.98);
-    }
-
-    .btn-login:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none !important;
-    }
-
-    .btn-login .spinner {
-      display: none;
-      width: 20px;
-      height: 20px;
-      border: 2.5px solid rgba(255, 255, 255, 0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-
-    .btn-login.loading .spinner {
-      display: block;
-    }
-
-    .btn-login.loading .btn-text {
-      display: none;
-    }
-
-    .btn-login.loading .btn-icon {
-      display: none;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* Divider */
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin: 24px 0;
-    }
-
-    .divider .line {
-      flex: 1;
-      height: 1px;
-      background: rgba(255, 255, 255, 0.06);
-    }
-
-    .divider span {
-      font-size: 0.8rem;
-      color: rgba(255, 255, 255, 0.2);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    /* Social Login */
-    .social-login {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .btn-social {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      background: rgba(255, 255, 255, 0.03);
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 0.9rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-family: inherit;
-      text-decoration: none;
-    }
-
-    .btn-social:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.12);
-      color: #fff;
-      transform: translateY(-2px);
-    }
-
-    .btn-social:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      transform: none !important;
-    }
-
-    .btn-social i {
-      font-size: 1.2rem;
-    }
-
-    .btn-social .fa-google { color: #ea4335; }
-    .btn-social .fa-github { color: #f0f6fc; }
-    .btn-social .fa-discord { color: #5865F2; }
-    .btn-social .fa-twitter { color: #1DA1F2; }
-
-    /* Register link */
-    .register-link {
-      text-align: center;
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.4);
-    }
-
-    .register-link a {
-      color: #a78bfa;
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.3s;
-    }
-
-    .register-link a:hover {
-      color: #7c4dff;
-      text-decoration: underline;
-    }
-
-    /* ===== TOMBOL LOGIN NANTI ===== */
-    .btn-skip {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 14px;
-      background: transparent;
-      color: rgba(255, 255, 255, 0.3);
-      font-size: 0.95rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-family: inherit;
-      text-align: center;
-      margin-top: 8px;
-    }
-
-    .btn-skip:hover {
-      color: rgba(255, 255, 255, 0.6);
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .btn-skip i {
-      margin-right: 8px;
-      font-size: 0.9rem;
-    }
-
-    /* ============================================
-       RESPONSIVE
-    ============================================ */
-    @media (max-width: 480px) {
-      .login-card {
-        padding: 28px 20px;
-        border-radius: 20px;
-      }
-
-      .login-header h1 {
-        font-size: 1.5rem;
-      }
-
-      .login-header .brand-icon {
-        width: 50px;
-        height: 50px;
-        font-size: 22px;
-      }
-
-      .social-login {
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-      }
-
-      .btn-social {
-        font-size: 0.8rem;
-        padding: 10px;
-      }
-
-      .form-options {
-        flex-direction: column;
-        gap: 10px;
-        align-items: flex-start;
-      }
-
-      .back-btn {
-        font-size: 0.8rem;
-      }
-
-      .btn-skip {
-        font-size: 0.85rem;
-        padding: 12px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login & Daftar - SteveMC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    
+    <!-- ===== SUPABASE JS SDK v2 ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: #0a0a0f;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            perspective: 1200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Background efek neon */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(0, 255, 128, 0.03) 0%, transparent 50%);
+            animation: backgroundMove 20s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
+        @keyframes backgroundMove {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(5%, 5%) rotate(5deg); }
+        }
+
+        /* Partikel animasi */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            animation: floatParticle linear infinite;
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        .cube-container {
+            width: 440px;
+            height: 740px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+        }
+
+        .cube-container.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .cube-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 32px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 255, 0.15);
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                0 0 40px rgba(0, 255, 255, 0.05);
+        }
+
+        .cube-face::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .cube-face::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .cube-face::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .cube-face.front {
+            transform: rotateY(0deg);
+        }
+
+        .cube-face.back {
+            transform: rotateY(180deg);
+        }
+
+        /* Neon border glow */
+        .cube-face::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            border-radius: 32px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(255, 0, 255, 0.3), rgba(0, 255, 255, 0.3));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        /* Content styling */
+        .login-content,
+        .register-content {
+            padding: 28px 24px;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .login-header,
+        .register-header {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .login-header h1,
+        .register-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00ffff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 40px rgba(0, 255, 255, 0.2);
+        }
+
+        .login-header p,
+        .register-header p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        .login-form,
+        .register-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .input-group label i {
+            margin-right: 6px;
+            color: #00ffff;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 14px;
+            padding: 0 14px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: #00ffff;
+            background: rgba(0, 255, 255, 0.05);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.05), inset 0 0 30px rgba(0, 255, 255, 0.02);
+        }
+
+        .input-wrapper i {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+            transition: color 0.3s;
+        }
+
+        .input-wrapper:focus-within i {
+            color: #00ffff;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 12px 10px;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 500;
+            color: #ffffff;
+            outline: none;
+        }
+
+        .input-wrapper input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+            font-weight: 400;
+        }
+
+        /* Toggle password */
+        .toggle-password {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            padding: 6px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+        }
+
+        .toggle-password:hover {
+            color: #00ffff;
+            background: rgba(0, 255, 255, 0.1);
+        }
+
+        .toggle-password.active {
+            color: #00ffff;
+        }
+
+        /* Forgot password link */
+        .forgot-password {
+            text-align: right;
+            margin-top: -4px;
+        }
+
+        .forgot-password a {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .forgot-password a:hover {
+            color: #00ffff;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+        }
+
+        .forgot-password a i {
+            font-size: 12px;
+        }
+
+        .btn-login,
+        .btn-register {
+            background: linear-gradient(135deg, #00ffff, #00ccff);
+            color: #0a0a0f;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+        }
+
+        .btn-login:disabled,
+        .btn-register:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-login .spinner,
+        .btn-register .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-top-color: #0a0a0f;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn-login.loading .spinner,
+        .btn-register.loading .spinner {
+            display: block;
+        }
+
+        .btn-login.loading .btn-text,
+        .btn-register.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn-login::before,
+        .btn-register::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #00ffff, #ff00ff, #00ffff);
+            border-radius: 40px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: -1;
+        }
+
+        .btn-login:hover:not(:disabled)::before,
+        .btn-register:hover:not(:disabled)::before {
+            opacity: 1;
+        }
+
+        .btn-login:hover:not(:disabled),
+        .btn-register:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(0, 255, 255, 0.3);
+        }
+
+        .btn-login:active:not(:disabled),
+        .btn-register:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .btn-login i,
+        .btn-register i {
+            font-size: 16px;
+            transition: transform 0.3s;
+        }
+
+        .btn-login:hover:not(:disabled) i,
+        .btn-register:hover:not(:disabled) i {
+            transform: translateX(4px);
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, #ff00ff, #cc00ff);
+        }
+
+        .btn-register:hover:not(:disabled) {
+            box-shadow: 0 10px 40px rgba(255, 0, 255, 0.3);
+        }
+
+        /* Google Button */
+        .google-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 13px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: 100%;
+        }
+
+        .google-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.05);
+        }
+
+        .google-btn:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .google-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .google-btn .google-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            background: #ffffff;
+            border-radius: 50%;
+            padding: 2px;
+        }
+
+        .google-btn .google-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Guest Button */
+        .guest-btn {
+            background: transparent;
+            color: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 12px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .guest-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(0, 255, 255, 0.3);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.05);
+        }
+
+        .guest-btn i {
+            font-size: 15px;
+            color: #00ffff;
+        }
+
+        .guest-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 4px 0;
+        }
+
+        .divider hr {
+            flex: 1;
+            border: none;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .divider span {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Social buttons row */
+        .social-row {
+            display: flex;
+            gap: 10px;
+            margin: 2px 0;
+        }
+
+        .social-row .google-btn {
+            flex: 1;
+        }
+
+        /* Switch buttons */
+        .switch-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .switch-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 11px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.02);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .switch-btn i {
+            font-size: 15px;
+            transition: transform 0.3s;
+        }
+
+        .switch-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(0, 255, 255, 0.2);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .switch-btn:hover i {
+            transform: translateX(-4px);
+        }
+
+        .switch-btn:active {
+            transform: scale(0.95);
+        }
+
+        .switch-btn.login-btn {
+            border-color: rgba(0, 255, 255, 0.15);
+        }
+
+        .switch-btn.login-btn:hover {
+            border-color: #00ffff;
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        .switch-btn.register-btn {
+            border-color: rgba(255, 0, 255, 0.15);
+        }
+
+        .switch-btn.register-btn:hover {
+            border-color: #ff00ff;
+            background: rgba(255, 0, 255, 0.05);
+        }
+
+        /* Error message */
+        .error-message {
+            color: #ff4444;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            min-height: 20px;
+            margin-top: 2px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            text-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+        }
+
+        .error-message.show {
+            opacity: 1;
+        }
+
+        .error-message i {
+            margin-right: 6px;
+        }
+
+        /* Success message */
+        .success-message {
+            color: #00ff88;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            min-height: 20px;
+            margin-top: 2px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .success-message.show {
+            opacity: 1;
+        }
+
+        /* Guest notification */
+        .guest-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 18px 28px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+            transform: translateX(120%);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 999;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            max-width: 400px;
+        }
+
+        .guest-notification.show {
+            transform: translateX(0);
+        }
+
+        .guest-notification i {
+            color: #00ffff;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .guest-notification .close-guest {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            font-size: 18px;
+            margin-left: 16px;
+            transition: color 0.3s;
+        }
+
+        .guest-notification .close-guest:hover {
+            color: #ffffff;
+        }
+
+        /* Forgot Password Modal */
+        .forgot-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .forgot-modal.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .forgot-modal-content {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .forgot-modal-content .icon-big {
+            width: 64px;
+            height: 64px;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .forgot-modal-content .icon-big i {
+            font-size: 28px;
+            color: #00ffff;
+        }
+
+        .forgot-modal-content h2 {
+            color: #ffffff;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .forgot-modal-content p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .forgot-modal-content .input-wrapper {
+            margin-bottom: 16px;
+        }
+
+        .forgot-modal-content .btn-reset {
+            background: linear-gradient(135deg, #00ffff, #00ccff);
+            color: #0a0a0f;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .forgot-modal-content .btn-reset:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .forgot-modal-content .btn-reset:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(0, 255, 255, 0.3);
+        }
+
+        .forgot-modal-content .btn-reset:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .forgot-modal-content .btn-reset .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-top-color: #0a0a0f;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .forgot-modal-content .btn-reset.loading .spinner {
+            display: block;
+        }
+
+        .forgot-modal-content .btn-reset.loading .btn-text {
+            display: none;
+        }
+
+        .forgot-modal-content .btn-cancel {
+            background: transparent;
+            color: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .forgot-modal-content .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+        }
+
+        .forgot-modal-content .success-text {
+            color: #00ff88;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 12px 0;
+            display: none;
+        }
+
+        .forgot-modal-content .success-text.show {
+            display: block;
+        }
+
+        .forgot-modal-content .error-text {
+            color: #ff4444;
+            font-size: 13px;
+            font-weight: 600;
+            margin: 8px 0;
+            display: none;
+        }
+
+        .forgot-modal-content .error-text.show {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .cube-container {
+                width: 100%;
+                height: 760px;
+                max-width: 420px;
+            }
+
+            .login-content,
+            .register-content {
+                padding: 20px 16px;
+            }
+
+            .login-header h1,
+            .register-header h1 {
+                font-size: 24px;
+            }
+
+            .switch-btn {
+                padding: 10px;
+                font-size: 12px;
+            }
+
+            .btn-login,
+            .btn-register,
+            .guest-btn,
+            .google-btn {
+                font-size: 13px;
+                padding: 12px;
+            }
+
+            .guest-notification {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+                padding: 14px 18px;
+                font-size: 13px;
+            }
+
+            .forgot-modal-content {
+                padding: 28px 20px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .cube-container {
+                height: 780px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Partikel animasi -->
+    <div class="particles" id="particles"></div>
 
-  <!-- ============================================
-       PARTICLES BACKGROUND
-  ============================================ -->
-  <div class="particles" id="particles"></div>
-
-  <!-- ============================================
-       LOGIN CONTAINER
-  ============================================ -->
-  <div class="login-container">
-
-    <div class="login-card">
-
-      <!-- Back Button -->
-      <a href="index.html" class="back-btn">
-        <i class="fas fa-arrow-left"></i> Kembali
-      </a>
-
-      <!-- Header -->
-      <div class="login-header">
-        <div class="brand-icon">
-          <i class="fas fa-gamepad"></i>
-        </div>
-        <h1>Welcome to <span>SteveMC</span></h1>
-        <p>Masuk ke akun Anda untuk melanjutkan</p>
-      </div>
-
-      <!-- ===== ERROR MESSAGE ===== -->
-      <div class="error-message" id="errorMessage">
-        <i class="fas fa-exclamation-circle"></i>
-        <span id="errorText">Terjadi kesalahan</span>
-      </div>
-
-      <!-- ===== SUCCESS MESSAGE ===== -->
-      <div class="success-message" id="successMessage">
-        <i class="fas fa-check-circle"></i>
-        <span id="successText">Login berhasil!</span>
-      </div>
-
-      <!-- ===== FORM LOGIN ===== -->
-      <form id="loginForm" novalidate>
-        <div class="form-group">
-          <label>Email atau Username</label>
-          <div class="input-wrapper">
-            <i class="fas fa-envelope"></i>
-            <input type="text" id="emailInput" placeholder="Masukkan email atau username" required />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Kata Sandi</label>
-          <div class="input-wrapper">
-            <i class="fas fa-lock"></i>
-            <input type="password" id="passwordInput" placeholder="Masukkan kata sandi" required />
-            <button type="button" class="toggle-password" onclick="togglePassword()">
-              <i class="fas fa-eye" id="toggleIcon"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="form-options">
-          <label>
-            <input type="checkbox" id="rememberMe" /> Ingat saya
-          </label>
-          <a href="forgot-password.html">Lupa kata sandi?</a>
-        </div>
-
-        <button type="submit" class="btn-login" id="loginBtn">
-          <span class="btn-icon"><i class="fas fa-sign-in-alt"></i></span>
-          <span class="btn-text">Masuk</span>
-          <span class="spinner"></span>
-        </button>
-      </form>
-
-      <!-- Divider -->
-      <div class="divider">
-        <div class="line"></div>
-        <span>atau</span>
-        <div class="line"></div>
-      </div>
-
-      <!-- ===== SOCIAL LOGIN ===== -->
-      <div class="social-login">
-        <!-- GOOGLE - Terhubung dengan Supabase OAuth -->
-        <button class="btn-social" id="googleLoginBtn">
-          <i class="fab fa-google"></i> Google
-        </button>
-
-        <!-- GITHUB - Belum diaktifkan -->
-        <button class="btn-social" id="githubLoginBtn" disabled>
-          <i class="fab fa-github"></i> GitHub
-        </button>
-
-        <!-- DISCORD - Belum diaktifkan -->
-        <button class="btn-social" id="discordLoginBtn" disabled>
-          <i class="fab fa-discord"></i> Discord
-        </button>
-
-        <!-- TWITTER - Belum diaktifkan -->
-        <button class="btn-social" id="twitterLoginBtn" disabled>
-          <i class="fab fa-twitter"></i> Twitter
-        </button>
-      </div>
-
-      <!-- ===== TOMBOL LOGIN NANTI ===== -->
-      <button class="btn-skip" id="skipLoginBtn">
-        <i class="fas fa-clock"></i> Login Nanti
-      </button>
-
-      <!-- Register Link -->
-      <div class="register-link">
-        Belum punya akun? <a href="register.html">Daftar sekarang</a>
-      </div>
-
+    <!-- Guest Notification -->
+    <div class="guest-notification" id="guestNotification">
+        <i class="fas fa-user-astronaut"></i>
+        <span id="guestMessage">Anda login sebagai Tamu 🚀</span>
+        <button class="close-guest" id="closeGuest"><i class="fas fa-times"></i></button>
     </div>
 
-  </div>
+    <!-- Forgot Password Modal -->
+    <div class="forgot-modal" id="forgotModal">
+        <div class="forgot-modal-content">
+            <div class="icon-big">
+                <i class="fas fa-key"></i>
+            </div>
+            <h2>Lupa Password?</h2>
+            <p>Masukkan email Anda, kami akan kirimkan link reset password</p>
+            
+            <div class="input-wrapper" style="margin-bottom: 16px;">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="forgotEmail" placeholder="nama@email.com" />
+            </div>
 
-  <script>
-    // ============================================================
-    // 1. SUPABASE KONFIGURASI
-    // ============================================================
-    const SUPABASE_URL = 'https://ydcdfnvtacwrrhcbsjdk.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_DABKAaVwkW5LvR7oP-pDNQ_9SyGiBrI';
+            <div class="error-text" id="forgotError">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="forgotErrorText">Email tidak ditemukan!</span>
+            </div>
 
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            <div class="success-text" id="forgotSuccess">
+                <i class="fas fa-check-circle"></i>
+                <span id="forgotSuccessText">Link reset password telah dikirim ke email Anda!</span>
+            </div>
 
-    // ============================================================
-    // 2. PARTICLES BACKGROUND
-    // ============================================================
-    (function createParticles() {
-      const container = document.getElementById('particles');
-      for (let i = 0; i < 40; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.style.left = Math.random() * 100 + '%';
-        p.style.width = (2 + Math.random() * 4) + 'px';
-        p.style.height = p.style.width;
-        p.style.animationDuration = (15 + Math.random() * 25) + 's';
-        p.style.animationDelay = (Math.random() * 20) + 's';
-        p.style.opacity = 0.2 + Math.random() * 0.3;
-        container.appendChild(p);
-      }
-    })();
+            <button class="btn-reset" id="resetPasswordBtn">
+                <span class="btn-text"><i class="fas fa-paper-plane"></i> Kirim Link Reset</span>
+                <span class="spinner"></span>
+            </button>
+            <button class="btn-cancel" id="forgotCancelBtn">Kembali ke Login</button>
+        </div>
+    </div>
 
-    // ============================================================
-    // 3. TOGGLE PASSWORD
-    // ============================================================
-    function togglePassword() {
-      const passwordInput = document.getElementById('passwordInput');
-      const toggleIcon = document.getElementById('toggleIcon');
+    <div class="cube-container" id="cubeContainer">
+        <!-- Halaman Login (Depan) -->
+        <div class="cube-face front">
+            <div class="login-content">
+                <div class="login-header">
+                    <h1>✦ Login ✦</h1>
+                    <p>Masuk ke akun Anda</p>
+                </div>
 
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleIcon.className = 'fas fa-eye-slash';
-      } else {
-        passwordInput.type = 'password';
-        toggleIcon.className = 'fas fa-eye';
-      }
-    }
+                <form class="login-form" id="loginForm">
+                    <div class="input-group">
+                        <label for="loginEmail"><i class="fas fa-envelope"></i> Email</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="loginEmail" placeholder="nama@email.com" required />
+                        </div>
+                    </div>
 
-    // ============================================================
-    // 4. ELEMENT REFERENSI
-    // ============================================================
-    const loginForm = document.getElementById('loginForm');
-    const loginBtn = document.getElementById('loginBtn');
-    const emailInput = document.getElementById('emailInput');
-    const passwordInput = document.getElementById('passwordInput');
-    const rememberMe = document.getElementById('rememberMe');
-    const errorMessage = document.getElementById('errorMessage');
-    const errorText = document.getElementById('errorText');
-    const successMessage = document.getElementById('successMessage');
-    const successText = document.getElementById('successText');
-    const googleLoginBtn = document.getElementById('googleLoginBtn');
-    const skipLoginBtn = document.getElementById('skipLoginBtn');
+                    <div class="input-group">
+                        <label for="loginPassword"><i class="fas fa-lock"></i> Kata Sandi</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="loginPassword" placeholder="••••••••" required />
+                            <button type="button" class="toggle-password" id="toggleLoginPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
 
-    // ============================================================
-    // 5. FUNGSI UTILITY
-    // ============================================================
-    function showError(message) {
-      errorText.textContent = message;
-      errorMessage.classList.add('show');
-      successMessage.classList.remove('show');
-      setTimeout(() => {
-        errorMessage.classList.remove('show');
-      }, 5000);
-    }
+                    <div class="forgot-password">
+                        <a id="forgotPasswordLink">
+                            <i class="fas fa-question-circle"></i> Lupa Password?
+                        </a>
+                    </div>
 
-    function showSuccess(message) {
-      successText.textContent = message;
-      successMessage.classList.add('show');
-      errorMessage.classList.remove('show');
-      setTimeout(() => {
-        successMessage.classList.remove('show');
-      }, 3000);
-    }
+                    <div class="error-message" id="loginError">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span id="loginErrorText">Email atau password salah!</span>
+                    </div>
 
-    function hideAllMessages() {
-      errorMessage.classList.remove('show');
-      successMessage.classList.remove('show');
-    }
+                    <button type="submit" class="btn-login" id="loginBtn">
+                        <span class="btn-text"><i class="fas fa-sign-in-alt"></i> Masuk</span>
+                        <span class="spinner"></span>
+                    </button>
 
-    function setLoading(isLoading) {
-      loginBtn.disabled = isLoading;
-      loginBtn.classList.toggle('loading', isLoading);
-      emailInput.disabled = isLoading;
-      passwordInput.disabled = isLoading;
-    }
+                    <div class="divider">
+                        <hr />
+                        <span>atau</span>
+                        <hr />
+                    </div>
 
-    // ============================================================
-    // 6. LOGIN DENGAN EMAIL/USERNAME + PASSWORD
-    // ============================================================
-    async function handleLogin(e) {
-      e.preventDefault();
-      hideAllMessages();
+                    <!-- Social Login -->
+                    <div class="social-row">
+                        <button type="button" class="google-btn" id="googleLoginBtn">
+                            <span class="google-icon">
+                                <svg viewBox="0 0 48 48">
+                                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                                </svg>
+                            </span>
+                            Google
+                        </button>
+                    </div>
 
-      const emailOrUsername = emailInput.value.trim();
-      const password = passwordInput.value;
+                    <button type="button" class="guest-btn" id="guestLoginBtn">
+                        <i class="fas fa-user-astronaut"></i> Login Nanti (Sebagai Tamu)
+                    </button>
 
-      if (!emailOrUsername) {
-        showError('Masukkan email atau username.');
-        return;
-      }
-      if (!password) {
-        showError('Masukkan kata sandi.');
-        return;
-      }
+                    <div class="switch-wrapper">
+                        <button type="button" class="switch-btn register-btn" id="goToRegisterBtn">
+                            <i class="fas fa-user-plus"></i>
+                            Belum punya akun? Daftar sekarang
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-      setLoading(true);
+        <!-- Halaman Daftar (Belakang) -->
+        <div class="cube-face back">
+            <div class="register-content">
+                <div class="register-header">
+                    <h1>✦ Daftar ✦</h1>
+                    <p>Buat akun baru</p>
+                </div>
 
-      try {
-        let email = emailOrUsername;
+                <form class="register-form" id="registerForm">
+                    <div class="input-group">
+                        <label for="registerName"><i class="fas fa-user"></i> Nama Lengkap</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="registerName" placeholder="Nama lengkap" required />
+                        </div>
+                    </div>
 
-        if (!emailOrUsername.includes('@')) {
-          const { data: users, error: searchError } = await supabaseClient
-            .from('user_profiles')
-            .select('user_id, email')
-            .eq('username', emailOrUsername)
-            .maybeSingle();
+                    <div class="input-group">
+                        <label for="registerEmail"><i class="fas fa-envelope"></i> Email</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="registerEmail" placeholder="nama@email.com" required />
+                        </div>
+                    </div>
 
-          if (searchError) {
-            console.warn('Search error:', searchError);
-          }
+                    <div class="input-group">
+                        <label for="registerPassword"><i class="fas fa-lock"></i> Kata Sandi</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="registerPassword" placeholder="Minimal 8 karakter" required />
+                            <button type="button" class="toggle-password" id="toggleRegisterPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
 
-          if (users && users.email) {
-            email = users.email;
-          }
+                    <div class="input-group">
+                        <label for="registerConfirm"><i class="fas fa-check-circle"></i> Konfirmasi Sandi</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-check-circle"></i>
+                            <input type="password" id="registerConfirm" placeholder="Ulangi kata sandi" required />
+                            <button type="button" class="toggle-password" id="toggleRegisterConfirm">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="error-message" id="registerError">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span id="registerErrorText">Password tidak cocok!</span>
+                    </div>
+
+                    <div class="success-message" id="registerSuccess">
+                        <i class="fas fa-check-circle"></i>
+                        <span id="registerSuccessText">Registrasi berhasil!</span>
+                    </div>
+
+                    <button type="submit" class="btn-register" id="registerBtn">
+                        <span class="btn-text"><i class="fas fa-user-plus"></i> Daftar</span>
+                        <span class="spinner"></span>
+                    </button>
+
+                    <div class="divider">
+                        <hr />
+                        <span>atau</span>
+                        <hr />
+                    </div>
+
+                    <button type="button" class="google-btn" id="googleRegisterBtn">
+                        <span class="google-icon">
+                            <svg viewBox="0 0 48 48">
+                                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                            </svg>
+                        </span>
+                        Daftar dengan Google
+                    </button>
+
+                    <div class="switch-wrapper">
+                        <button type="button" class="switch-btn login-btn" id="goToLoginBtn">
+                            <i class="fas fa-arrow-left"></i>
+                            Sudah punya akun? Masuk sekarang
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 1. SUPABASE KONFIGURASI
+        // ============================================================
+        const SUPABASE_URL = 'https://ydcdfnvtacwrrhcbsjdk.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_DABKAaVwkW5LvR7oP-pDNQ_9SyGiBrI';
+
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ============================================================
+        // 2. VARIABEL & ELEMENT
+        // ============================================================
+        const cubeContainer = document.getElementById('cubeContainer');
+        const goToRegisterBtn = document.getElementById('goToRegisterBtn');
+        const goToLoginBtn = document.getElementById('goToLoginBtn');
+
+        // Login form
+        const loginForm = document.getElementById('loginForm');
+        const loginEmail = document.getElementById('loginEmail');
+        const loginPassword = document.getElementById('loginPassword');
+        const loginError = document.getElementById('loginError');
+        const loginErrorText = document.getElementById('loginErrorText');
+        const loginBtn = document.getElementById('loginBtn');
+        const toggleLoginPassword = document.getElementById('toggleLoginPassword');
+
+        // Register form
+        const registerForm = document.getElementById('registerForm');
+        const registerName = document.getElementById('registerName');
+        const registerEmail = document.getElementById('registerEmail');
+        const registerPassword = document.getElementById('registerPassword');
+        const registerConfirm = document.getElementById('registerConfirm');
+        const registerError = document.getElementById('registerError');
+        const registerErrorText = document.getElementById('registerErrorText');
+        const registerSuccess = document.getElementById('registerSuccess');
+        const registerSuccessText = document.getElementById('registerSuccessText');
+        const registerBtn = document.getElementById('registerBtn');
+        const toggleRegisterPassword = document.getElementById('toggleRegisterPassword');
+        const toggleRegisterConfirm = document.getElementById('toggleRegisterConfirm');
+
+        // Google
+        const googleLoginBtn = document.getElementById('googleLoginBtn');
+        const googleRegisterBtn = document.getElementById('googleRegisterBtn');
+
+        // Guest
+        const guestBtn = document.getElementById('guestLoginBtn');
+        const guestNotification = document.getElementById('guestNotification');
+        const guestMessage = document.getElementById('guestMessage');
+        const closeGuest = document.getElementById('closeGuest');
+
+        // Forgot Password
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        const forgotModal = document.getElementById('forgotModal');
+        const forgotEmail = document.getElementById('forgotEmail');
+        const forgotError = document.getElementById('forgotError');
+        const forgotErrorText = document.getElementById('forgotErrorText');
+        const forgotSuccess = document.getElementById('forgotSuccess');
+        const forgotSuccessText = document.getElementById('forgotSuccessText');
+        const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+        const forgotCancelBtn = document.getElementById('forgotCancelBtn');
+
+        let isFlipped = false;
+
+        // ============================================================
+        // 3. PARTICLES
+        // ============================================================
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const colors = ['#00ffff', '#ff00ff', '#00ff88', '#ff4444', '#ffaa00', '#4dabf7', '#4285f4'];
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                const size = Math.random() * 4 + 2;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+                particle.style.animationDelay = (Math.random() * 10) + 's';
+                particle.style.background = color;
+                particle.style.boxShadow = `0 0 ${size * 4}px ${color}40`;
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // ============================================================
+        // 4. TOGGLE PASSWORD
+        // ============================================================
+        function setupTogglePassword(toggleBtn, inputField) {
+            toggleBtn.addEventListener('click', function() {
+                const type = inputField.getAttribute('type') === 'password' ? 'text' : 'password';
+                inputField.setAttribute('type', type);
+                this.classList.toggle('active');
+                const icon = this.querySelector('i');
+                if (type === 'text') {
+                    icon.className = 'fas fa-eye-slash';
+                } else {
+                    icon.className = 'fas fa-eye';
+                }
+            });
         }
 
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-          email: email,
-          password: password
+        setupTogglePassword(toggleLoginPassword, loginPassword);
+        setupTogglePassword(toggleRegisterPassword, registerPassword);
+        setupTogglePassword(toggleRegisterConfirm, registerConfirm);
+
+        // ============================================================
+        // 5. FLIP FUNCTION
+        // ============================================================
+        function flipTo(page) {
+            if (page === 'register' && !isFlipped) {
+                cubeContainer.classList.add('flipped');
+                isFlipped = true;
+                registerError.classList.remove('show');
+                registerSuccess.classList.remove('show');
+            } else if (page === 'login' && isFlipped) {
+                cubeContainer.classList.remove('flipped');
+                isFlipped = false;
+                loginError.classList.remove('show');
+            }
+        }
+
+        goToRegisterBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            flipTo('register');
         });
 
-        if (error) {
-          console.error('❌ Login error:', error);
-
-          if (error.message.includes('Invalid login credentials')) {
-            if (!emailOrUsername.includes('@')) {
-              showError('Username atau password salah. Periksa kembali.');
-            } else {
-              showError('Email atau password salah. Periksa kembali.');
-            }
-          } else if (error.message.includes('Email not confirmed')) {
-            showError('Email belum diverifikasi. Silakan cek email Anda.');
-          } else {
-            showError('Gagal login: ' + error.message);
-          }
-          setLoading(false);
-          return;
-        }
-
-        console.log('✅ Login berhasil:', data);
-        showSuccess('Login berhasil! Mengalihkan...');
-
-        setTimeout(() => {
-          window.location.href = 'https://stevemc.my.id/';
-        }, 1500);
-
-      } catch (error) {
-        console.error('❌ Unexpected error:', error);
-        showError('Terjadi kesalahan. Silakan coba lagi.');
-        setLoading(false);
-      }
-    }
-
-    // ============================================================
-    // 7. GOOGLE OAUTH - LOGIN
-    // ============================================================
-    async function handleGoogleLogin() {
-      hideAllMessages();
-
-      try {
-        console.log('🔐 Login dengan Google');
-
-        const { data, error } = await supabaseClient.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: 'https://stevemc.my.id/',
-            queryParams: {
-              access_type: 'offline',
-              prompt: 'consent',
-            }
-          }
+        goToLoginBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            flipTo('login');
         });
 
-        if (error) {
-          console.error('❌ Google OAuth error:', error);
-          showError('Gagal login dengan Google: ' + error.message);
-          return;
+        // ============================================================
+        // 6. GUEST LOGIN
+        // ============================================================
+        guestBtn.addEventListener('click', function() {
+            const guestName = 'Tamu_' + Math.floor(Math.random() * 10000);
+            guestMessage.textContent = `👋 Halo ${guestName}! Anda login sebagai Tamu 🚀`;
+            guestNotification.classList.add('show');
+            
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-user-astronaut"></i> Login Nanti (Sebagai Tamu)';
+                this.disabled = false;
+                loginEmail.value = '';
+                loginPassword.value = '';
+                loginError.classList.remove('show');
+                // Redirect ke beranda sebagai tamu
+                sessionStorage.setItem('skipLogin', 'true');
+                window.location.href = 'https://stevemc.my.id/';
+            }, 1000);
+
+            setTimeout(() => {
+                guestNotification.classList.remove('show');
+            }, 5000);
+        });
+
+        closeGuest.addEventListener('click', function() {
+            guestNotification.classList.remove('show');
+        });
+
+        // ============================================================
+        // 7. FORGOT PASSWORD - SUPABASE
+        // ============================================================
+        forgotPasswordLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            forgotModal.classList.add('show');
+            forgotEmail.value = '';
+            forgotError.classList.remove('show');
+            forgotSuccess.classList.remove('show');
+            // Isi email dari form login jika ada
+            if (loginEmail.value.trim() !== '') {
+                forgotEmail.value = loginEmail.value.trim();
+            }
+        });
+
+        forgotCancelBtn.addEventListener('click', function() {
+            forgotModal.classList.remove('show');
+        });
+
+        forgotModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                forgotModal.classList.remove('show');
+            }
+        });
+
+        resetPasswordBtn.addEventListener('click', async function() {
+            const email = forgotEmail.value.trim();
+            
+            forgotError.classList.remove('show');
+            forgotSuccess.classList.remove('show');
+
+            if (email === '') {
+                forgotErrorText.textContent = '⚠️ Harap masukkan email!';
+                forgotError.classList.add('show');
+                return;
+            }
+
+            // Validasi email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                forgotErrorText.textContent = '⚠️ Masukkan email yang valid!';
+                forgotError.classList.add('show');
+                return;
+            }
+
+            // Set loading
+            resetPasswordBtn.classList.add('loading');
+            resetPasswordBtn.disabled = true;
+
+            try {
+                // ===== KIRIM RESET PASSWORD KE SUPABASE =====
+                const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                    redirectTo: 'https://stevemc.my.id/reset-password.html'
+                });
+
+                if (error) {
+                    console.error('❌ Reset password error:', error);
+                    resetPasswordBtn.classList.remove('loading');
+                    resetPasswordBtn.disabled = false;
+
+                    if (error.message.includes('User not found') || error.message.includes('Email not found')) {
+                        forgotErrorText.textContent = '❌ Email tidak terdaftar!';
+                    } else {
+                        forgotErrorText.textContent = '❌ ' + error.message;
+                    }
+                    forgotError.classList.add('show');
+                    return;
+                }
+
+                // ===== SUKSES =====
+                console.log('✅ Reset password email terkirim');
+                forgotSuccessText.textContent = `✅ Link reset password telah dikirim ke ${email}!`;
+                forgotSuccess.classList.add('show');
+
+                resetPasswordBtn.classList.remove('loading');
+                resetPasswordBtn.disabled = false;
+
+                // Tutup modal setelah 3 detik
+                setTimeout(() => {
+                    forgotModal.classList.remove('show');
+                    forgotSuccess.classList.remove('show');
+                    
+                    // Tampilkan notifikasi di login
+                    loginEmail.value = email;
+                    loginPassword.value = '';
+                    loginErrorText.textContent = '📧 Cek email Anda untuk link reset password.';
+                    loginError.style.color = '#00ff88';
+                    loginError.classList.add('show');
+                    setTimeout(() => {
+                        loginError.classList.remove('show');
+                        loginError.style.color = '#ff4444';
+                    }, 5000);
+                }, 3000);
+
+            } catch (error) {
+                console.error('❌ Reset password error:', error);
+                resetPasswordBtn.classList.remove('loading');
+                resetPasswordBtn.disabled = false;
+                forgotErrorText.textContent = '❌ Terjadi kesalahan. Silakan coba lagi.';
+                forgotError.classList.add('show');
+            }
+        });
+
+        // Enter key pada forgot email
+        forgotEmail.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                resetPasswordBtn.click();
+            }
+        });
+
+        // ============================================================
+        // 8. LOGIN WITH SUPABASE
+        // ============================================================
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const email = loginEmail.value.trim();
+            const password = loginPassword.value.trim();
+
+            if (email === '' || password === '') {
+                loginErrorText.textContent = '⚠️ Harap isi semua field!';
+                loginError.classList.add('show');
+                setTimeout(() => loginError.classList.remove('show'), 3000);
+                return;
+            }
+
+            // Set loading state
+            loginBtn.classList.add('loading');
+            loginBtn.disabled = true;
+
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) {
+                    loginBtn.classList.remove('loading');
+                    loginBtn.disabled = false;
+                    
+                    if (error.message.includes('Invalid login credentials')) {
+                        loginErrorText.textContent = '❌ Email atau password salah!';
+                    } else if (error.message.includes('Email not confirmed')) {
+                        loginErrorText.textContent = '❌ Email belum diverifikasi. Cek email Anda.';
+                    } else {
+                        loginErrorText.textContent = '❌ ' + error.message;
+                    }
+                    loginError.classList.add('show');
+                    setTimeout(() => loginError.classList.remove('show'), 3000);
+                    return;
+                }
+
+                // Login berhasil
+                console.log('✅ Login berhasil:', data);
+                loginError.classList.remove('show');
+                loginBtn.innerHTML = '<i class="fas fa-check-circle"></i> Berhasil!';
+                loginBtn.style.background = 'linear-gradient(135deg, #00ff88, #00cc66)';
+
+                setTimeout(() => {
+                    window.location.href = 'https://stevemc.my.id/';
+                }, 1000);
+
+            } catch (error) {
+                console.error('❌ Login error:', error);
+                loginBtn.classList.remove('loading');
+                loginBtn.disabled = false;
+                loginErrorText.textContent = '❌ Terjadi kesalahan. Silakan coba lagi.';
+                loginError.classList.add('show');
+                setTimeout(() => loginError.classList.remove('show'), 3000);
+            }
+        });
+
+        // ============================================================
+        // 9. REGISTER WITH SUPABASE
+        // ============================================================
+        registerForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const name = registerName.value.trim();
+            const email = registerEmail.value.trim();
+            const password = registerPassword.value.trim();
+            const confirm = registerConfirm.value.trim();
+
+            registerError.classList.remove('show');
+            registerSuccess.classList.remove('show');
+
+            if (name === '' || email === '' || password === '' || confirm === '') {
+                registerErrorText.textContent = '⚠️ Harap isi semua field!';
+                registerError.classList.add('show');
+                setTimeout(() => registerError.classList.remove('show'), 3000);
+                return;
+            }
+
+            if (password.length < 8) {
+                registerErrorText.textContent = '⚠️ Password minimal 8 karakter!';
+                registerError.classList.add('show');
+                setTimeout(() => registerError.classList.remove('show'), 3000);
+                return;
+            }
+
+            if (password !== confirm) {
+                registerErrorText.textContent = '❌ Password tidak cocok!';
+                registerError.classList.add('show');
+                setTimeout(() => registerError.classList.remove('show'), 3000);
+                return;
+            }
+
+            // Set loading state
+            registerBtn.classList.add('loading');
+            registerBtn.disabled = true;
+
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            full_name: name,
+                            username: name.toLowerCase().replace(/\s/g, '')
+                        }
+                    }
+                });
+
+                if (error) {
+                    registerBtn.classList.remove('loading');
+                    registerBtn.disabled = false;
+
+                    if (error.message.includes('User already registered')) {
+                        registerErrorText.textContent = '❌ Email sudah terdaftar!';
+                    } else if (error.message.includes('Password should be at least')) {
+                        registerErrorText.textContent = '⚠️ Password minimal 8 karakter!';
+                    } else {
+                        registerErrorText.textContent = '❌ ' + error.message;
+                    }
+                    registerError.classList.add('show');
+                    setTimeout(() => registerError.classList.remove('show'), 3000);
+                    return;
+                }
+
+                // Register berhasil
+                console.log('✅ Register berhasil:', data);
+
+                const session = data.session;
+                const user = data.user;
+
+                registerSuccessText.textContent = '✅ Registrasi berhasil!';
+                registerSuccess.classList.add('show');
+
+                registerName.value = '';
+                registerEmail.value = '';
+                registerPassword.value = '';
+                registerConfirm.value = '';
+
+                registerBtn.innerHTML = '<i class="fas fa-check-circle"></i> Berhasil!';
+                registerBtn.style.background = 'linear-gradient(135deg, #00ff88, #00cc66)';
+
+                if (session) {
+                    // Session langsung tersedia (email tidak perlu verifikasi)
+                    setTimeout(() => {
+                        window.location.href = 'https://stevemc.my.id/';
+                    }, 1500);
+                } else if (user && user.identities && user.identities.length === 0) {
+                    // User sudah terdaftar tapi belum login
+                    registerErrorText.textContent = '⚠️ Email sudah terdaftar. Silakan login.';
+                    registerError.classList.add('show');
+                    registerBtn.classList.remove('loading');
+                    registerBtn.disabled = false;
+                    registerBtn.innerHTML = '<span class="btn-text"><i class="fas fa-user-plus"></i> Daftar</span><span class="spinner"></span>';
+                    registerBtn.style.background = 'linear-gradient(135deg, #ff00ff, #cc00ff)';
+                } else {
+                    // Verifikasi email aktif
+                    registerSuccessText.textContent = '✅ Cek email Anda untuk verifikasi!';
+                    registerSuccess.classList.add('show');
+                    setTimeout(() => {
+                        flipTo('login');
+                        loginEmail.value = email;
+                        loginErrorText.textContent = '📧 Cek email Anda untuk verifikasi.';
+                        loginError.style.color = '#00ff88';
+                        loginError.classList.add('show');
+                        setTimeout(() => {
+                            loginError.classList.remove('show');
+                            loginError.style.color = '#ff4444';
+                        }, 4000);
+                    }, 2000);
+                }
+
+                setTimeout(() => {
+                    registerBtn.classList.remove('loading');
+                    registerBtn.disabled = false;
+                }, 1000);
+
+            } catch (error) {
+                console.error('❌ Register error:', error);
+                registerBtn.classList.remove('loading');
+                registerBtn.disabled = false;
+                registerErrorText.textContent = '❌ Terjadi kesalahan. Silakan coba lagi.';
+                registerError.classList.add('show');
+                setTimeout(() => registerError.classList.remove('show'), 3000);
+            }
+        });
+
+        // ============================================================
+        // 10. GOOGLE OAUTH
+        // ============================================================
+        async function handleGoogleLogin() {
+            try {
+                googleLoginBtn.disabled = true;
+                googleLoginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+
+                const { data, error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: 'https://stevemc.my.id/',
+                        queryParams: {
+                            access_type: 'offline',
+                            prompt: 'consent',
+                        }
+                    }
+                });
+
+                if (error) {
+                    console.error('❌ Google OAuth error:', error);
+                    googleLoginBtn.innerHTML = '<span class="google-icon"><svg viewBox="0 0 48 48">...</svg></span> Google';
+                    googleLoginBtn.disabled = false;
+                    loginErrorText.textContent = '❌ Gagal login dengan Google: ' + error.message;
+                    loginError.classList.add('show');
+                    setTimeout(() => loginError.classList.remove('show'), 3000);
+                    return;
+                }
+
+                console.log('✅ Redirect ke Google OAuth...');
+
+            } catch (error) {
+                console.error('❌ Google OAuth error:', error);
+                googleLoginBtn.innerHTML = '<span class="google-icon"><svg viewBox="0 0 48 48">...</svg></span> Google';
+                googleLoginBtn.disabled = false;
+                loginErrorText.textContent = '❌ Terjadi kesalahan. Silakan coba lagi.';
+                loginError.classList.add('show');
+                setTimeout(() => loginError.classList.remove('show'), 3000);
+            }
         }
 
-        console.log('✅ Redirect ke Google OAuth...');
+        async function handleGoogleRegister() {
+            try {
+                googleRegisterBtn.disabled = true;
+                googleRegisterBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
 
-      } catch (error) {
-        console.error('❌ Unexpected Google OAuth error:', error);
-        showError('Terjadi kesalahan saat login dengan Google.');
-      }
-    }
+                const { data, error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: 'https://stevemc.my.id/',
+                        queryParams: {
+                            access_type: 'offline',
+                            prompt: 'consent',
+                        }
+                    }
+                });
 
-    // ============================================================
-    // 8. LOGIN NANTI - SKIP LOGIN (DENGAN SESSION STORAGE)
-    // ============================================================
-    function handleSkipLogin() {
-      console.log('⏭️ User memilih "Login Nanti"');
-      
-      // ===== PERBAIKAN: Simpan flag ke sessionStorage =====
-      sessionStorage.setItem('skipLogin', 'true');
-      
-      // Redirect ke beranda
-      window.location.href = 'https://stevemc.my.id/';
-    }
+                if (error) {
+                    console.error('❌ Google OAuth error:', error);
+                    googleRegisterBtn.innerHTML = '<span class="google-icon"><svg viewBox="0 0 48 48">...</svg></span> Daftar dengan Google';
+                    googleRegisterBtn.disabled = false;
+                    registerErrorText.textContent = '❌ Gagal dengan Google: ' + error.message;
+                    registerError.classList.add('show');
+                    setTimeout(() => registerError.classList.remove('show'), 3000);
+                    return;
+                }
 
-    // ============================================================
-    // 9. EVENT LISTENERS
-    // ============================================================
+                console.log('✅ Redirect ke Google OAuth...');
 
-    loginForm.addEventListener('submit', handleLogin);
-    googleLoginBtn.addEventListener('click', handleGoogleLogin);
-    skipLoginBtn.addEventListener('click', handleSkipLogin);
-
-    loginForm.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        handleLogin(e);
-      }
-    });
-
-    // ============================================================
-    // 10. CEK SESSION - Jika sudah login, redirect ke beranda
-    // ============================================================
-    (async function checkSession() {
-      try {
-        const { data: { session }, error } = await supabaseClient.auth.getSession();
-
-        if (error) {
-          console.warn('Error checking session:', error);
-          return;
+            } catch (error) {
+                console.error('❌ Google OAuth error:', error);
+                googleRegisterBtn.innerHTML = '<span class="google-icon"><svg viewBox="0 0 48 48">...</svg></span> Daftar dengan Google';
+                googleRegisterBtn.disabled = false;
+                registerErrorText.textContent = '❌ Terjadi kesalahan. Silakan coba lagi.';
+                registerError.classList.add('show');
+                setTimeout(() => registerError.classList.remove('show'), 3000);
+            }
         }
 
-        if (session) {
-          console.log('✅ User sudah login, redirect ke beranda');
-          window.location.href = 'https://stevemc.my.id/';
-        }
+        googleLoginBtn.addEventListener('click', handleGoogleLogin);
+        googleRegisterBtn.addEventListener('click', handleGoogleRegister);
 
-      } catch (err) {
-        console.error('Error checking session:', err);
-      }
-    })();
+        // ============================================================
+        // 11. CEK SESSION - Jika sudah login, redirect ke beranda
+        // ============================================================
+        (async function checkSession() {
+            try {
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
 
-    // ============================================================
-    // 11. SUPABASE AUTH STATE CHANGE
-    // ============================================================
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-      console.log('🔐 Auth state changed:', event);
+                if (error) {
+                    console.warn('Error checking session:', error);
+                    return;
+                }
 
-      if (event === 'SIGNED_IN' && session) {
-        console.log('✅ User signed in, redirecting...');
-        window.location.href = 'https://stevemc.my.id/';
-      }
+                if (session) {
+                    console.log('✅ User sudah login, redirect ke beranda');
+                    window.location.href = 'https://stevemc.my.id/';
+                }
 
-      if (event === 'PASSWORD_RECOVERY') {
-        console.log('🔑 Password recovery mode');
-        window.location.href = 'https://stevemc.my.id/reset-password.html';
-      }
-    });
+            } catch (err) {
+                console.error('Error checking session:', err);
+            }
+        })();
 
-    console.log('%c🔐 Login Page Ready!', 'font-size:16px;font-weight:bold;color:#7c4dff;');
-    console.log('📌 Supabase URL:', SUPABASE_URL);
-    console.log('📌 Klik "Login Nanti" untuk melewati login');
-  </script>
+        // ============================================================
+        // 12. SUPABASE AUTH STATE CHANGE
+        // ============================================================
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            console.log('🔐 Auth state changed:', event);
 
+            if (event === 'SIGNED_IN' && session) {
+                console.log('✅ User signed in, redirecting...');
+                window.location.href = 'https://stevemc.my.id/';
+            }
+
+            if (event === 'PASSWORD_RECOVERY') {
+                console.log('🔑 Password recovery mode');
+                // Redirect ke halaman reset password
+                window.location.href = 'https://stevemc.my.id/reset-password.html';
+            }
+        });
+
+        console.log('%c🚀 Login Page Ready!', 'font-size:16px;font-weight:bold;color:#00ffff;');
+        console.log('📌 Supabase URL:', SUPABASE_URL);
+        console.log('📌 Login dengan email + password atau Google');
+        console.log('📌 Guest Mode: Klik "Login Nanti" untuk login sebagai tamu');
+        console.log('📌 Lupa Password: Kirim link reset ke email');
+        console.log('📌 Reset Password URL: https://stevemc.my.id/reset-password.html');
+    </script>
 </body>
 </html>
