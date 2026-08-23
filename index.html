@@ -19,9 +19,12 @@
   <!-- ===== SUPABASE JS SDK v2 ===== -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- ===== AUTH CHECK MODULE ===== -->
+  <script src="auth-check.js"></script>
+
   <style>
     /* ============================================
-       SEMUA STYLE TETAP SAMA (Tidak ada perubahan)
+       RESET & BASE
     ============================================ */
     * {
       margin: 0;
@@ -42,52 +45,7 @@
       position: relative;
     }
 
-    /* ===== LOADING SCREEN ===== */
-    #authLoading {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #080c1a;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      transition: opacity 0.5s ease;
-    }
-
-    #authLoading.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    #authLoading .spinner {
-      width: 50px;
-      height: 50px;
-      border: 3px solid rgba(124, 77, 255, 0.1);
-      border-top: 3px solid #7c4dff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    #authLoading p {
-      margin-top: 16px;
-      color: rgba(255, 255, 255, 0.4);
-      font-size: 0.95rem;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* ============================================
-       SEMUA STYLE YANG ADA SEBELUMNYA
-       (Tetap dipertahankan)
-    ============================================ */
+    /* Animated background */
     body::before {
       content: '';
       position: fixed;
@@ -103,6 +61,7 @@
       pointer-events: none;
     }
 
+    /* Floating particles */
     .particles {
       position: fixed;
       top: 0;
@@ -140,6 +99,9 @@
       }
     }
 
+    /* ============================================
+       SCROLLBAR
+    ============================================ */
     ::-webkit-scrollbar {
       width: 6px;
     }
@@ -152,10 +114,55 @@
     }
 
     /* ============================================
+       LOADING SCREEN
+    ============================================ */
+    #authLoading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #080c1a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+
+    #authLoading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #authLoading .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(124, 77, 255, 0.1);
+      border-top: 3px solid #7c4dff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    #authLoading p {
+      margin-top: 16px;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ============================================
        OWNER BADGE DI HEADER
     ============================================ */
     .owner-badge {
-      display: inline-flex;
+      display: none;
       align-items: center;
       gap: 6px;
       background: linear-gradient(135deg, #ffd700, #f59e0b);
@@ -1402,7 +1409,7 @@
 
     <!-- ===== HERO BANNER ===== -->
     <div class="hero-banner">
-      <img src="https://c.termai.cc/i151/2cmhG.jpg" alt="SteveMC Banner" loading="lazy" />
+      <img src="https://c.termai.cc/i183/m5ecz.jpg" alt="SteveMC Banner" loading="lazy" />
     </div>
 
     <!-- ===== HERO TEXT ===== -->
@@ -1410,7 +1417,7 @@
       <div class="badge">
         <i class="fas fa-code"></i>
         <span>Developer &amp; Creator</span>
-        <!-- ===== OWNER SYSTEM: Badge Owner akan muncul di sini via JavaScript ===== -->
+        <!-- ===== OWNER BADGE ===== -->
         <span id="ownerBadge" style="display:none;"></span>
       </div>
 
@@ -1573,26 +1580,21 @@
     // ============================================================
     // 2. OWNER SYSTEM - KONFIGURASI
     // ============================================================
-    // ===== OWNER SYSTEM =====
     const OWNER_ID = 'ce5879ba-007c-4258-acd1-75246073a151';
 
-    // ============================================================
-    // 3. OWNER SYSTEM - FUNGSI PENGECEKAN
-    // ============================================================
-    // ===== OWNER SYSTEM =====
     function isOwner(user) {
       if (!user || !user.id) return false;
       return user.id === OWNER_ID;
     }
 
     // ============================================================
-    // 4. FLAG UNTUK MENCEGAH EKSEKUSI BERGANDA
+    // 3. FLAG UNTUK MENCEGAH EKSEKUSI BERGANDA
     // ============================================================
     let isInitialized = false;
     let isRedirecting = false;
 
     // ============================================================
-    // 5. ELEMENT REFERENSI
+    // 4. ELEMENT REFERENSI
     // ============================================================
     const authLoading = document.getElementById('authLoading');
     const mainContent = document.getElementById('mainContent');
@@ -1600,7 +1602,7 @@
     const ownerBadge = document.getElementById('ownerBadge');
 
     // ============================================================
-    // 6. FUNGSI - TAMPILKAN KONTEN (hanya sekali)
+    // 5. FUNGSI - TAMPILKAN KONTEN (hanya sekali)
     // ============================================================
     function showMainContent(session) {
       if (isInitialized) {
@@ -1614,7 +1616,7 @@
       authLoading.classList.add('hidden');
       isInitialized = true;
 
-      // ===== OWNER SYSTEM: Tampilkan badge owner jika user adalah owner =====
+      // ===== Tampilkan badge owner jika user adalah owner =====
       if (session && isOwner(session.user)) {
         ownerBadge.style.display = 'inline-flex';
         ownerBadge.innerHTML = '<i class="fas fa-crown"></i> Owner';
@@ -1632,49 +1634,51 @@
     }
 
     // ============================================================
-    // 7. CEK SESSION - Redirect jika tidak login
+    // 6. CEK SESSION - Tampilkan konten tanpa paksa login
     // ============================================================
     async function checkSession() {
       try {
+        // ===== PERBAIKAN: Cek flag skipLogin dari sessionStorage =====
+        const skipLogin = sessionStorage.getItem('skipLogin') === 'true';
+        
+        if (skipLogin) {
+          console.log('⏭️ User memilih "Login Nanti", tampilkan website tanpa login');
+          // Hapus flag agar tidak terus menerus skip
+          sessionStorage.removeItem('skipLogin');
+        }
+
         const { data: { session }, error } = await supabaseClient.auth.getSession();
 
         if (error) {
           console.warn('Error get session:', error);
-          if (!isRedirecting) {
-            isRedirecting = true;
-            window.location.replace('https://stevemc.my.id/login.html');
-          }
+          // Tetap tampilkan konten meskipun error
+          showMainContent(null);
           return;
         }
 
         if (!session) {
-          console.log('❌ Tidak ada session, redirect ke login');
-          if (!isRedirecting) {
-            isRedirecting = true;
-            window.location.replace('https://stevemc.my.id/login.html');
-          }
+          console.log('❌ Tidak ada session, tampilkan website sebagai tamu');
+          // Tetap tampilkan konten (tanpa redirect)
+          showMainContent(null);
           return;
         }
 
-        // ===== OWNER SYSTEM: Log user ID dan status owner =====
+        // User sudah login, tampilkan konten dengan data user
+        console.log('✅ User sudah login:', session.user.email);
         console.log('🆔 User ID:', session.user.id);
         console.log('👑 Status Owner:', isOwner(session.user) ? 'TRUE ✅' : 'FALSE ❌');
-
-        // User sudah login, tampilkan konten
-        console.log('✅ User sudah login:', session.user.email);
+        
         showMainContent(session);
 
       } catch (err) {
         console.error('Error checking session:', err);
-        if (!isRedirecting) {
-          isRedirecting = true;
-          window.location.replace('https://stevemc.my.id/login.html');
-        }
+        // Tetap tampilkan konten jika error
+        showMainContent(null);
       }
     }
 
     // ============================================================
-    // 8. LOAD MENU - Memilih menu berdasarkan status owner
+    // 7. LOAD MENU - Memilih menu berdasarkan status owner
     // ============================================================
     function loadMenu(session) {
       const menuContainer = document.getElementById('menuContainer');
@@ -1683,7 +1687,7 @@
 
       if (!menuContainer) return;
 
-      // ===== OWNER SYSTEM: Pilih menu berdasarkan status owner =====
+      // ===== Cek status owner =====
       const isOwnerUser = session && isOwner(session.user);
       const menuFile = isOwnerUser ? 'menu_owner.html' : 'menu.html';
 
@@ -1781,7 +1785,7 @@
     }
 
     // ============================================================
-    // 9. PARTICLES BACKGROUND
+    // 8. PARTICLES BACKGROUND
     // ============================================================
     (function createParticles() {
       const container = document.getElementById('particles');
@@ -1799,7 +1803,7 @@
     })();
 
     // ============================================================
-    // 10. GREETING & TYPING EFFECT
+    // 9. GREETING & TYPING EFFECT
     // ============================================================
     function initializeGreetingAndTyping() {
       const greetingEl = document.getElementById('greeting');
@@ -1827,7 +1831,7 @@
     }
 
     // ============================================================
-    // 11. SLIDER / CAROUSEL (hanya sekali)
+    // 10. SLIDER / CAROUSEL (hanya sekali)
     // ============================================================
     function initializeSlider() {
       const wrapper = document.getElementById('sliderWrapper');
@@ -1894,7 +1898,7 @@
     }
 
     // ============================================================
-    // 12. FETCH DATA DARI API (hanya sekali)
+    // 11. FETCH DATA DARI API (hanya sekali)
     // ============================================================
     async function fetchData() {
       const dataArea = document.getElementById('dataArea');
@@ -1987,7 +1991,7 @@
     }
 
     // ============================================================
-    // 13. SUPABASE AUTH STATE CHANGE LISTENER (TANPA RELOAD!)
+    // 12. SUPABASE AUTH STATE CHANGE (TANPA RELOAD!)
     // ============================================================
     supabaseClient.auth.onAuthStateChange((event, session) => {
       console.log('🔐 Auth state changed:', event);
@@ -1997,7 +2001,6 @@
         console.log('🆔 User ID:', session.user.id);
         console.log('👑 Status Owner:', isOwner(session.user) ? 'TRUE ✅' : 'FALSE ❌');
 
-        // ===== PERBAIKAN: TIDAK ADA RELOAD! =====
         // Jika konten belum ditampilkan, tampilkan
         if (!isInitialized) {
           showMainContent(session);
@@ -2015,11 +2018,9 @@
       }
 
       if (event === 'SIGNED_OUT') {
-        console.log('👋 User signed out, redirecting to login...');
-        if (!isRedirecting) {
-          isRedirecting = true;
-          window.location.replace('https://stevemc.my.id/login.html');
-        }
+        console.log('👋 User signed out');
+        // Refresh halaman untuk update UI (tampilkan tombol login)
+        window.location.reload();
       }
 
       if (event === 'TOKEN_REFRESHED') {
@@ -2029,7 +2030,6 @@
 
       if (event === 'USER_UPDATED') {
         console.log('📝 User updated');
-        // Update UI jika perlu
         if (session) {
           if (isOwner(session.user)) {
             ownerBadge.style.display = 'inline-flex';
@@ -2042,14 +2042,14 @@
     });
 
     // ============================================================
-    // 14. JALANKAN CEK SESSION
+    // 13. JALANKAN
     // ============================================================
     checkSession();
 
-    console.log('%c👑 SteveMC dengan Owner System!', 'font-size:16px;font-weight:bold;color:#ffd700;');
+    console.log('%c👑 SteveMC - Dengan Tombol "Login Nanti"', 'font-size:16px;font-weight:bold;color:#ffd700;');
     console.log('📌 Owner ID:', OWNER_ID);
     console.log('📌 Supabase URL:', SUPABASE_URL);
-    console.log('✅ Infinite reload loop telah diperbaiki');
+    console.log('✅ User bisa "Login Nanti" dan tetap akses website');
   </script>
 
 </body>
