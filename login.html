@@ -588,7 +588,8 @@
           <label>
             <input type="checkbox" id="rememberMe" /> Ingat saya
           </label>
-          <a href="#" id="forgotPasswordLink">Lupa kata sandi?</a>
+          <!-- ===== PERBAIKAN: Link langsung ke forgot-password.html ===== -->
+          <a href="forgot-password.html" id="forgotPasswordLink">Lupa kata sandi?</a>
         </div>
 
         <button type="submit" class="btn-login" id="loginBtn">
@@ -692,7 +693,8 @@
     const errorMessage = document.getElementById('errorMessage');
     const errorText = document.getElementById('errorText');
     const googleLoginBtn = document.getElementById('googleLoginBtn');
-    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    // ===== PERBAIKAN: Tidak perlu lagi karena link langsung ke forgot-password.html =====
+    // const forgotPasswordLink = document.getElementById('forgotPasswordLink');
 
     // ============================================================
     // 5. FUNGSI UTILITY
@@ -846,37 +848,7 @@
     }
 
     // ============================================================
-    // 8. FORGOT PASSWORD (Reset Password)
-    // ============================================================
-    async function handleForgotPassword(e) {
-      e.preventDefault();
-
-      const email = prompt('Masukkan email Anda untuk reset password:');
-      if (!email) return;
-
-      if (!email.includes('@') || !email.includes('.')) {
-        alert('Masukkan email yang valid.');
-        return;
-      }
-
-      try {
-        const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-          redirectTo: 'https://stevemc.my.id/reset-password.html'
-        });
-
-        if (error) {
-          alert('Gagal mengirim email reset: ' + error.message);
-          return;
-        }
-
-        alert('Email reset password telah dikirim. Silakan cek inbox Anda.');
-      } catch (error) {
-        alert('Terjadi kesalahan. Silakan coba lagi.');
-      }
-    }
-
-    // ============================================================
-    // 9. EVENT LISTENERS
+    // 8. EVENT LISTENERS
     // ============================================================
 
     // Login form submit
@@ -884,9 +856,6 @@
 
     // Google login button
     googleLoginBtn.addEventListener('click', handleGoogleLogin);
-
-    // Forgot password
-    forgotPasswordLink.addEventListener('click', handleForgotPassword);
 
     // Enter key support
     loginForm.addEventListener('keydown', (e) => {
@@ -897,7 +866,7 @@
     });
 
     // ============================================================
-    // 10. CEK SESSION - Jika sudah login, redirect ke beranda
+    // 9. CEK SESSION - Jika sudah login, redirect ke beranda
     // ============================================================
     (async function checkSession() {
       try {
@@ -919,7 +888,7 @@
     })();
 
     // ============================================================
-    // 11. SUPABASE AUTH STATE CHANGE
+    // 10. SUPABASE AUTH STATE CHANGE
     // ============================================================
     supabaseClient.auth.onAuthStateChange((event, session) => {
       console.log('🔐 Auth state changed:', event);
@@ -940,6 +909,7 @@
     console.log('📌 Supabase URL:', SUPABASE_URL);
     console.log('📌 Redirect URL: https://stevemc.my.id/');
     console.log('📌 Login dengan email/username + password atau Google');
+    console.log('📌 Lupa password → forgot-password.html');
   </script>
 
 </body>
