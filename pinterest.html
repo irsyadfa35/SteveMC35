@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="theme-color" content="#0a0f23" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pinterest Search - SteveMC</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <!-- ===== SUPABASE JS SDK v2 ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- ===== AUTH CHECK MODULE ===== -->
+    <script src="auth-check.js"></script>
+
+    <style>
+        /* ============================================
+           RESET & BASE
+        ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #080c1a;
+            color: #c8d6e5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(124, 77, 255, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(0, 229, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(255, 0, 80, 0.04) 0%, transparent 50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ===== LOADING SCREEN ===== */
+        #authLoading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #080c1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        #authLoading.hidden { opacity: 0; pointer-events: none; }
+        #authLoading .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(124,77,255,0.1);
+            border-top: 3px solid #7c4dff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        #authLoading p { margin-top:16px; color:rgba(255,255,255,0.4); font-size:0.95rem; }
+
+        /* ===== MAIN CONTENT ===== */
+        #mainContent { display: none; }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ============================================
+           HEADER
+        ============================================ */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 30px;
+            padding: 20px 0 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .menu-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.04);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border-color: rgba(124, 77, 255, 0.3);
+        }
+
+        .menu-toggle:active { transform: scale(0.92); }
+
+        .header-content {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-content h1 {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .header-content h1 .highlight {
+            background: linear-gradient(135deg, #e60023, #ff6b8a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-content h1 i {
+            color: #e60023;
+            margin-right: 6px;
+        }
+
+        .header-content p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* ===== OWNER BADGE ===== */
+        .owner-badge {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #ffd700, #f59e0b);
+            color: #1a1a2e;
+            padding: 2px 12px;
+            border-radius: 60px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 8px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+        .owner-badge i { font-size: 0.6rem; }
+
+        /* ============================================
+           MENU PANEL
+        ============================================ */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        .menu-overlay.open { opacity: 1; visibility: visible; }
+
+        #menuContainer .menu-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 290px;
+            height: 100%;
+            background: rgba(12, 16, 30, 0.98);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 4px 0 60px rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #menuContainer .menu-panel.open { transform: translateX(0); }
+
+        #menuContainer .menu-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            margin-bottom: 28px;
+        }
+
+        #menuContainer .menu-header .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #7c4dff, #00e5ff);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 77, 255, 0.3);
+        }
+
+        #menuContainer .menu-header .brand-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        #menuContainer .menu-header .brand-text span {
+            background: linear-gradient(90deg, #7c4dff, #00e5ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        #menuContainer .menu-list {
+            list-style: none;
+            flex: 1;
+        }
+        #menuContainer .menu-list li { margin-bottom: 4px; }
+        #menuContainer .menu-list li a {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        #menuContainer .menu-list li a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%) scaleY(0);
+            width: 3px;
+            height: 24px;
+            background: linear-gradient(180deg, #7c4dff, #00e5ff);
+            border-radius: 0 4px 4px 0;
+            transition: transform 0.3s ease;
+        }
+
+        #menuContainer .menu-list li a:hover::before,
+        #menuContainer .menu-list li a.active::before {
+            transform: translateY(-50%) scaleY(1);
+        }
+
+        #menuContainer .menu-list li a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
+        #menuContainer .menu-list li a i {
+            width: 24px;
+            font-size: 18px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.35);
+            transition: color 0.3s;
+        }
+
+        #menuContainer .menu-list li a:hover i,
+        #menuContainer .menu-list li a.active i {
+            color: #7c4dff;
+        }
+
+        #menuContainer .menu-list li a.active {
+            background: rgba(124, 77, 255, 0.1);
+            color: #fff;
+        }
+
+        #menuContainer .menu-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 20px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.25);
+            text-align: center;
+        }
+
+        #menuContainer .menu-footer i {
+            color: #7c4dff;
+            margin: 0 4px;
+        }
+
+        /* ============================================
+           SEARCH SECTION
+        ============================================ */
+        .search-section {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 30px;
+        }
+
+        .search-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-wrapper input {
+            flex: 1;
+            min-width: 200px;
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 1.5px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.04);
+            color: #c8d6e5;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-wrapper input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .search-wrapper input:focus {
+            border-color: rgba(230, 0, 35, 0.4);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 0 4px rgba(230, 0, 35, 0.08);
+        }
+
+        .search-wrapper input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-paste {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            border: 1.5px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.04);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .btn-paste:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border-color: rgba(124, 77, 255, 0.2);
+        }
+
+        .btn-paste:active { transform: scale(0.92); }
+        .btn-paste:disabled { opacity: 0.3; cursor: not-allowed; transform: none !important; }
+        .btn-paste.pasted {
+            color: #25D366;
+            border-color: #25D366;
+            background: rgba(37, 211, 102, 0.1);
+        }
+
+        .btn-search {
+            padding: 16px 32px;
+            border-radius: 16px;
+            border: none;
+            background: linear-gradient(135deg, #e60023, #ff6b8a);
+            color: #fff;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 4px 25px rgba(230, 0, 35, 0.3);
+            flex-shrink: 0;
+        }
+
+        .btn-search:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 35px rgba(230, 0, 35, 0.45);
+        }
+
+        .btn-search:active:not(:disabled) { transform: scale(0.97); }
+        .btn-search:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
+        .btn-search .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn-search.loading .spinner { display: block; }
+        .btn-search.loading .btn-text { display: none; }
+        .btn-search.loading .btn-icon { display: none; }
+
+        /* ============================================
+           ERROR MESSAGE
+        ============================================ */
+        .error-msg {
+            display: none;
+            margin-top: 12px;
+            padding: 14px 18px;
+            background: rgba(230, 0, 35, 0.1);
+            border-left: 4px solid #e60023;
+            border-radius: 12px;
+            color: #ff6b8a;
+            font-size: 14px;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-msg.show { display: flex; }
+        .error-msg i { font-size: 18px; }
+
+        /* ============================================
+           RESULTS GRID
+        ============================================ */
+        .results-section {
+            display: none;
+            margin-top: 10px;
+            animation: fadeUp 0.5s ease forwards;
+        }
+
+        .results-section.show { display: block; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .results-header .count {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+        }
+
+        .results-header .count strong {
+            color: #fff;
+        }
+
+        .masonry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .pin-card {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            break-inside: avoid;
+        }
+
+        .pin-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(124, 77, 255, 0.2);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .pin-card .image-wrap {
+            position: relative;
+            width: 100%;
+            padding-top: 75%;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .pin-card .image-wrap img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .pin-card:hover .image-wrap img {
+            transform: scale(1.03);
+        }
+
+        .pin-card .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 16px 16px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .pin-card:hover .overlay {
+            opacity: 1;
+        }
+
+        .pin-card .overlay .title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #fff;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 8px;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .pin-card .overlay .btn-download-pin {
+            padding: 8px 18px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, #e60023, #ff6b8a);
+            color: #fff;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .pin-card .overlay .btn-download-pin:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(230, 0, 35, 0.4);
+        }
+
+        .pin-card .overlay .btn-download-pin:active {
+            transform: scale(0.95);
+        }
+
+        .pin-card .pin-info {
+            padding: 10px 14px 12px;
+        }
+
+        .pin-card .pin-info .pin-title {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .pin-card .pin-info .pin-author {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.25);
+            margin-top: 2px;
+        }
+
+        .pin-card .pin-info .pin-author i {
+            margin-right: 4px;
+            font-size: 10px;
+        }
+
+        /* ============================================
+           LIGHTBOX
+        ============================================ */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .lightbox.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .lightbox .close-lightbox {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #fff;
+            font-size: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: none;
+            border: none;
+            z-index: 10;
+        }
+
+        .lightbox .close-lightbox:hover {
+            transform: rotate(90deg);
+            color: #ff6b8a;
+        }
+
+        .lightbox .lightbox-content {
+            max-width: 90vw;
+            max-height: 80vh;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+
+        .lightbox .lightbox-content img {
+            width: 100%;
+            height: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            display: block;
+        }
+
+        .lightbox .lightbox-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 24px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .lightbox .lightbox-info .lb-title {
+            color: #fff;
+            font-weight: 500;
+            font-size: 15px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .lightbox .lightbox-info .lb-author {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+        }
+
+        .lightbox .lightbox-info .lb-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .lightbox .lightbox-info .lb-actions .btn-download-modal {
+            padding: 10px 24px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #e60023, #ff6b8a);
+            color: #fff;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .lightbox .lightbox-info .lb-actions .btn-download-modal:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 30px rgba(230, 0, 35, 0.4);
+        }
+
+        .lightbox .lightbox-info .lb-actions .btn-download-modal:active {
+            transform: scale(0.95);
+        }
+
+        .lightbox .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .lightbox .lightbox-nav:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .lightbox .lightbox-nav.prev {
+            left: 20px;
+        }
+        .lightbox .lightbox-nav.next {
+            right: 20px;
+        }
+
+        /* ============================================
+           EMPTY STATE
+        ============================================ */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 24px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .empty-state i {
+            font-size: 56px;
+            margin-bottom: 16px;
+            color: rgba(255, 255, 255, 0.06);
+        }
+
+        .empty-state p {
+            font-size: 15px;
+            max-width: 360px;
+            line-height: 1.7;
+        }
+
+        .empty-state p strong {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .empty-state .suggestions {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .empty-state .suggestions span {
+            padding: 6px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .empty-state .suggestions span:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+        }
+
+        /* ============================================
+           LOADING RESULTS
+        ============================================ */
+        .loading-results {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .loading-results.show {
+            display: block;
+        }
+
+        .loading-results i {
+            font-size: 32px;
+            margin-bottom: 12px;
+            display: block;
+            animation: spin 1s linear infinite;
+        }
+
+        /* ============================================
+           RESPONSIVE
+        ============================================ */
+        @media (max-width: 768px) {
+            body { padding: 16px; }
+            .header-content h1 { font-size: 20px; }
+            .menu-toggle { width: 40px; height: 40px; font-size: 18px; }
+            .search-wrapper input { padding: 14px 16px; font-size: 14px; min-width: 140px; }
+            .btn-paste { width: 46px; height: 46px; font-size: 16px; }
+            .btn-search { padding: 14px 22px; font-size: 14px; }
+            .masonry-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+            .lightbox .lightbox-content { max-width: 95vw; max-height: 70vh; }
+            .lightbox .lightbox-info { padding: 14px 16px; flex-direction: column; align-items: flex-start; }
+            .lightbox .lightbox-nav { width: 36px; height: 36px; font-size: 16px; }
+            .lightbox .lightbox-nav.prev { left: 10px; }
+            .lightbox .lightbox-nav.next { right: 10px; }
+            #menuContainer .menu-panel { width: 280px; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 12px; }
+            .header-content h1 { font-size: 17px; }
+            .header-content p { font-size: 12px; }
+            .menu-toggle { width: 36px; height: 36px; font-size: 16px; }
+            .btn-paste { width: 40px; height: 40px; font-size: 14px; }
+            .btn-search { padding: 12px 18px; font-size: 13px; width: 100%; justify-content: center; }
+            .search-wrapper { gap: 8px; }
+            .search-wrapper input { padding: 12px 14px; font-size: 13px; min-width: 120px; }
+            .masonry-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+            .pin-card .overlay .btn-download-pin { font-size: 11px; padding: 6px 12px; }
+            .lightbox .lightbox-content { max-width: 98vw; max-height: 60vh; }
+            .lightbox .close-lightbox { top: 12px; right: 16px; font-size: 30px; }
+            .lightbox .lightbox-info .lb-title { font-size: 13px; }
+            .lightbox .lightbox-info .lb-actions .btn-download-modal { padding: 8px 16px; font-size: 12px; }
+            .empty-state i { font-size: 40px; }
+            .empty-state p { font-size: 13px; }
+            #menuContainer .menu-panel { width: 260px; padding: 20px 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== AUTH LOADING SCREEN ===== -->
+    <div id="authLoading">
+        <div class="spinner"></div>
+        <p>Memeriksa session...</p>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div id="mainContent">
+
+        <!-- ===== MENU OVERLAY ===== -->
+        <div class="menu-overlay" id="menuOverlay"></div>
+
+        <!-- ===== MENU CONTAINER ===== -->
+        <div id="menuContainer"></div>
+
+        <div class="container">
+
+            <!-- ===== HEADER ===== -->
+            <div class="header">
+                <button class="menu-toggle" id="menuToggle" title="Buka menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="header-content">
+                    <h1>
+                        <i class="fab fa-pinterest"></i>
+                        <span class="highlight">Pinterest Search</span>
+                        <span class="owner-badge" id="ownerBadge"><i class="fas fa-crown"></i> Owner</span>
+                    </h1>
+                    <p>Cari dan download gambar dari Pinterest</p>
+                </div>
+            </div>
+
+            <!-- ===== SEARCH SECTION ===== -->
+            <div class="search-section">
+                <div class="search-wrapper">
+                    <input type="text" id="searchInput" placeholder="Cari gambar... (contoh: anime, wallpaper, kucing)" autocomplete="off" spellcheck="false" />
+                    <button class="btn-paste" id="pasteBtn" title="Tempel dari clipboard">
+                        <i class="fas fa-paste"></i>
+                    </button>
+                    <button class="btn-search" id="searchBtn">
+                        <span class="btn-icon"><i class="fas fa-search"></i></span>
+                        <span class="btn-text">Cari</span>
+                        <span class="spinner"></span>
+                    </button>
+                </div>
+                <div class="error-msg" id="errorMsg">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText">Terjadi kesalahan</span>
+                </div>
+            </div>
+
+            <!-- ===== RESULTS ===== -->
+            <div class="results-section" id="resultsSection">
+                <div class="results-header">
+                    <span class="count">Menampilkan <strong id="resultCount">0</strong> hasil</span>
+                    <span style="font-size:12px;color:rgba(255,255,255,0.2);">Klik gambar untuk melihat detail</span>
+                </div>
+                <div class="loading-results" id="loadingResults">
+                    <i class="fas fa-spinner"></i>
+                    <p>Mencari gambar...</p>
+                </div>
+                <div class="masonry-grid" id="masonryGrid"></div>
+            </div>
+
+            <!-- ===== EMPTY STATE ===== -->
+            <div class="empty-state" id="emptyState">
+                <i class="fab fa-pinterest"></i>
+                <p>Masukkan kata kunci di atas, lalu klik <strong>Cari</strong> untuk menemukan gambar dari Pinterest.</p>
+                <div class="suggestions">
+                    <span onclick="searchQuery('anime')">anime</span>
+                    <span onclick="searchQuery('wallpaper')">wallpaper</span>
+                    <span onclick="searchQuery('kucing')">kucing</span>
+                    <span onclick="searchQuery('pemandangan')">pemandangan</span>
+                    <span onclick="searchQuery('makanan')">makanan</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===== LIGHTBOX ===== -->
+    <div class="lightbox" id="lightbox">
+        <button class="close-lightbox" id="closeLightbox">&times;</button>
+        <button class="lightbox-nav prev" id="lbPrev"><i class="fas fa-chevron-left"></i></button>
+        <button class="lightbox-nav next" id="lbNext"><i class="fas fa-chevron-right"></i></button>
+        <div class="lightbox-content">
+            <img id="lbImage" src="" alt="Preview" />
+        </div>
+        <div class="lightbox-info">
+            <span class="lb-title" id="lbTitle">—</span>
+            <span class="lb-author" id="lbAuthor"><i class="fas fa-user"></i> —</span>
+            <div class="lb-actions">
+                <button class="btn-download-modal" id="lbDownloadBtn"><i class="fas fa-download"></i> Download</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 1. CEK AUTH MANUAL - TANPA REDIRECT KE INDEX
+        // ============================================================
+        // ===== PERBAIKAN UTAMA: Menggunakan checkAuth() langsung =====
+        // BUKAN initAuthPage() yang bisa redirect ke index
+
+        (async function checkAuthManually() {
+            try {
+                // Tunggu auth-check.js
+                if (typeof steveMC === 'undefined') {
+                    console.warn('⏳ Menunggu auth-check.js...');
+                    await new Promise(resolve => {
+                        const check = () => {
+                            if (typeof steveMC !== 'undefined') resolve();
+                            else setTimeout(check, 100);
+                        };
+                        check();
+                    });
+                }
+
+                // ===== CEK SESSION TANPA REDIRECT =====
+                const result = await steveMC.auth.checkAuth();
+
+                console.log('🔐 Auth result:', result);
+
+                // ===== JIKA BELUM LOGIN, REDIRECT KE LOGIN =====
+                if (!result.isLoggedIn) {
+                    console.log('❌ Belum login, redirect ke login...');
+                    window.location.href = 'https://stevemc.my.id/login.html';
+                    return;
+                }
+
+                // ===== USER SUDAH LOGIN, TAMPILKAN KONTEN =====
+                console.log('✅ User sudah login:', result.user.email);
+                console.log('👑 Status Owner:', result.isOwner ? 'TRUE ✅' : 'FALSE ❌');
+
+                // Tampilkan konten
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('authLoading').classList.add('hidden');
+
+                // Tampilkan owner badge
+                const ownerBadge = document.getElementById('ownerBadge');
+                if (result.isOwner) {
+                    ownerBadge.style.display = 'inline-flex';
+                    ownerBadge.innerHTML = '<i class="fas fa-crown"></i> Owner';
+                } else {
+                    ownerBadge.style.display = 'none';
+                }
+
+                // Inisialisasi fitur Pinterest
+                initPinterestSearch();
+
+                // Load menu
+                loadMenu();
+
+            } catch (error) {
+                console.error('❌ Auth error:', error);
+                window.location.href = 'https://stevemc.my.id/login.html';
+            }
+        })();
+
+        // ============================================================
+        // 2. LOAD MENU
+        // ============================================================
+        function loadMenu() {
+            const menuContainer = document.getElementById('menuContainer');
+            const menuToggle = document.getElementById('menuToggle');
+            const menuOverlay = document.getElementById('menuOverlay');
+
+            steveMC.auth.getAuthStatus().then((result) => {
+                const isOwnerUser = result.isOwner;
+                const menuFile = isOwnerUser ? 'menu_owner.html' : 'menu.html';
+
+                fetch(menuFile)
+                    .then(res => {
+                        if (!res.ok) throw new Error('Menu tidak ditemukan');
+                        return res.text();
+                    })
+                    .then(html => {
+                        menuContainer.innerHTML = html;
+                        const menuPanel = document.getElementById('menuPanel');
+                        if (!menuPanel) return;
+
+                        const currentPage = window.location.pathname.split('/').pop() || 'pinterest.html';
+                        const allLinks = menuPanel.querySelectorAll('.menu-list a');
+
+                        allLinks.forEach(link => {
+                            const href = link.getAttribute('href');
+                            link.classList.remove('active');
+                            if (href === currentPage) {
+                                link.classList.add('active');
+                            }
+                        });
+
+                        function toggleMenu(forceState) {
+                            const isOpen = typeof forceState === 'boolean' ? forceState : !menuPanel.classList.contains('open');
+                            menuPanel.classList.toggle('open', isOpen);
+                            menuOverlay.classList.toggle('open', isOpen);
+                            document.body.style.overflow = isOpen ? 'hidden' : '';
+                        }
+
+                        function closeMenu() { toggleMenu(false); }
+
+                        menuToggle.addEventListener('click', () => toggleMenu());
+                        menuOverlay.addEventListener('click', closeMenu);
+
+                        document.addEventListener('keydown', (e) => {
+                            if (e.key === 'Escape' && menuPanel.classList.contains('open')) closeMenu();
+                        });
+
+                        menuPanel.querySelectorAll('.menu-list a').forEach(link => {
+                            link.addEventListener('click', () => {
+                                if (link.getAttribute('href') !== '#') closeMenu();
+                            });
+                        });
+                    })
+                    .catch(err => {
+                        console.warn('Gagal memuat menu:', err);
+                        menuContainer.innerHTML = '<p style="color:rgba(255,255,255,0.3);padding:12px;">Menu tidak tersedia</p>';
+                    });
+            });
+        }
+
+        // ============================================================
+        // 3. PINTEREST SEARCH FUNCTIONS
+        // ============================================================
+        function initPinterestSearch() {
+            // ─── DOM refs ──────────────────────────────────────────────
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const pasteBtn = document.getElementById('pasteBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            const errorText = document.getElementById('errorText');
+            const resultsSection = document.getElementById('resultsSection');
+            const masonryGrid = document.getElementById('masonryGrid');
+            const emptyState = document.getElementById('emptyState');
+            const loadingResults = document.getElementById('loadingResults');
+            const resultCount = document.getElementById('resultCount');
+
+            // Lightbox
+            const lightbox = document.getElementById('lightbox');
+            const lbImage = document.getElementById('lbImage');
+            const lbTitle = document.getElementById('lbTitle');
+            const lbAuthor = document.getElementById('lbAuthor');
+            const lbDownloadBtn = document.getElementById('lbDownloadBtn');
+            const closeLightbox = document.getElementById('closeLightbox');
+            const lbPrev = document.getElementById('lbPrev');
+            const lbNext = document.getElementById('lbNext');
+
+            let currentResults = [];
+            let currentIndex = 0;
+            let isSearching = false;
+
+            // ─── Helpers ──────────────────────────────────────────────
+            function showError(msg) {
+                errorText.textContent = msg || 'Terjadi kesalahan.';
+                errorMsg.classList.add('show');
+            }
+
+            function hideError() {
+                errorMsg.classList.remove('show');
+            }
+
+            function setLoading(isLoading) {
+                searchBtn.disabled = isLoading;
+                searchInput.disabled = isLoading;
+                pasteBtn.disabled = isLoading;
+                searchBtn.classList.toggle('loading', isLoading);
+                isSearching = isLoading;
+            }
+
+            // ─── Paste ──────────────────────────────────────────────────
+            async function pasteFromClipboard() {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text) {
+                        searchInput.value = text;
+                        searchInput.focus();
+                        pasteBtn.classList.add('pasted');
+                        setTimeout(() => pasteBtn.classList.remove('pasted'), 1500);
+                    } else showError('Clipboard kosong.');
+                } catch (_) {
+                    const text = prompt('Tidak dapat akses clipboard. Tempel manual:');
+                    if (text !== null && text.trim() !== '') {
+                        searchInput.value = text.trim();
+                        searchInput.focus();
+                    }
+                }
+            }
+
+            // ─── Search Query ──────────────────────────────────────────
+            window.searchQuery = function(query) {
+                searchInput.value = query;
+                handleSearch();
+            };
+
+            // ─── Fetch Pinterest ───────────────────────────────────────
+            async function fetchPinterest(query) {
+                const encoded = encodeURIComponent(query.trim());
+                const apiUrl = `https://api.nexray.eu.cc/search/pinterest?q=${encoded}`;
+                const resp = await fetch(apiUrl);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+                if (!data.status) throw new Error(data.message || 'API error');
+                if (!data.result || data.result.length === 0) {
+                    throw new Error('Tidak ada hasil ditemukan.');
+                }
+                return data;
+            }
+
+            // ─── Render Results ────────────────────────────────────────
+            function renderResults(data) {
+                const results = data.result;
+                currentResults = results;
+                resultCount.textContent = results.length;
+
+                let html = '';
+                results.forEach((item, index) => {
+                    const title = item.grid_title || item.seo_alt_text || '—';
+                    const author = item.pinner?.full_name || item.pinner?.username || 'Unknown';
+                    const imageUrl = item.images_url || '';
+
+                    html += `
+                        <div class="pin-card" data-index="${index}">
+                            <div class="image-wrap">
+                                <img src="${imageUrl}" alt="${title}" loading="lazy" onerror="this.style.display='none'" />
+                                <div class="overlay">
+                                    <div class="title">${title}</div>
+                                    <button class="btn-download-pin" data-index="${index}">
+                                        <i class="fas fa-download"></i> Download
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="pin-info">
+                                <div class="pin-title">${title.length > 40 ? title.substring(0, 40) + '...' : title}</div>
+                                <div class="pin-author"><i class="fas fa-user"></i> ${author}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                masonryGrid.innerHTML = html;
+
+                // ─── Event listeners untuk card ────────────────────────
+                document.querySelectorAll('.pin-card').forEach(card => {
+                    const idx = parseInt(card.dataset.index);
+
+                    card.addEventListener('click', (e) => {
+                        if (e.target.closest('.btn-download-pin')) return;
+                        openLightbox(idx);
+                    });
+
+                    const downloadBtn = card.querySelector('.btn-download-pin');
+                    if (downloadBtn) {
+                        downloadBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const index = parseInt(downloadBtn.dataset.index);
+                            downloadImage(index);
+                        });
+                    }
+                });
+
+                resultsSection.classList.add('show');
+                emptyState.style.display = 'none';
+                loadingResults.classList.remove('show');
+            }
+
+            // ─── Lightbox ──────────────────────────────────────────────
+            function openLightbox(index) {
+                if (!currentResults.length) return;
+                currentIndex = index;
+                const item = currentResults[index];
+                if (!item) return;
+
+                lbImage.src = item.images_url || '';
+                lbTitle.textContent = item.grid_title || item.seo_alt_text || '—';
+                lbAuthor.innerHTML = `<i class="fas fa-user"></i> ${item.pinner?.full_name || item.pinner?.username || 'Unknown'}`;
+                lightbox.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeLightboxFn() {
+                lightbox.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+
+            function navigateLightbox(direction) {
+                if (!currentResults.length) return;
+                const newIndex = currentIndex + direction;
+                if (newIndex < 0 || newIndex >= currentResults.length) return;
+                openLightbox(newIndex);
+            }
+
+            // ─── Download Image ────────────────────────────────────────
+            async function downloadImage(index) {
+                const item = currentResults[index];
+                if (!item || !item.images_url) {
+                    showError('Tidak ada URL gambar untuk diunduh.');
+                    return;
+                }
+
+                const url = item.images_url;
+                const filename = `pinterest_${item.id || Date.now()}.jpg`;
+
+                try {
+                    const resp = await fetch(url);
+                    if (!resp.ok) throw new Error('Gagal mengunduh');
+                    const blob = await resp.blob();
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+                } catch (err) {
+                    try {
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = filename;
+                        link.target = '_blank';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } catch (_) {
+                        showError('Gagal mengunduh. Coba klik kanan dan "Save link as..."');
+                    }
+                }
+            }
+
+            // ─── Main Search ──────────────────────────────────────────
+            async function handleSearch() {
+                const raw = searchInput.value.trim();
+                if (!raw) {
+                    showError('Masukkan kata kunci pencarian.');
+                    return;
+                }
+
+                hideError();
+                setLoading(true);
+                resultsSection.classList.remove('show');
+                emptyState.style.display = 'flex';
+                loadingResults.classList.add('show');
+                masonryGrid.innerHTML = '';
+
+                try {
+                    const data = await fetchPinterest(raw);
+                    renderResults(data);
+                    hideError();
+                } catch (err) {
+                    console.error(err);
+                    showError(err.message || 'Gagal mencari gambar.');
+                    resultsSection.classList.remove('show');
+                    emptyState.style.display = 'flex';
+                    loadingResults.classList.remove('show');
+                } finally {
+                    setLoading(false);
+                }
+            }
+
+            // ─── Event listeners ────────────────────────────────────────
+            searchBtn.addEventListener('click', handleSearch);
+
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSearch();
+                }
+            });
+
+            pasteBtn.addEventListener('click', pasteFromClipboard);
+
+            // Lightbox events
+            closeLightbox.addEventListener('click', closeLightboxFn);
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) closeLightboxFn();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeLightboxFn();
+                if (e.key === 'ArrowLeft' && lightbox.classList.contains('show')) navigateLightbox(-1);
+                if (e.key === 'ArrowRight' && lightbox.classList.contains('show')) navigateLightbox(1);
+            });
+            lbPrev.addEventListener('click', () => navigateLightbox(-1));
+            lbNext.addEventListener('click', () => navigateLightbox(1));
+
+            lbDownloadBtn.addEventListener('click', () => {
+                downloadImage(currentIndex);
+            });
+
+            // ─── Init ──────────────────────────────────────────────────
+            emptyState.style.display = 'flex';
+            resultsSection.classList.remove('show');
+            hideError();
+
+            console.log('✅ Pinterest Search initialized');
+        }
+    </script>
+
+</body>
+</html>
