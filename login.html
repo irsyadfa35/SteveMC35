@@ -212,6 +212,27 @@
       margin-right: 8px;
     }
 
+    /* ===== SUCCESS MESSAGE ===== */
+    .success-message {
+      display: none;
+      background: rgba(37, 211, 102, 0.1);
+      border: 1px solid rgba(37, 211, 102, 0.2);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      color: #25D366;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    .success-message i {
+      margin-right: 8px;
+    }
+
     /* Form */
     .form-group {
       margin-bottom: 18px;
@@ -563,6 +584,12 @@
         <span id="errorText">Terjadi kesalahan</span>
       </div>
 
+      <!-- ===== SUCCESS MESSAGE ===== -->
+      <div class="success-message" id="successMessage">
+        <i class="fas fa-check-circle"></i>
+        <span id="successText">Login berhasil!</span>
+      </div>
+
       <!-- ===== FORM LOGIN ===== -->
       <form id="loginForm" novalidate>
         <div class="form-group">
@@ -588,8 +615,7 @@
           <label>
             <input type="checkbox" id="rememberMe" /> Ingat saya
           </label>
-          <!-- ===== PERBAIKAN: Link langsung ke forgot-password.html ===== -->
-          <a href="forgot-password.html" id="forgotPasswordLink">Lupa kata sandi?</a>
+          <a href="forgot-password.html">Lupa kata sandi?</a>
         </div>
 
         <button type="submit" class="btn-login" id="loginBtn">
@@ -645,11 +671,10 @@
     const SUPABASE_URL = 'https://ydcdfnvtacwrrhcbsjdk.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_DABKAaVwkW5LvR7oP-pDNQ_9SyGiBrI';
 
-    // Inisialisasi Supabase Client
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ============================================================
-    // 2. PARTICLES BACKGROUND (tetap)
+    // 2. PARTICLES BACKGROUND
     // ============================================================
     (function createParticles() {
       const container = document.getElementById('particles');
@@ -667,7 +692,7 @@
     })();
 
     // ============================================================
-    // 3. TOGGLE PASSWORD (tetap)
+    // 3. TOGGLE PASSWORD
     // ============================================================
     function togglePassword() {
       const passwordInput = document.getElementById('passwordInput');
@@ -692,9 +717,9 @@
     const rememberMe = document.getElementById('rememberMe');
     const errorMessage = document.getElementById('errorMessage');
     const errorText = document.getElementById('errorText');
+    const successMessage = document.getElementById('successMessage');
+    const successText = document.getElementById('successText');
     const googleLoginBtn = document.getElementById('googleLoginBtn');
-    // ===== PERBAIKAN: Tidak perlu lagi karena link langsung ke forgot-password.html =====
-    // const forgotPasswordLink = document.getElementById('forgotPasswordLink');
 
     // ============================================================
     // 5. FUNGSI UTILITY
@@ -702,13 +727,24 @@
     function showError(message) {
       errorText.textContent = message;
       errorMessage.classList.add('show');
+      successMessage.classList.remove('show');
       setTimeout(() => {
         errorMessage.classList.remove('show');
-      }, 6000);
+      }, 5000);
     }
 
-    function hideError() {
+    function showSuccess(message) {
+      successText.textContent = message;
+      successMessage.classList.add('show');
       errorMessage.classList.remove('show');
+      setTimeout(() => {
+        successMessage.classList.remove('show');
+      }, 3000);
+    }
+
+    function hideAllMessages() {
+      errorMessage.classList.remove('show');
+      successMessage.classList.remove('show');
     }
 
     function setLoading(isLoading) {
@@ -723,7 +759,7 @@
     // ============================================================
     async function handleLogin(e) {
       e.preventDefault();
-      hideError();
+      hideAllMessages();
 
       const emailOrUsername = emailInput.value.trim();
       const password = passwordInput.value;
@@ -741,12 +777,10 @@
       setLoading(true);
 
       try {
-        // Coba login dengan email
         let email = emailOrUsername;
 
         // Jika input bukan email (kemungkinan username), coba cari email dari database
         if (!emailOrUsername.includes('@')) {
-          // Cari user dengan username tersebut
           const { data: users, error: searchError } = await supabaseClient
             .from('user_profiles')
             .select('user_id, email')
@@ -755,14 +789,10 @@
 
           if (searchError) {
             console.warn('Search error:', searchError);
-            // Lanjutkan dengan mencoba login menggunakan input sebagai email
           }
 
           if (users && users.email) {
             email = users.email;
-          } else {
-            // Coba cek di auth.users (tidak bisa langsung, jadi kita coba login)
-            // Biarkan Supabase menangani error
           }
         }
 
@@ -777,7 +807,6 @@
           console.error('❌ Login error:', error);
 
           if (error.message.includes('Invalid login credentials')) {
-            // Coba cek apakah input adalah username
             if (!emailOrUsername.includes('@')) {
               showError('Username atau password salah. Periksa kembali.');
             } else {
@@ -794,17 +823,12 @@
 
         // ===== LOGIN BERHASIL =====
         console.log('✅ Login berhasil:', data);
-
-        // Simpan session di localStorage jika "Ingat saya" dicentang
-        if (rememberMe.checked) {
-          // Supabase sudah mengelola session secara otomatis
-          console.log('🔒 Session akan diingat');
-        }
+        showSuccess('Login berhasil! Mengalihkan...');
 
         // Redirect ke beranda
         setTimeout(() => {
           window.location.href = 'https://stevemc.my.id/';
-        }, 500);
+        }, 1500);
 
       } catch (error) {
         console.error('❌ Unexpected error:', error);
@@ -817,7 +841,7 @@
     // 7. GOOGLE OAUTH - LOGIN
     // ============================================================
     async function handleGoogleLogin() {
-      hideError();
+      hideAllMessages();
 
       try {
         console.log('🔐 Login dengan Google');
@@ -900,7 +924,6 @@
 
       if (event === 'PASSWORD_RECOVERY') {
         console.log('🔑 Password recovery mode');
-        // Redirect ke halaman reset password
         window.location.href = 'https://stevemc.my.id/reset-password.html';
       }
     });
@@ -908,8 +931,6 @@
     console.log('%c🔐 Login Page Ready!', 'font-size:16px;font-weight:bold;color:#7c4dff;');
     console.log('📌 Supabase URL:', SUPABASE_URL);
     console.log('📌 Redirect URL: https://stevemc.my.id/');
-    console.log('📌 Login dengan email/username + password atau Google');
-    console.log('📌 Lupa password → forgot-password.html');
   </script>
 
 </body>
