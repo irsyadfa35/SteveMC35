@@ -85,7 +85,8 @@
     }
 
     /* ============================================
-       SEMUA STYLE YANG ADA SEBELUMNYA (Dipertahankan)
+       SEMUA STYLE YANG ADA SEBELUMNYA
+       (Tetap dipertahankan)
     ============================================ */
     body::before {
       content: '';
@@ -148,78 +149,6 @@
     ::-webkit-scrollbar-thumb {
       background: linear-gradient(180deg, #7c4dff, #00e5ff);
       border-radius: 10px;
-    }
-
-    /* ===== USER PROFILE DI SIDEBAR ===== */
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      margin-top: 8px;
-      margin-bottom: 12px;
-    }
-
-    .user-profile .avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #7c4dff;
-      flex-shrink: 0;
-    }
-
-    .user-profile .info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .user-profile .info .name {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .user-profile .info .email {
-      font-size: 0.75rem;
-      color: rgba(255, 255, 255, 0.4);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .btn-logout-sidebar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      color: #ff6b6b;
-      background: rgba(255, 0, 0, 0.06);
-      border: 1px solid rgba(255, 0, 0, 0.08);
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      font-family: inherit;
-      width: 100%;
-      text-align: left;
-    }
-
-    .btn-logout-sidebar:hover {
-      background: rgba(255, 0, 0, 0.12);
-      border-color: rgba(255, 0, 0, 0.15);
-    }
-
-    .btn-logout-sidebar i {
-      width: 20px;
-      text-align: center;
     }
 
     /* ============================================
@@ -1680,11 +1609,6 @@
         console.log('✅ User sudah login:', session.user.email);
         showMainContent();
 
-        // Update menu dengan user info setelah menu dimuat
-        setTimeout(() => {
-          updateMenuWithUser(session);
-        }, 800);
-
       } catch (err) {
         console.error('Error checking session:', err);
         if (!isRedirecting) {
@@ -1695,51 +1619,7 @@
     }
 
     // ============================================================
-    // 6. UPDATE MENU DENGAN USER INFO
-    // ============================================================
-    function updateMenuWithUser(session) {
-      const menuPanel = document.getElementById('menuPanel');
-      if (!menuPanel) return;
-
-      const user = session.user;
-      const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
-      const email = user.email || '';
-      const avatar = user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
-
-      const menuList = menuPanel.querySelector('.menu-list');
-      if (menuList) {
-        const existingProfile = menuPanel.querySelector('.user-profile');
-        if (existingProfile) existingProfile.remove();
-
-        const profileDiv = document.createElement('div');
-        profileDiv.className = 'user-profile';
-        profileDiv.innerHTML = `
-          ${avatar ? `<img class="avatar" src="${avatar}" alt="Avatar" />` : `<div class="avatar" style="background:linear-gradient(135deg,#7c4dff,#00e5ff);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;color:#fff;">${name.charAt(0).toUpperCase()}</div>`}
-          <div class="info">
-            <div class="name">${name}</div>
-            <div class="email">${email}</div>
-          </div>
-        `;
-
-        menuList.parentNode.insertBefore(profileDiv, menuList.nextSibling);
-
-        const existingLogout = menuPanel.querySelector('.btn-logout-sidebar');
-        if (existingLogout) existingLogout.remove();
-
-        const logoutBtn = document.createElement('button');
-        logoutBtn.className = 'btn-logout-sidebar';
-        logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
-        logoutBtn.addEventListener('click', async () => {
-          await supabaseClient.auth.signOut();
-          // SIGNED_OUT event akan menangani redirect
-        });
-
-        profileDiv.parentNode.insertBefore(logoutBtn, profileDiv.nextSibling);
-      }
-    }
-
-    // ============================================================
-    // 7. PARTICLES BACKGROUND
+    // 6. PARTICLES BACKGROUND
     // ============================================================
     (function createParticles() {
       const container = document.getElementById('particles');
@@ -1757,7 +1637,7 @@
     })();
 
     // ============================================================
-    // 8. GREETING & TYPING EFFECT
+    // 7. GREETING & TYPING EFFECT
     // ============================================================
     function initializeGreetingAndTyping() {
       const greetingEl = document.getElementById('greeting');
@@ -1785,7 +1665,7 @@
     }
 
     // ============================================================
-    // 9. SLIDER / CAROUSEL (hanya sekali)
+    // 8. SLIDER / CAROUSEL (hanya sekali)
     // ============================================================
     function initializeSlider() {
       const wrapper = document.getElementById('sliderWrapper');
@@ -1852,7 +1732,7 @@
     }
 
     // ============================================================
-    // 10. FETCH DATA DARI API (hanya sekali)
+    // 9. FETCH DATA DARI API (hanya sekali)
     // ============================================================
     async function fetchData() {
       const dataArea = document.getElementById('dataArea');
@@ -1945,7 +1825,7 @@
     }
 
     // ============================================================
-    // 11. LOAD MENU DARI menu.html (hanya sekali)
+    // 10. LOAD MENU DARI menu.html (hanya sekali)
     // ============================================================
     function loadMenu() {
       const menuContainer = document.getElementById('menuContainer');
@@ -1972,12 +1852,8 @@
             }
           });
 
-          // Tambahkan user profile setelah menu dimuat
-          supabaseClient.auth.getSession().then(({ data: { session } }) => {
-            if (session) {
-              updateMenuWithUser(session);
-            }
-          });
+          // ===== USER PROFILE DI-HANDLE OLEH menu.html =====
+          // Tidak perlu updateMenuWithUser() lagi
 
           function toggleMenu(forceState) {
             const isOpen = typeof forceState === 'boolean' ? forceState : !menuPanel.classList.contains('open');
@@ -2051,25 +1927,19 @@
     }
 
     // ============================================================
-    // 12. SUPABASE AUTH STATE CHANGE LISTENER (TANPA RELOAD)
+    // 11. SUPABASE AUTH STATE CHANGE LISTENER (TANPA RELOAD)
     // ============================================================
     supabaseClient.auth.onAuthStateChange((event, session) => {
       console.log('🔐 Auth state changed:', event);
 
       if (event === 'SIGNED_IN' && session) {
-        // ===== PERBAIKAN UTAMA: TIDAK ADA RELOAD! =====
         console.log('✅ User signed in (session restored)');
         
         // Jika konten belum ditampilkan, tampilkan
         if (!isInitialized) {
           showMainContent();
-          setTimeout(() => {
-            updateMenuWithUser(session);
-          }, 800);
-        } else {
-          // Jika sudah ditampilkan, update menu saja
-          updateMenuWithUser(session);
         }
+        // ===== TIDAK ADA RELOAD! =====
       }
 
       if (event === 'SIGNED_OUT') {
@@ -2086,20 +1956,19 @@
       }
 
       if (event === 'USER_UPDATED') {
-        console.log('📝 User updated, updating UI...');
-        if (session) {
-          updateMenuWithUser(session);
-        }
+        console.log('📝 User updated');
+        // menu.html akan menangani update profile otomatis
       }
     });
 
     // ============================================================
-    // 13. JALANKAN CEK SESSION
+    // 12. JALANKAN CEK SESSION
     // ============================================================
     checkSession();
 
     console.log('%c🔐 SteveMC Auth Fixed!', 'font-size:16px;font-weight:bold;color:#7c4dff;');
     console.log('📌 Infinite reload loop telah diperbaiki');
+    console.log('📌 User profile di-handle oleh menu.html');
     console.log('📌 Supabase URL:', SUPABASE_URL);
   </script>
 
