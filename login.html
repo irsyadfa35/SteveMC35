@@ -905,10 +905,15 @@
     }
 
     // ============================================================
-    // 8. LOGIN NANTI - SKIP LOGIN
+    // 8. LOGIN NANTI - SKIP LOGIN (DENGAN SESSION STORAGE)
     // ============================================================
     function handleSkipLogin() {
-      console.log('⏭️ User memilih "Login Nanti", langsung ke beranda');
+      console.log('⏭️ User memilih "Login Nanti"');
+      
+      // ===== PERBAIKAN: Simpan flag ke sessionStorage =====
+      sessionStorage.setItem('skipLogin', 'true');
+      
+      // Redirect ke beranda
       window.location.href = 'https://stevemc.my.id/';
     }
 
