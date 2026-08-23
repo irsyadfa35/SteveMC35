@@ -19,9 +19,6 @@
   <!-- ===== SUPABASE JS SDK v2 ===== -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- ===== AUTH CHECK MODULE ===== -->
-  <script src="auth-check.js"></script>
-
   <style>
     /* ============================================
        RESET & BASE
@@ -1375,7 +1372,7 @@
   ============================================ -->
   <div id="authLoading">
     <div class="spinner"></div>
-    <p>Memeriksa session...</p>
+    <p>Memuat website...</p>
   </div>
 
   <!-- ============================================
@@ -1582,20 +1579,30 @@
     }
 
     // ============================================================
-    // 3. FLAG UNTUK MENCEGAH EKSEKUSI BERGANDA
-    // ============================================================
-    let isInitialized = false;
-
-    // ============================================================
-    // 4. ELEMENT REFERENSI
+    // 3. ELEMENT REFERENSI
     // ============================================================
     const authLoading = document.getElementById('authLoading');
     const mainContent = document.getElementById('mainContent');
     const mainFooter = document.getElementById('mainFooter');
     const ownerBadge = document.getElementById('ownerBadge');
 
+    let isInitialized = false;
+
     // ============================================================
-    // 5. FUNGSI - TAMPILKAN KONTEN (hanya sekali)
+    // 4. FUNGSI - FORCE HIDE LOADING
+    // ============================================================
+    function forceShowContent() {
+      if (isInitialized) return;
+      
+      console.log('✅ Menampilkan konten (force)');
+      mainContent.style.display = 'block';
+      mainFooter.style.display = 'block';
+      authLoading.classList.add('hidden');
+      isInitialized = true;
+    }
+
+    // ============================================================
+    // 5. FUNGSI - TAMPILKAN KONTEN DENGAN DATA SESSION
     // ============================================================
     function showMainContent(session) {
       if (isInitialized) {
@@ -1606,8 +1613,6 @@
       console.log('✅ Menampilkan konten utama');
       mainContent.style.display = 'block';
       mainFooter.style.display = 'block';
-      
-      // ===== PERBAIKAN: Pastikan loading hilang =====
       authLoading.classList.add('hidden');
       isInitialized = true;
 
@@ -1620,31 +1625,21 @@
         console.log('👤 Status Owner: FALSE');
       }
 
-      initializeSlider();
-      fetchData();
-      initializeGreetingAndTyping();
-      loadMenu(session);
+      // Jalankan fungsi lainnya
+      setTimeout(() => {
+        initializeSlider();
+        fetchData();
+        initializeGreetingAndTyping();
+        loadMenu(session);
+      }, 100);
     }
 
     // ============================================================
-    // 6. FUNGSI - FORCE HIDE LOADING (FALLBACK)
-    // ============================================================
-    function forceHideLoading() {
-      if (!isInitialized) {
-        console.log('⚠️ Force hide loading sebagai fallback');
-        mainContent.style.display = 'block';
-        mainFooter.style.display = 'block';
-        authLoading.classList.add('hidden');
-        isInitialized = true;
-      }
-    }
-
-    // ============================================================
-    // 7. CEK SESSION - TANPA LOOP
+    // 6. CEK SESSION
     // ============================================================
     async function checkSession() {
       try {
-        // ===== CEK FLAG SKIP LOGIN =====
+        // Cek skip login
         const skipLogin = sessionStorage.getItem('skipLogin') === 'true';
         if (skipLogin) {
           console.log('⏭️ User memilih "Login Nanti"');
@@ -1656,8 +1651,6 @@
         if (error) {
           console.warn('Error get session:', error);
           showMainContent(null);
-          // ===== FALLBACK: Hapus loading jika error =====
-          forceHideLoading();
           return;
         }
 
@@ -1676,13 +1669,11 @@
       } catch (err) {
         console.error('Error checking session:', err);
         showMainContent(null);
-        // ===== FALLBACK: Hapus loading jika error =====
-        forceHideLoading();
       }
     }
 
     // ============================================================
-    // 8. LOAD MENU
+    // 7. LOAD MENU
     // ============================================================
     function loadMenu(session) {
       const menuContainer = document.getElementById('menuContainer');
@@ -1786,7 +1777,7 @@
     }
 
     // ============================================================
-    // 9. PARTICLES BACKGROUND
+    // 8. PARTICLES BACKGROUND
     // ============================================================
     (function createParticles() {
       const container = document.getElementById('particles');
@@ -1804,7 +1795,7 @@
     })();
 
     // ============================================================
-    // 10. GREETING & TYPING
+    // 9. GREETING & TYPING
     // ============================================================
     function initializeGreetingAndTyping() {
       const greetingEl = document.getElementById('greeting');
@@ -1832,7 +1823,7 @@
     }
 
     // ============================================================
-    // 11. SLIDER
+    // 10. SLIDER
     // ============================================================
     function initializeSlider() {
       const wrapper = document.getElementById('sliderWrapper');
@@ -1893,7 +1884,7 @@
     }
 
     // ============================================================
-    // 12. FETCH DATA API
+    // 11. FETCH DATA API
     // ============================================================
     async function fetchData() {
       const dataArea = document.getElementById('dataArea');
@@ -1986,7 +1977,7 @@
     }
 
     // ============================================================
-    // 13. SUPABASE AUTH STATE CHANGE
+    // 12. SUPABASE AUTH STATE CHANGE
     // ============================================================
     supabaseClient.auth.onAuthStateChange((event, session) => {
       console.log('🔐 Auth event:', event);
@@ -2017,19 +2008,26 @@
     });
 
     // ============================================================
-    // 14. JALANKAN - DENGAN FALLBACK LOADING
+    // 13. JALANKAN - DENGAN TIMEOUT FALLBACK
     // ============================================================
     console.log('%c🚀 SteveMC Starting...', 'font-size:16px;font-weight:bold;color:#7c4dff;');
     
-    // ===== PERBAIKAN: Jalankan checkSession dengan timeout =====
-    // Jika checkSession tidak selesai dalam 5 detik, force hide loading
+    // ===== PERBAIKAN: Timeout 3 detik untuk force show content =====
     const timeoutId = setTimeout(() => {
-      console.warn('⚠️ Session check timeout, force hide loading');
-      forceHideLoading();
-    }, 5000);
+      console.warn('⚠️ Timeout 3 detik, force show content');
+      forceShowContent();
+    }, 3000);
 
+    // Jalankan check session
     checkSession().finally(() => {
       clearTimeout(timeoutId);
+      // Jika masih loading setelah 1 detik lagi, force show
+      setTimeout(() => {
+        if (!isInitialized) {
+          console.warn('⚠️ Force show content (final fallback)');
+          forceShowContent();
+        }
+      }, 1000);
     });
   </script>
 
