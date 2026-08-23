@@ -2,10 +2,22 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8" />
+    <meta name="theme-color" content="#0a0f23" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Download Spotify MP3 + Preview</title>
+    <title>Download Spotify MP3 + Preview - SteveMC</title>
+    
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <!-- ===== SUPABASE JS SDK v2 ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- ===== AUTH CHECK MODULE ===== -->
+    <script src="auth-check.js"></script>
+
     <style>
         /* ── Reset & Base ── */
         * {
@@ -15,7 +27,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #121212;
             min-height: 100vh;
             display: flex;
@@ -23,6 +35,36 @@
             justify-content: center;
             padding: 24px;
         }
+
+        /* ===== LOADING SCREEN ===== */
+        #authLoading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #080c1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        #authLoading.hidden { opacity: 0; pointer-events: none; }
+        #authLoading .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(124,77,255,0.1);
+            border-top: 3px solid #7c4dff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        #authLoading p { margin-top:16px; color:rgba(255,255,255,0.4); font-size:0.95rem; font-family:'Inter',sans-serif; }
+
+        /* ===== MAIN CONTENT ===== */
+        #mainContent { display: none; }
 
         .container {
             width: 100%;
@@ -102,6 +144,24 @@
             font-weight: 400;
             margin-top: 2px;
         }
+
+        /* ===== OWNER BADGE ===== */
+        .owner-badge {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #ffd700, #f59e0b);
+            color: #1a1a2e;
+            padding: 2px 12px;
+            border-radius: 60px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 8px;
+            box-shadow: 0 0 20px rgba(255,215,0,0.2);
+        }
+        .owner-badge i { font-size:0.6rem; }
 
         /* ── MENU PANEL (sidebar) ── */
         .menu-overlay {
@@ -253,7 +313,7 @@
             font-size: 15px;
             outline: none;
             transition: all 0.3s ease;
-            font-family: inherit;
+            font-family: 'Inter', sans-serif;
         }
 
         .input-wrapper input::placeholder {
@@ -324,7 +384,7 @@
             align-items: center;
             gap: 10px;
             white-space: nowrap;
-            font-family: inherit;
+            font-family: 'Inter', sans-serif;
             box-shadow: 0 4px 20px rgba(29, 185, 84, 0.3);
             flex-shrink: 0;
         }
@@ -363,12 +423,6 @@
         }
         .btn-convert.loading .btn-icon {
             display: none;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
         }
 
         /* ── Error ── */
@@ -542,7 +596,7 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            font-family: inherit;
+            font-family: 'Inter', sans-serif;
         }
 
         .btn-download.mp3 {
@@ -723,419 +777,473 @@
 </head>
 <body>
 
-    <!-- ─── OVERLAY ─── -->
-    <div class="menu-overlay" id="menuOverlay"></div>
+    <!-- ===== AUTH LOADING SCREEN ===== -->
+    <div id="authLoading">
+        <div class="spinner"></div>
+        <p>Memeriksa session...</p>
+    </div>
 
-    <!-- ─── CONTAINER UNTUK MENU (diisi dari menu.html) ─── -->
-    <div id="menuContainer"></div>
+    <!-- ===== MAIN CONTENT ===== -->
+    <div id="mainContent">
 
-    <div class="container">
+        <!-- ─── OVERLAY ─── -->
+        <div class="menu-overlay" id="menuOverlay"></div>
 
-        <!-- ─── HEADER ─── -->
-        <div class="header">
-            <button class="menu-toggle" id="menuToggle" title="Buka menu">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="header-icon">
-                <i class="fab fa-spotify"></i>
-            </div>
-            <div>
-                <h1>Download <span>Spotify</span> MP3</h1>
-                <div class="sub">Cari lagu, preview, unduh audio</div>
-            </div>
-        </div>
+        <!-- ─── CONTAINER UNTUK MENU ─── -->
+        <div id="menuContainer"></div>
 
-        <!-- ─── INPUT ─── -->
-        <div class="input-section">
-            <div class="input-wrapper">
-                <input
-                type="text"
-                id="searchInput"
-                placeholder="Cari judul lagu atau artis... (contoh: Always Forever)"
-                autocomplete="off"
-                spellcheck="false"
-                />
-                <button class="btn-paste" id="pasteBtn" title="Tempel dari clipboard">
-                    <i class="fas fa-paste"></i>
+        <div class="container">
+
+            <!-- ─── HEADER ─── -->
+            <div class="header">
+                <button class="menu-toggle" id="menuToggle" title="Buka menu">
+                    <i class="fas fa-bars"></i>
                 </button>
-                <button class="btn-convert" id="searchBtn">
-                    <span class="btn-icon"><i class="fas fa-search"></i></span>
-                    <span class="btn-text">Cari & Download</span>
-                    <span class="spinner"></span>
-                </button>
-            </div>
-
-            <div class="error-msg" id="errorMsg">
-                <i class="fas fa-exclamation-circle"></i>
-                <span id="errorText">Terjadi kesalahan, silakan coba lagi.</span>
-            </div>
-        </div>
-
-        <!-- ─── RESULT ─── -->
-        <div class="result-section" id="resultSection">
-            <div class="result-card">
-                <div class="result-thumbnail" id="thumbnailContainer">
-                    <img id="thumbnailImg" src="" alt="Cover" />
+                <div class="header-icon">
+                    <i class="fab fa-spotify"></i>
                 </div>
-                <div class="result-info">
-                    <div class="result-title" id="resultTitle">—</div>
-                    <div class="result-artist" id="resultArtist">—</div>
-                    <div class="result-album" id="resultAlbum">—</div>
-                    <div class="result-meta">
-                        <span class="meta-item"><i class="fas fa-clock"></i> <strong id="metaDuration">—</strong></span>
-                        <span class="meta-item"><i class="fas fa-calendar-alt"></i> <strong id="metaRelease">—</strong></span>
-                        <span class="meta-item"><i class="fas fa-chart-line"></i> <strong id="metaPopularity">—</strong></span>
-                    </div>
-
-                    <!-- Audio Player Preview -->
-                    <div class="audio-player-wrapper">
-                        <audio id="audioPlayer" controls preload="metadata">
-                            <source id="audioSource" src="" type="audio/mpeg" />
-                            Browser Anda tidak mendukung pemutar audio.
-                        </audio>
-                    </div>
-
-                    <div class="download-row">
-                        <button class="btn-download mp3" id="downloadBtn">
-                            <span class="btn-icon"><i class="fas fa-download"></i></span>
-                            <span class="btn-text">Download MP3</span>
-                            <span class="spinner-small"></span>
-                        </button>
-                        <button class="btn-download secondary" id="copyLinkBtn">
-                            <i class="fas fa-copy"></i> Salin Link Spotify
-                        </button>
-                    </div>
+                <div>
+                    <h1>Download <span>Spotify</span> MP3
+                        <span class="owner-badge" id="ownerBadge"><i class="fas fa-crown"></i> Owner</span>
+                    </h1>
+                    <div class="sub">Cari lagu, preview, unduh audio</div>
                 </div>
             </div>
-        </div>
 
-        <!-- ─── EMPTY STATE ─── -->
-        <div class="empty-state" id="emptyState">
-            <i class="fas fa-music"></i>
-            <p>Masukkan judul lagu atau nama artis di atas, lalu klik <strong>Cari & Download</strong> untuk mendapatkan MP3.</p>
+            <!-- ─── INPUT ─── -->
+            <div class="input-section">
+                <div class="input-wrapper">
+                    <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Cari judul lagu atau artis... (contoh: Always Forever)"
+                    autocomplete="off"
+                    spellcheck="false"
+                    />
+                    <button class="btn-paste" id="pasteBtn" title="Tempel dari clipboard">
+                        <i class="fas fa-paste"></i>
+                    </button>
+                    <button class="btn-convert" id="searchBtn">
+                        <span class="btn-icon"><i class="fas fa-search"></i></span>
+                        <span class="btn-text">Cari & Download</span>
+                        <span class="spinner"></span>
+                    </button>
+                </div>
+
+                <div class="error-msg" id="errorMsg">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="errorText">Terjadi kesalahan, silakan coba lagi.</span>
+                </div>
+            </div>
+
+            <!-- ─── RESULT ─── -->
+            <div class="result-section" id="resultSection">
+                <div class="result-card">
+                    <div class="result-thumbnail" id="thumbnailContainer">
+                        <img id="thumbnailImg" src="" alt="Cover" />
+                    </div>
+                    <div class="result-info">
+                        <div class="result-title" id="resultTitle">—</div>
+                        <div class="result-artist" id="resultArtist">—</div>
+                        <div class="result-album" id="resultAlbum">—</div>
+                        <div class="result-meta">
+                            <span class="meta-item"><i class="fas fa-clock"></i> <strong id="metaDuration">—</strong></span>
+                            <span class="meta-item"><i class="fas fa-calendar-alt"></i> <strong id="metaRelease">—</strong></span>
+                            <span class="meta-item"><i class="fas fa-chart-line"></i> <strong id="metaPopularity">—</strong></span>
+                        </div>
+
+                        <!-- Audio Player Preview -->
+                        <div class="audio-player-wrapper">
+                            <audio id="audioPlayer" controls preload="metadata">
+                                <source id="audioSource" src="" type="audio/mpeg" />
+                                Browser Anda tidak mendukung pemutar audio.
+                            </audio>
+                        </div>
+
+                        <div class="download-row">
+                            <button class="btn-download mp3" id="downloadBtn">
+                                <span class="btn-icon"><i class="fas fa-download"></i></span>
+                                <span class="btn-text">Download MP3</span>
+                                <span class="spinner-small"></span>
+                            </button>
+                            <button class="btn-download secondary" id="copyLinkBtn">
+                                <i class="fas fa-copy"></i> Salin Link Spotify
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── EMPTY STATE ─── -->
+            <div class="empty-state" id="emptyState">
+                <i class="fas fa-music"></i>
+                <p>Masukkan judul lagu atau nama artis di atas, lalu klik <strong>Cari & Download</strong> untuk mendapatkan MP3.</p>
+            </div>
+
         </div>
 
     </div>
 
     <script>
-        // ─── DOM refs ──────────────────────────────────────────────
-        const searchInput = document.getElementById('searchInput');
-        const searchBtn = document.getElementById('searchBtn');
-        const pasteBtn = document.getElementById('pasteBtn');
-        const errorMsg = document.getElementById('errorMsg');
-        const errorText = document.getElementById('errorText');
-        const resultSection = document.getElementById('resultSection');
-        const emptyState = document.getElementById('emptyState');
-
-        const thumbnailImg = document.getElementById('thumbnailImg');
-        const resultTitle = document.getElementById('resultTitle');
-        const resultArtist = document.getElementById('resultArtist');
-        const resultAlbum = document.getElementById('resultAlbum');
-        const metaDuration = document.getElementById('metaDuration');
-        const metaRelease = document.getElementById('metaRelease');
-        const metaPopularity = document.getElementById('metaPopularity');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const copyLinkBtn = document.getElementById('copyLinkBtn');
-        const audioPlayer = document.getElementById('audioPlayer');
-        const audioSource = document.getElementById('audioSource');
-
-        // ─── State ──────────────────────────────────────────────────
-        let currentDownloadUrl = '';
-        let currentTitle = '';
-        let currentArtist = '';
-        let currentSpotifyUrl = '';
-
-        // ─── Load Menu dengan Active Link Otomatis ─────────────────
-        const menuContainer = document.getElementById('menuContainer');
-        const menuToggle = document.getElementById('menuToggle');
-        const menuOverlay = document.getElementById('menuOverlay');
-
-        fetch('menu.html')
-            .then(res => {
-                if (!res.ok) throw new Error('Menu tidak ditemukan');
-                return res.text();
-            })
-            .then(html => {
-                menuContainer.innerHTML = html;
-                const menuPanel = document.getElementById('menuPanel');
-                if (!menuPanel) return;
-
-                // ── Tandai link aktif berdasarkan halaman saat ini ──
-                const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-                const allLinks = menuPanel.querySelectorAll('.menu-list a');
-
-                allLinks.forEach(link => {
-                    const href = link.getAttribute('href');
-                    link.classList.remove('active');
-
-                    if (href === currentPage) {
-                        link.classList.add('active');
-                    } else if (href.endsWith('/') && currentPage.startsWith(href.replace('/', ''))) {
-                        link.classList.add('active');
-                    }
-                });
-
-                // ── Fungsi toggle menu ──────────────────────────────
-                function toggleMenu(forceState) {
-                    const isOpen = typeof forceState === 'boolean' ? forceState : !menuPanel.classList.contains('open');
-                    menuPanel.classList.toggle('open', isOpen);
-                    menuOverlay.classList.toggle('active', isOpen);
-                    document.body.style.overflow = isOpen ? 'hidden' : '';
-                }
-
-                function closeMenu() {
-                    toggleMenu(false);
-                }
-
-                // ── Event listeners ──────────────────────────────────
-                if (menuToggle) menuToggle.addEventListener('click', () => toggleMenu());
-                if (menuOverlay) menuOverlay.addEventListener('click', closeMenu);
-
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape' && menuPanel.classList.contains('open')) {
-                        closeMenu();
-                    }
-                });
-
-                // Tutup menu saat klik link
-                menuPanel.querySelectorAll('.menu-list a').forEach(link => {
-                    link.addEventListener('click', () => {
-                        if (link.getAttribute('href') !== '#') {
-                            closeMenu();
-                        }
+        // ============================================================
+        // 1. AUTH INITIALIZATION
+        // ============================================================
+        (async function initPage() {
+            try {
+                // Tunggu auth-check.js selesai dimuat
+                if (typeof steveMC === 'undefined') {
+                    console.warn('⏳ Menunggu auth-check.js...');
+                    await new Promise(resolve => {
+                        const check = () => {
+                            if (typeof steveMC !== 'undefined') resolve();
+                            else setTimeout(check, 100);
+                        };
+                        check();
                     });
+                }
+
+                // Inisialisasi auth protection
+                const result = await steveMC.auth.initAuthPage({
+                    mainContentId: 'mainContent',
+                    ownerBadgeId: 'ownerBadge',
+                    redirectUrl: 'https://stevemc.my.id/login.html'
                 });
-            })
-            .catch(err => {
-                console.warn('Gagal memuat menu:', err);
-                menuContainer.innerHTML = '<p style="color:rgba(255,255,255,0.3);padding:12px;">Menu tidak tersedia</p>';
+
+                if (result.isLoggedIn) {
+                    console.log('✅ User sudah login:', result.user.email);
+                    console.log('👑 Status Owner:', result.isOwner ? 'TRUE ✅' : 'FALSE ❌');
+                    
+                    // Inisialisasi Spotify Downloader setelah auth berhasil
+                    initSpotifyDownloader();
+                }
+
+            } catch (error) {
+                console.error('❌ Auth init error:', error);
+            }
+        })();
+
+        // ============================================================
+        // 2. SPOTIFY DOWNLOADER FUNCTIONS
+        // ============================================================
+        function initSpotifyDownloader() {
+            // ─── DOM refs ──────────────────────────────────────────────
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const pasteBtn = document.getElementById('pasteBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            const errorText = document.getElementById('errorText');
+            const resultSection = document.getElementById('resultSection');
+            const emptyState = document.getElementById('emptyState');
+
+            const thumbnailImg = document.getElementById('thumbnailImg');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultArtist = document.getElementById('resultArtist');
+            const resultAlbum = document.getElementById('resultAlbum');
+            const metaDuration = document.getElementById('metaDuration');
+            const metaRelease = document.getElementById('metaRelease');
+            const metaPopularity = document.getElementById('metaPopularity');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const copyLinkBtn = document.getElementById('copyLinkBtn');
+            const audioPlayer = document.getElementById('audioPlayer');
+            const audioSource = document.getElementById('audioSource');
+
+            // ─── State ──────────────────────────────────────────────────
+            let currentDownloadUrl = '';
+            let currentTitle = '';
+            let currentArtist = '';
+            let currentSpotifyUrl = '';
+
+            // ─── Load Menu dengan Active Link Otomatis ─────────────────
+            const menuContainer = document.getElementById('menuContainer');
+            const menuToggle = document.getElementById('menuToggle');
+            const menuOverlay = document.getElementById('menuOverlay');
+
+            // Cek status owner untuk menentukan menu
+            steveMC.auth.getAuthStatus().then((result) => {
+                const isOwnerUser = result.isOwner;
+                const menuFile = isOwnerUser ? 'menu_owner.html' : 'menu.html';
+
+                fetch(menuFile)
+                    .then(res => {
+                        if (!res.ok) throw new Error('Menu tidak ditemukan');
+                        return res.text();
+                    })
+                    .then(html => {
+                        menuContainer.innerHTML = html;
+                        const menuPanel = document.getElementById('menuPanel');
+                        if (!menuPanel) return;
+
+                        const currentPage = window.location.pathname.split('/').pop() || 'spotify.html';
+                        const allLinks = menuPanel.querySelectorAll('.menu-list a');
+
+                        allLinks.forEach(link => {
+                            const href = link.getAttribute('href');
+                            link.classList.remove('active');
+                            if (href === currentPage) {
+                                link.classList.add('active');
+                            }
+                        });
+
+                        function toggleMenu(forceState) {
+                            const isOpen = typeof forceState === 'boolean' ? forceState : !menuPanel.classList.contains('open');
+                            menuPanel.classList.toggle('open', isOpen);
+                            menuOverlay.classList.toggle('active', isOpen);
+                            document.body.style.overflow = isOpen ? 'hidden' : '';
+                        }
+
+                        function closeMenu() { toggleMenu(false); }
+
+                        menuToggle.addEventListener('click', () => toggleMenu());
+                        menuOverlay.addEventListener('click', closeMenu);
+
+                        document.addEventListener('keydown', (e) => {
+                            if (e.key === 'Escape' && menuPanel.classList.contains('open')) {
+                                closeMenu();
+                            }
+                        });
+
+                        menuPanel.querySelectorAll('.menu-list a').forEach(link => {
+                            link.addEventListener('click', () => {
+                                if (link.getAttribute('href') !== '#') {
+                                    closeMenu();
+                                }
+                            });
+                        });
+                    })
+                    .catch(err => {
+                        console.warn('Gagal memuat menu:', err);
+                        menuContainer.innerHTML = '<p style="color:rgba(255,255,255,0.3);padding:12px;">Menu tidak tersedia</p>';
+                    });
             });
 
-        // ─── Helpers ────────────────────────────────────────────────
-        function showError(msg) {
-            errorText.textContent = msg || 'Terjadi kesalahan.';
-            errorMsg.classList.add('show');
-        }
-
-        function hideError() {
-            errorMsg.classList.remove('show');
-        }
-
-        function setLoading(isLoading) {
-            searchBtn.disabled = isLoading;
-            searchInput.disabled = isLoading;
-            pasteBtn.disabled = isLoading;
-            if (isLoading) {
-                searchBtn.classList.add('loading');
-            } else {
-                searchBtn.classList.remove('loading');
-            }
-        }
-
-        function setDownloadLoading(isLoading) {
-            if (isLoading) {
-                downloadBtn.classList.add('loading');
-                downloadBtn.disabled = true;
-            } else {
-                downloadBtn.classList.remove('loading');
-                downloadBtn.disabled = false;
-            }
-        }
-
-        // ─── API call ──────────────────────────────────────────────
-        async function fetchSpotify(query) {
-            const encoded = encodeURIComponent(query.trim());
-            const apiUrl = `https://api.nexray.eu.cc/downloader/spotifyplay?q=${encoded}`;
-            const resp = await fetch(apiUrl);
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-            const data = await resp.json();
-            if (!data.status) throw new Error(data.message || 'API mengembalikan status false.');
-            if (!data.result || !data.result.download_url) {
-                throw new Error('Tidak ada hasil untuk pencarian ini.');
-            }
-            return data;
-        }
-
-        function renderResult(data) {
-            const r = data.result;
-            currentDownloadUrl = r.download_url || '';
-            currentTitle = r.title || 'Unknown Title';
-            currentArtist = r.artist || 'Unknown Artist';
-            currentSpotifyUrl = r.url || '';
-
-            // Thumbnail
-            if (r.thumbnail) {
-                thumbnailImg.src = r.thumbnail;
-                thumbnailImg.alt = r.title || 'Cover';
-            } else {
-                thumbnailImg.src = '';
-                thumbnailImg.alt = 'No cover';
+            // ─── Helpers ────────────────────────────────────────────────
+            function showError(msg) {
+                errorText.textContent = msg || 'Terjadi kesalahan.';
+                errorMsg.classList.add('show');
             }
 
-            resultTitle.textContent = r.title || '—';
-            resultArtist.textContent = r.artist || '—';
-            resultAlbum.textContent = r.album ? `Album: ${r.album}` : '—';
-            metaDuration.textContent = r.duration || '—';
-            metaRelease.textContent = r.release_at || '—';
-            metaPopularity.textContent = r.popularity ? `${r.popularity}%` : '—';
-
-            // Set audio player
-            if (currentDownloadUrl) {
-                audioSource.src = currentDownloadUrl;
-                audioPlayer.load();
-                audioPlayer.style.display = 'block';
-                downloadBtn.disabled = false;
-            } else {
-                audioPlayer.style.display = 'none';
-                downloadBtn.disabled = true;
+            function hideError() {
+                errorMsg.classList.remove('show');
             }
 
-            resultSection.classList.add('show');
-            emptyState.style.display = 'none';
-        }
-
-        // ─── Download handler ──────────────────────────────────────
-        async function downloadFile(url, filename, buttonElement) {
-            if (!url) {
-                showError('Tidak ada URL untuk diunduh.');
-                return;
+            function setLoading(isLoading) {
+                searchBtn.disabled = isLoading;
+                searchInput.disabled = isLoading;
+                pasteBtn.disabled = isLoading;
+                if (isLoading) {
+                    searchBtn.classList.add('loading');
+                } else {
+                    searchBtn.classList.remove('loading');
+                }
             }
-            try {
-                setDownloadLoading(true);
-                const resp = await fetch(url);
-                if (!resp.ok) throw new Error('Gagal mengunduh file');
-                const blob = await resp.blob();
-                const finalName = filename.endsWith('.mp3') ? filename : `${filename}.mp3`;
 
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = finalName;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+            function setDownloadLoading(isLoading) {
+                if (isLoading) {
+                    downloadBtn.classList.add('loading');
+                    downloadBtn.disabled = true;
+                } else {
+                    downloadBtn.classList.remove('loading');
+                    downloadBtn.disabled = false;
+                }
+            }
 
-            } catch (err) {
-                // fallback: buka langsung
+            // ─── API call ──────────────────────────────────────────────
+            async function fetchSpotify(query) {
+                const encoded = encodeURIComponent(query.trim());
+                const apiUrl = `https://api.nexray.eu.cc/downloader/spotifyplay?q=${encoded}`;
+                const resp = await fetch(apiUrl);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+                if (!data.status) throw new Error(data.message || 'API mengembalikan status false.');
+                if (!data.result || !data.result.download_url) {
+                    throw new Error('Tidak ada hasil untuk pencarian ini.');
+                }
+                return data;
+            }
+
+            function renderResult(data) {
+                const r = data.result;
+                currentDownloadUrl = r.download_url || '';
+                currentTitle = r.title || 'Unknown Title';
+                currentArtist = r.artist || 'Unknown Artist';
+                currentSpotifyUrl = r.url || '';
+
+                // Thumbnail
+                if (r.thumbnail) {
+                    thumbnailImg.src = r.thumbnail;
+                    thumbnailImg.alt = r.title || 'Cover';
+                } else {
+                    thumbnailImg.src = '';
+                    thumbnailImg.alt = 'No cover';
+                }
+
+                resultTitle.textContent = r.title || '—';
+                resultArtist.textContent = r.artist || '—';
+                resultAlbum.textContent = r.album ? `Album: ${r.album}` : '—';
+                metaDuration.textContent = r.duration || '—';
+                metaRelease.textContent = r.release_at || '—';
+                metaPopularity.textContent = r.popularity ? `${r.popularity}%` : '—';
+
+                // Set audio player
+                if (currentDownloadUrl) {
+                    audioSource.src = currentDownloadUrl;
+                    audioPlayer.load();
+                    audioPlayer.style.display = 'block';
+                    downloadBtn.disabled = false;
+                } else {
+                    audioPlayer.style.display = 'none';
+                    downloadBtn.disabled = true;
+                }
+
+                resultSection.classList.add('show');
+                emptyState.style.display = 'none';
+            }
+
+            // ─── Download handler ──────────────────────────────────────
+            async function downloadFile(url, filename, buttonElement) {
+                if (!url) {
+                    showError('Tidak ada URL untuk diunduh.');
+                    return;
+                }
                 try {
+                    setDownloadLoading(true);
+                    const resp = await fetch(url);
+                    if (!resp.ok) throw new Error('Gagal mengunduh file');
+                    const blob = await resp.blob();
+                    const finalName = filename.endsWith('.mp3') ? filename : `${filename}.mp3`;
+
                     const link = document.createElement('a');
-                    link.href = url;
-                    link.download = filename.endsWith('.mp3') ? filename : `${filename}.mp3`;
-                    link.target = '_blank';
+                    link.href = URL.createObjectURL(blob);
+                    link.download = finalName;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
+                    setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+
+                } catch (err) {
+                    // fallback: buka langsung
+                    try {
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = filename.endsWith('.mp3') ? filename : `${filename}.mp3`;
+                        link.target = '_blank';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } catch (_) {
+                        showError('Gagal mengunduh. Coba klik kanan dan "Save link as..."');
+                    }
+                } finally {
+                    setDownloadLoading(false);
+                }
+            }
+
+            // ─── Paste ──────────────────────────────────────────────────
+            async function pasteFromClipboard() {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text) {
+                        searchInput.value = text;
+                        searchInput.focus();
+                        pasteBtn.classList.add('pasted');
+                        setTimeout(() => pasteBtn.classList.remove('pasted'), 1500);
+                    } else {
+                        showError('Clipboard kosong.');
+                    }
                 } catch (_) {
-                    showError('Gagal mengunduh. Coba klik kanan dan "Save link as..."');
-                }
-            } finally {
-                setDownloadLoading(false);
-            }
-        }
-
-        // ─── Paste ──────────────────────────────────────────────────
-        async function pasteFromClipboard() {
-            try {
-                const text = await navigator.clipboard.readText();
-                if (text) {
-                    searchInput.value = text;
-                    searchInput.focus();
-                    pasteBtn.classList.add('pasted');
-                    setTimeout(() => pasteBtn.classList.remove('pasted'), 1500);
-                } else {
-                    showError('Clipboard kosong.');
-                }
-            } catch (_) {
-                const text = prompt('Tidak dapat mengakses clipboard. Silakan tempel teks secara manual:', '');
-                if (text !== null && text.trim() !== '') {
-                    searchInput.value = text.trim();
-                    searchInput.focus();
+                    const text = prompt('Tidak dapat mengakses clipboard. Silakan tempel teks secara manual:', '');
+                    if (text !== null && text.trim() !== '') {
+                        searchInput.value = text.trim();
+                        searchInput.focus();
+                    }
                 }
             }
-        }
 
-        // ─── Search ─────────────────────────────────────────────────
-        async function handleSearch() {
-            const raw = searchInput.value.trim();
-            if (!raw) {
-                showError('Silakan masukkan judul lagu atau nama artis.');
-                return;
-            }
+            // ─── Search ─────────────────────────────────────────────────
+            async function handleSearch() {
+                const raw = searchInput.value.trim();
+                if (!raw) {
+                    showError('Silakan masukkan judul lagu atau nama artis.');
+                    return;
+                }
 
-            hideError();
-            setLoading(true);
-            resultSection.classList.remove('show');
-            emptyState.style.display = 'flex';
-            // Reset audio
-            audioPlayer.pause();
-            audioSource.src = '';
-            audioPlayer.load();
-
-            try {
-                const data = await fetchSpotify(raw);
-                renderResult(data);
                 hideError();
-            } catch (err) {
-                console.error(err);
-                showError(err.message || 'Gagal mencari lagu. Periksa kata kunci dan coba lagi.');
+                setLoading(true);
                 resultSection.classList.remove('show');
                 emptyState.style.display = 'flex';
-            } finally {
-                setLoading(false);
+                // Reset audio
+                audioPlayer.pause();
+                audioSource.src = '';
+                audioPlayer.load();
+
+                try {
+                    const data = await fetchSpotify(raw);
+                    renderResult(data);
+                    hideError();
+                } catch (err) {
+                    console.error(err);
+                    showError(err.message || 'Gagal mencari lagu. Periksa kata kunci dan coba lagi.');
+                    resultSection.classList.remove('show');
+                    emptyState.style.display = 'flex';
+                } finally {
+                    setLoading(false);
+                }
             }
+
+            // ─── Event listeners ────────────────────────────────────────
+            searchBtn.addEventListener('click', handleSearch);
+
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSearch();
+                }
+            });
+
+            pasteBtn.addEventListener('click', pasteFromClipboard);
+
+            downloadBtn.addEventListener('click', () => {
+                if (!currentDownloadUrl) {
+                    showError('Tidak ada audio untuk diunduh.');
+                    return;
+                }
+                const name = `${currentArtist} - ${currentTitle}`.replace(/[^a-zA-Z0-9 ]/g, '').trim() || 'spotify_audio';
+                downloadFile(currentDownloadUrl, name, downloadBtn);
+            });
+
+            copyLinkBtn.addEventListener('click', () => {
+                if (!currentSpotifyUrl) {
+                    showError('Tidak ada link Spotify untuk disalin.');
+                    return;
+                }
+                navigator.clipboard.writeText(currentSpotifyUrl)
+                    .then(() => {
+                        const orig = copyLinkBtn.innerHTML;
+                        copyLinkBtn.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
+                        setTimeout(() => { copyLinkBtn.innerHTML = orig; }, 2000);
+                    })
+                    .catch(() => {
+                        const ta = document.createElement('textarea');
+                        ta.value = currentSpotifyUrl;
+                        document.body.appendChild(ta);
+                        ta.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(ta);
+                        const orig = copyLinkBtn.innerHTML;
+                        copyLinkBtn.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
+                        setTimeout(() => { copyLinkBtn.innerHTML = orig; }, 2000);
+                    });
+            });
+
+            // ─── Init ────────────────────────────────────────────────────
+            emptyState.style.display = 'flex';
+            resultSection.classList.remove('show');
+            hideError();
+            downloadBtn.disabled = true;
+            audioPlayer.style.display = 'none';
+
+            console.log('✅ Spotify Downloader initialized');
         }
-
-        // ─── Event listeners ────────────────────────────────────────
-        searchBtn.addEventListener('click', handleSearch);
-
-        searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                handleSearch();
-            }
-        });
-
-        pasteBtn.addEventListener('click', pasteFromClipboard);
-
-        downloadBtn.addEventListener('click', () => {
-            if (!currentDownloadUrl) {
-                showError('Tidak ada audio untuk diunduh.');
-                return;
-            }
-            const name = `${currentArtist} - ${currentTitle}`.replace(/[^a-zA-Z0-9 ]/g, '').trim() || 'spotify_audio';
-            downloadFile(currentDownloadUrl, name, downloadBtn);
-        });
-
-        copyLinkBtn.addEventListener('click', () => {
-            if (!currentSpotifyUrl) {
-                showError('Tidak ada link Spotify untuk disalin.');
-                return;
-            }
-            navigator.clipboard.writeText(currentSpotifyUrl)
-                .then(() => {
-                    const orig = copyLinkBtn.innerHTML;
-                    copyLinkBtn.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
-                    setTimeout(() => { copyLinkBtn.innerHTML = orig; }, 2000);
-                })
-                .catch(() => {
-                    const ta = document.createElement('textarea');
-                    ta.value = currentSpotifyUrl;
-                    document.body.appendChild(ta);
-                    ta.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(ta);
-                    const orig = copyLinkBtn.innerHTML;
-                    copyLinkBtn.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
-                    setTimeout(() => { copyLinkBtn.innerHTML = orig; }, 2000);
-                });
-        });
-
-        // ─── Init ────────────────────────────────────────────────────
-        emptyState.style.display = 'flex';
-        resultSection.classList.remove('show');
-        hideError();
-        downloadBtn.disabled = true;
-        audioPlayer.style.display = 'none';
     </script>
 
 </body>
