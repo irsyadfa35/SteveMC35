@@ -85,7 +85,8 @@
     }
 
     /* ============================================
-       SEMUA STYLE YANG ADA SEBELUMNYA (Dipertahankan)
+       SEMUA STYLE YANG ADA SEBELUMNYA
+       (Tetap dipertahankan)
     ============================================ */
     body::before {
       content: '';
@@ -150,76 +151,27 @@
       border-radius: 10px;
     }
 
-    /* ===== USER PROFILE DI SIDEBAR ===== */
-    .user-profile {
-      display: flex;
+    /* ============================================
+       OWNER BADGE DI HEADER
+    ============================================ */
+    .owner-badge {
+      display: inline-flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      margin-top: 8px;
-      margin-bottom: 12px;
+      gap: 6px;
+      background: linear-gradient(135deg, #ffd700, #f59e0b);
+      color: #1a1a2e;
+      padding: 4px 14px;
+      border-radius: 60px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-left: 8px;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
     }
 
-    .user-profile .avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #7c4dff;
-      flex-shrink: 0;
-    }
-
-    .user-profile .info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .user-profile .info .name {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .user-profile .info .email {
-      font-size: 0.75rem;
-      color: rgba(255, 255, 255, 0.4);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .btn-logout-sidebar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      color: #ff6b6b;
-      background: rgba(255, 0, 0, 0.06);
-      border: 1px solid rgba(255, 0, 0, 0.08);
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      font-family: inherit;
-      width: 100%;
-      text-align: left;
-    }
-
-    .btn-logout-sidebar:hover {
-      background: rgba(255, 0, 0, 0.12);
-      border-color: rgba(255, 0, 0, 0.15);
-    }
-
-    .btn-logout-sidebar i {
-      width: 20px;
-      text-align: center;
+    .owner-badge i {
+      font-size: 0.65rem;
     }
 
     /* ============================================
@@ -1458,6 +1410,8 @@
       <div class="badge">
         <i class="fas fa-code"></i>
         <span>Developer &amp; Creator</span>
+        <!-- ===== OWNER SYSTEM: Badge Owner akan muncul di sini via JavaScript ===== -->
+        <span id="ownerBadge" style="display:none;"></span>
       </div>
 
       <h1>
@@ -1617,42 +1571,55 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ============================================================
-    // 2. FLAG UNTUK MENCEGAH EKSEKUSI BERGANDA
+    // 2. OWNER SYSTEM - KONFIGURASI
     // ============================================================
-    let isInitialized = false;
-    let isRedirecting = false;
+    // ===== OWNER SYSTEM =====
+    const OWNER_ID = 'ce5879ba-007c-4258-acd1-75246073a151';
 
     // ============================================================
-    // 3. ELEMENT REFERENSI
+    // 3. OWNER SYSTEM - FUNGSI PENGECEKAN
+    // ============================================================
+    // ===== OWNER SYSTEM =====
+    function isOwner(user) {
+      if (!user || !user.id) return false;
+      return user.id === OWNER_ID;
+    }
+
+    // ============================================================
+    // 4. ELEMENT REFERENSI
     // ============================================================
     const authLoading = document.getElementById('authLoading');
     const mainContent = document.getElementById('mainContent');
     const mainFooter = document.getElementById('mainFooter');
+    const ownerBadge = document.getElementById('ownerBadge');
 
     // ============================================================
-    // 4. FUNGSI - TAMPILKAN KONTEN (hanya sekali)
+    // 5. FUNGSI - TAMPILKAN KONTEN
     // ============================================================
-    function showMainContent() {
-      if (isInitialized) {
-        console.log('⚠️ Konten sudah ditampilkan, skip');
-        return;
-      }
-
-      console.log('✅ Menampilkan konten utama');
+    function showMainContent(session) {
       mainContent.style.display = 'block';
       mainFooter.style.display = 'block';
       authLoading.classList.add('hidden');
-      isInitialized = true;
 
-      // Jalankan semua fungsi setelah konten tampil (hanya sekali)
+      // ===== OWNER SYSTEM: Tampilkan badge owner jika user adalah owner =====
+      if (session && isOwner(session.user)) {
+        ownerBadge.style.display = 'inline-flex';
+        ownerBadge.innerHTML = '<i class="fas fa-crown"></i> Owner';
+        console.log('👑 Status Owner: TRUE - User adalah pemilik website');
+      } else {
+        ownerBadge.style.display = 'none';
+        console.log('👤 Status Owner: FALSE - User adalah pengguna biasa');
+      }
+
+      // Jalankan semua fungsi setelah konten tampil
       initializeSlider();
       fetchData();
       initializeGreetingAndTyping();
-      loadMenu();
+      loadMenu(session);
     }
 
     // ============================================================
-    // 5. CEK SESSION - Redirect jika tidak login
+    // 6. CEK SESSION - Redirect jika tidak login
     // ============================================================
     async function checkSession() {
       try {
@@ -1660,86 +1627,138 @@
 
         if (error) {
           console.warn('Error get session:', error);
-          if (!isRedirecting) {
-            isRedirecting = true;
-            window.location.replace('https://stevemc.my.id/login.html');
-          }
+          window.location.replace('https://stevemc.my.id/login.html');
           return;
         }
 
         if (!session) {
           console.log('❌ Tidak ada session, redirect ke login');
-          if (!isRedirecting) {
-            isRedirecting = true;
-            window.location.replace('https://stevemc.my.id/login.html');
-          }
+          window.location.replace('https://stevemc.my.id/login.html');
           return;
         }
 
+        // ===== OWNER SYSTEM: Log user ID dan status owner =====
+        console.log('🆔 User ID:', session.user.id);
+        console.log('👑 Status Owner:', isOwner(session.user) ? 'TRUE ✅' : 'FALSE ❌');
+
         // User sudah login, tampilkan konten
         console.log('✅ User sudah login:', session.user.email);
-        showMainContent();
-
-        // Update menu dengan user info setelah menu dimuat
-        setTimeout(() => {
-          updateMenuWithUser(session);
-        }, 800);
+        showMainContent(session);
 
       } catch (err) {
         console.error('Error checking session:', err);
-        if (!isRedirecting) {
-          isRedirecting = true;
-          window.location.replace('https://stevemc.my.id/login.html');
-        }
+        window.location.replace('https://stevemc.my.id/login.html');
       }
     }
 
     // ============================================================
-    // 6. UPDATE MENU DENGAN USER INFO
+    // 7. LOAD MENU - Memilih menu berdasarkan status owner
     // ============================================================
-    function updateMenuWithUser(session) {
-      const menuPanel = document.getElementById('menuPanel');
-      if (!menuPanel) return;
+    function loadMenu(session) {
+      const menuContainer = document.getElementById('menuContainer');
+      const hamburger = document.getElementById('hamburgerBtn');
+      const menuOverlay = document.getElementById('menuOverlay');
 
-      const user = session.user;
-      const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
-      const email = user.email || '';
-      const avatar = user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+      if (!menuContainer) return;
 
-      const menuList = menuPanel.querySelector('.menu-list');
-      if (menuList) {
-        const existingProfile = menuPanel.querySelector('.user-profile');
-        if (existingProfile) existingProfile.remove();
+      // ===== OWNER SYSTEM: Pilih menu berdasarkan status owner =====
+      const isOwnerUser = session && isOwner(session.user);
+      const menuFile = isOwnerUser ? 'menu_owner.html' : 'menu.html';
 
-        const profileDiv = document.createElement('div');
-        profileDiv.className = 'user-profile';
-        profileDiv.innerHTML = `
-          ${avatar ? `<img class="avatar" src="${avatar}" alt="Avatar" />` : `<div class="avatar" style="background:linear-gradient(135deg,#7c4dff,#00e5ff);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;color:#fff;">${name.charAt(0).toUpperCase()}</div>`}
-          <div class="info">
-            <div class="name">${name}</div>
-            <div class="email">${email}</div>
-          </div>
-        `;
+      console.log(`📋 Memuat menu: ${menuFile} (${isOwnerUser ? 'Owner' : 'User'})`);
 
-        menuList.parentNode.insertBefore(profileDiv, menuList.nextSibling);
+      fetch(menuFile)
+        .then(res => {
+          if (!res.ok) throw new Error(`Menu ${menuFile} tidak ditemukan`);
+          return res.text();
+        })
+        .then(html => {
+          menuContainer.innerHTML = html;
+          const menuPanel = document.getElementById('menuPanel');
+          if (!menuPanel) return;
 
-        const existingLogout = menuPanel.querySelector('.btn-logout-sidebar');
-        if (existingLogout) existingLogout.remove();
+          const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+          menuPanel.querySelectorAll('.menu-list a').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === currentPage) {
+              link.classList.add('active');
+            }
+          });
 
-        const logoutBtn = document.createElement('button');
-        logoutBtn.className = 'btn-logout-sidebar';
-        logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
-        logoutBtn.addEventListener('click', async () => {
-          await supabaseClient.auth.signOut();
-          // SIGNED_OUT event akan menangani redirect
+          function toggleMenu(forceState) {
+            const isOpen = typeof forceState === 'boolean' ? forceState : !menuPanel.classList.contains('open');
+            menuPanel.classList.toggle('open', isOpen);
+            menuOverlay.classList.toggle('open', isOpen);
+
+            if (isOpen) {
+              hamburger.classList.add('hidden');
+            } else {
+              hamburger.classList.remove('hidden');
+            }
+
+            document.body.style.overflow = isOpen ? 'hidden' : '';
+          }
+
+          const newHamburger = hamburger.cloneNode(true);
+          hamburger.parentNode.replaceChild(newHamburger, hamburger);
+
+          newHamburger.addEventListener('click', () => toggleMenu());
+          menuOverlay.addEventListener('click', () => toggleMenu(false));
+
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && menuPanel.classList.contains('open')) {
+              toggleMenu(false);
+            }
+          });
+
+          menuPanel.querySelectorAll('.menu-list a').forEach(link => {
+            link.addEventListener('click', () => {
+              if (link.getAttribute('href') !== '#') {
+                toggleMenu(false);
+              }
+            });
+          });
+        })
+        .catch(err => {
+          console.warn('Gagal memuat menu:', err);
+          // Fallback ke menu normal
+          menuContainer.innerHTML = `
+            <nav class="menu-panel" id="menuPanel">
+              <div class="menu-header">
+                <div class="brand-icon"><i class="fas fa-download"></i></div>
+                <div class="brand-text">Media<span>Download</span></div>
+              </div>
+              <ul class="menu-list">
+                <li><a href="index.html" class="active"><i class="fas fa-home"></i> Beranda</a></li>
+                <li><a href="mediadownload.html"><i class="fas fa-download"></i> Media Download</a></li>
+                <li><a href="account.html"><i class="fas fa-user"></i> Akun Saya</a></li>
+              </ul>
+              <div class="menu-footer">
+                <i class="fas fa-code"></i> v1.0 &bull; by SteveMC
+              </div>
+            </nav>
+          `;
+          const menuPanel = document.getElementById('menuPanel');
+          if (menuPanel) {
+            const newHamburger = hamburger.cloneNode(true);
+            hamburger.parentNode.replaceChild(newHamburger, hamburger);
+
+            newHamburger.addEventListener('click', () => {
+              menuPanel.classList.toggle('open');
+              menuOverlay.classList.toggle('open');
+              newHamburger.classList.toggle('hidden');
+            });
+            menuOverlay.addEventListener('click', () => {
+              menuPanel.classList.remove('open');
+              menuOverlay.classList.remove('open');
+              newHamburger.classList.remove('hidden');
+            });
+          }
         });
-
-        profileDiv.parentNode.insertBefore(logoutBtn, profileDiv.nextSibling);
-      }
     }
 
     // ============================================================
-    // 7. PARTICLES BACKGROUND
+    // 8. PARTICLES BACKGROUND
     // ============================================================
     (function createParticles() {
       const container = document.getElementById('particles');
@@ -1757,7 +1776,7 @@
     })();
 
     // ============================================================
-    // 8. GREETING & TYPING EFFECT
+    // 9. GREETING & TYPING EFFECT
     // ============================================================
     function initializeGreetingAndTyping() {
       const greetingEl = document.getElementById('greeting');
@@ -1785,7 +1804,7 @@
     }
 
     // ============================================================
-    // 9. SLIDER / CAROUSEL (hanya sekali)
+    // 10. SLIDER / CAROUSEL
     // ============================================================
     function initializeSlider() {
       const wrapper = document.getElementById('sliderWrapper');
@@ -1852,7 +1871,7 @@
     }
 
     // ============================================================
-    // 10. FETCH DATA DARI API (hanya sekali)
+    // 11. FETCH DATA DARI API
     // ============================================================
     async function fetchData() {
       const dataArea = document.getElementById('dataArea');
@@ -1945,151 +1964,26 @@
     }
 
     // ============================================================
-    // 11. LOAD MENU DARI menu.html (hanya sekali)
-    // ============================================================
-    function loadMenu() {
-      const menuContainer = document.getElementById('menuContainer');
-      const hamburger = document.getElementById('hamburgerBtn');
-      const menuOverlay = document.getElementById('menuOverlay');
-
-      if (!menuContainer) return;
-
-      fetch('menu.html')
-        .then(res => {
-          if (!res.ok) throw new Error('Menu tidak ditemukan');
-          return res.text();
-        })
-        .then(html => {
-          menuContainer.innerHTML = html;
-          const menuPanel = document.getElementById('menuPanel');
-          if (!menuPanel) return;
-
-          const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-          menuPanel.querySelectorAll('.menu-list a').forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === currentPage) {
-              link.classList.add('active');
-            }
-          });
-
-          // Tambahkan user profile setelah menu dimuat
-          supabaseClient.auth.getSession().then(({ data: { session } }) => {
-            if (session) {
-              updateMenuWithUser(session);
-            }
-          });
-
-          function toggleMenu(forceState) {
-            const isOpen = typeof forceState === 'boolean' ? forceState : !menuPanel.classList.contains('open');
-            menuPanel.classList.toggle('open', isOpen);
-            menuOverlay.classList.toggle('open', isOpen);
-
-            if (isOpen) {
-              hamburger.classList.add('hidden');
-            } else {
-              hamburger.classList.remove('hidden');
-            }
-
-            document.body.style.overflow = isOpen ? 'hidden' : '';
-          }
-
-          // Hapus event listener lama jika ada (mencegah duplikasi)
-          const newHamburger = hamburger.cloneNode(true);
-          hamburger.parentNode.replaceChild(newHamburger, hamburger);
-
-          newHamburger.addEventListener('click', () => toggleMenu());
-          menuOverlay.addEventListener('click', () => toggleMenu(false));
-
-          document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && menuPanel.classList.contains('open')) {
-              toggleMenu(false);
-            }
-          });
-
-          menuPanel.querySelectorAll('.menu-list a').forEach(link => {
-            link.addEventListener('click', () => {
-              if (link.getAttribute('href') !== '#') {
-                toggleMenu(false);
-              }
-            });
-          });
-        })
-        .catch(err => {
-          console.warn('Gagal memuat menu:', err);
-          menuContainer.innerHTML = `
-            <nav class="menu-panel" id="menuPanel">
-              <div class="menu-header">
-                <div class="brand-icon"><i class="fas fa-download"></i></div>
-                <div class="brand-text">Media<span>Download</span></div>
-              </div>
-              <ul class="menu-list">
-                <li><a href="index.html" class="active"><i class="fas fa-home"></i> Beranda</a></li>
-                <li><a href="mediadownload.html"><i class="fas fa-download"></i> Media Download</a></li>
-              </ul>
-              <div class="menu-footer">
-                <i class="fas fa-code"></i> v1.0 &bull; by SteveMC
-              </div>
-            </nav>
-          `;
-          const menuPanel = document.getElementById('menuPanel');
-          if (menuPanel) {
-            const newHamburger = hamburger.cloneNode(true);
-            hamburger.parentNode.replaceChild(newHamburger, hamburger);
-
-            newHamburger.addEventListener('click', () => {
-              menuPanel.classList.toggle('open');
-              menuOverlay.classList.toggle('open');
-              newHamburger.classList.toggle('hidden');
-            });
-            menuOverlay.addEventListener('click', () => {
-              menuPanel.classList.remove('open');
-              menuOverlay.classList.remove('open');
-              newHamburger.classList.remove('hidden');
-            });
-          }
-        });
-    }
-
-    // ============================================================
-    // 12. SUPABASE AUTH STATE CHANGE LISTENER (TANPA RELOAD)
+    // 12. SUPABASE AUTH STATE CHANGE LISTENER
     // ============================================================
     supabaseClient.auth.onAuthStateChange((event, session) => {
       console.log('🔐 Auth state changed:', event);
 
-      if (event === 'SIGNED_IN' && session) {
-        // ===== PERBAIKAN UTAMA: TIDAK ADA RELOAD! =====
-        console.log('✅ User signed in (session restored)');
-        
-        // Jika konten belum ditampilkan, tampilkan
-        if (!isInitialized) {
-          showMainContent();
-          setTimeout(() => {
-            updateMenuWithUser(session);
-          }, 800);
-        } else {
-          // Jika sudah ditampilkan, update menu saja
-          updateMenuWithUser(session);
-        }
-      }
-
       if (event === 'SIGNED_OUT') {
         console.log('👋 User signed out, redirecting to login...');
-        if (!isRedirecting) {
-          isRedirecting = true;
-          window.location.replace('https://stevemc.my.id/login.html');
-        }
+        window.location.replace('https://stevemc.my.id/login.html');
+      }
+
+      if (event === 'SIGNED_IN' && session) {
+        console.log('✅ User signed in');
+        console.log('🆔 User ID:', session.user.id);
+        console.log('👑 Status Owner:', isOwner(session.user) ? 'TRUE ✅' : 'FALSE ❌');
+        // Refresh halaman untuk update UI
+        window.location.reload();
       }
 
       if (event === 'TOKEN_REFRESHED') {
-        console.log('🔄 Token refreshed (no action needed)');
-        // TIDAK ADA RELOAD!
-      }
-
-      if (event === 'USER_UPDATED') {
-        console.log('📝 User updated, updating UI...');
-        if (session) {
-          updateMenuWithUser(session);
-        }
+        console.log('🔄 Token refreshed');
       }
     });
 
@@ -2098,8 +1992,8 @@
     // ============================================================
     checkSession();
 
-    console.log('%c🔐 SteveMC Auth Fixed!', 'font-size:16px;font-weight:bold;color:#7c4dff;');
-    console.log('📌 Infinite reload loop telah diperbaiki');
+    console.log('%c👑 SteveMC dengan Owner System!', 'font-size:16px;font-weight:bold;color:#ffd700;');
+    console.log('📌 Owner ID:', OWNER_ID);
     console.log('📌 Supabase URL:', SUPABASE_URL);
   </script>
 
