@@ -156,7 +156,7 @@
     }
 
     /* ============================================
-       TOP NAVBAR - USER PROFILE
+       TOP NAV - USER PROFILE
     ============================================ */
     .top-nav {
       position: fixed;
@@ -262,7 +262,7 @@
     }
 
     /* ============================================
-       HAMBURGER
+       HAMBURGER - akan hilang saat menu terbuka
     ============================================ */
     .hamburger {
       position: fixed;
@@ -297,6 +297,7 @@
       transition: all 0.3s ease;
     }
 
+    /* Sembunyikan hamburger saat menu terbuka */
     .hamburger.hidden {
       opacity: 0;
       visibility: hidden;
@@ -1331,7 +1332,6 @@
         justify-content: center;
       }
 
-      /* Top nav responsive */
       .top-nav {
         padding: 12px 16px;
       }
@@ -1464,7 +1464,6 @@
         padding: 14px 16px;
       }
 
-      /* Top nav responsive */
       .top-nav {
         padding: 10px 12px;
       }
@@ -1716,6 +1715,7 @@
     const mainFooter = document.getElementById('mainFooter');
     const ownerBadge = document.getElementById('ownerBadge');
     const profileBtn = document.getElementById('profileBtn');
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
 
     let isInitialized = false;
 
@@ -1844,11 +1844,10 @@
     }
 
     // ============================================================
-    // 8. LOAD MENU
+    // 8. LOAD MENU - DENGAN FUNGSI TOGGLE MENU YANG BENER
     // ============================================================
     function loadMenu(session) {
       const menuContainer = document.getElementById('menuContainer');
-      const hamburger = document.getElementById('hamburgerBtn');
       const menuOverlay = document.getElementById('menuOverlay');
 
       if (!menuContainer) return;
@@ -1876,25 +1875,37 @@
             }
           });
 
+          // ===== PERBAIKAN: Fungsi toggle menu dengan hamburger =====
           function toggleMenu(forceState) {
             const isOpen = typeof forceState === 'boolean' ? forceState : !menuPanel.classList.contains('open');
             menuPanel.classList.toggle('open', isOpen);
             menuOverlay.classList.toggle('open', isOpen);
 
+            // ===== HAMBURGER HILANG SAAT MENU TERBUKA =====
             if (isOpen) {
-              hamburger.classList.add('hidden');
+              hamburgerBtn.classList.add('hidden');
             } else {
-              hamburger.classList.remove('hidden');
+              hamburgerBtn.classList.remove('hidden');
             }
 
             document.body.style.overflow = isOpen ? 'hidden' : '';
           }
 
-          const newHamburger = hamburger.cloneNode(true);
-          hamburger.parentNode.replaceChild(newHamburger, hamburger);
+          // Hapus event listener lama dengan clone
+          const newHamburger = hamburgerBtn.cloneNode(true);
+          hamburgerBtn.parentNode.replaceChild(newHamburger, hamburgerBtn);
 
-          newHamburger.addEventListener('click', () => toggleMenu());
-          menuOverlay.addEventListener('click', () => toggleMenu(false));
+          // Update referensi hamburgerBtn ke yang baru
+          const newHamburgerBtn = document.getElementById('hamburgerBtn');
+
+          newHamburgerBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleMenu();
+          });
+
+          menuOverlay.addEventListener('click', () => {
+            toggleMenu(false);
+          });
 
           document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && menuPanel.classList.contains('open')) {
@@ -1930,18 +1941,20 @@
           `;
           const menuPanel = document.getElementById('menuPanel');
           if (menuPanel) {
-            const newHamburger = hamburger.cloneNode(true);
-            hamburger.parentNode.replaceChild(newHamburger, hamburger);
+            const newHamburger = hamburgerBtn.cloneNode(true);
+            hamburgerBtn.parentNode.replaceChild(newHamburger, hamburgerBtn);
 
-            newHamburger.addEventListener('click', () => {
+            const newHamburgerBtn = document.getElementById('hamburgerBtn');
+            newHamburgerBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
               menuPanel.classList.toggle('open');
               menuOverlay.classList.toggle('open');
-              newHamburger.classList.toggle('hidden');
+              newHamburgerBtn.classList.toggle('hidden');
             });
             menuOverlay.addEventListener('click', () => {
               menuPanel.classList.remove('open');
               menuOverlay.classList.remove('open');
-              newHamburger.classList.remove('hidden');
+              newHamburgerBtn.classList.remove('hidden');
             });
           }
         });
@@ -2172,12 +2185,12 @@
       if (event === 'SIGNED_OUT') {
         console.log('👋 User signed out');
         updateTopNav(null);
+        // Reload halaman untuk update UI
         window.location.reload();
       }
 
       if (event === 'TOKEN_REFRESHED') {
         console.log('🔄 Token refreshed (no reload)');
-        // Update top nav jika session berubah
         if (session) {
           updateTopNav(session);
         }
