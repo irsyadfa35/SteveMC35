@@ -983,12 +983,8 @@
         // ============================================================
         // 1. CEK AUTH MANUAL - TANPA REDIRECT KE INDEX
         // ============================================================
-        // ===== PERBAIKAN UTAMA: Menggunakan checkAuth() langsung =====
-        // BUKAN initAuthPage() yang bisa redirect ke index
-
         (async function checkAuthManually() {
             try {
-                // Tunggu auth-check.js
                 if (typeof steveMC === 'undefined') {
                     console.warn('⏳ Menunggu auth-check.js...');
                     await new Promise(resolve => {
@@ -1000,27 +996,22 @@
                     });
                 }
 
-                // ===== CEK SESSION TANPA REDIRECT =====
                 const result = await steveMC.auth.checkAuth();
 
                 console.log('🔐 Auth result:', result);
 
-                // ===== JIKA BELUM LOGIN, REDIRECT KE LOGIN =====
                 if (!result.isLoggedIn) {
                     console.log('❌ Belum login, redirect ke login...');
                     window.location.href = 'https://stevemc.my.id/login.html';
                     return;
                 }
 
-                // ===== USER SUDAH LOGIN, TAMPILKAN KONTEN =====
                 console.log('✅ User sudah login:', result.user.email);
                 console.log('👑 Status Owner:', result.isOwner ? 'TRUE ✅' : 'FALSE ❌');
 
-                // Tampilkan konten
                 document.getElementById('mainContent').style.display = 'block';
                 document.getElementById('authLoading').classList.add('hidden');
 
-                // Tampilkan owner badge
                 const ownerBadge = document.getElementById('ownerBadge');
                 if (result.isOwner) {
                     ownerBadge.style.display = 'inline-flex';
@@ -1029,10 +1020,7 @@
                     ownerBadge.style.display = 'none';
                 }
 
-                // Inisialisasi fitur Pinterest
                 initPinterestSearch();
-
-                // Load menu
                 loadMenu();
 
             } catch (error) {
@@ -1273,7 +1261,9 @@
                 openLightbox(newIndex);
             }
 
-            // ─── Download Image ────────────────────────────────────────
+            // ============================================================
+            // ===== PERBAIKAN: DOWNLOAD IMAGE LANGSUNG KE PERANGKAT =====
+            // ============================================================
             async function downloadImage(index) {
                 const item = currentResults[index];
                 if (!item || !item.images_url) {
@@ -1285,17 +1275,29 @@
                 const filename = `pinterest_${item.id || Date.now()}.jpg`;
 
                 try {
-                    const resp = await fetch(url);
-                    if (!resp.ok) throw new Error('Gagal mengunduh');
-                    const blob = await resp.blob();
+                    // ===== METODE 1: Fetch + Blob (Download Langsung) =====
+                    console.log('⬇️ Mengunduh:', filename);
+
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Gagal mengunduh gambar');
+
+                    const blob = await response.blob();
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
                     link.download = filename;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
+
+                    // Bersihkan URL object
                     setTimeout(() => URL.revokeObjectURL(link.href), 5000);
-                } catch (err) {
+
+                    console.log('✅ Download berhasil:', filename);
+
+                } catch (error) {
+                    console.warn('⚠️ Gagal download via blob, mencoba metode alternatif:', error);
+
+                    // ===== METODE 2: Fallback - Buka di tab baru =====
                     try {
                         const link = document.createElement('a');
                         link.href = url;
@@ -1304,8 +1306,13 @@
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
-                    } catch (_) {
-                        showError('Gagal mengunduh. Coba klik kanan dan "Save link as..."');
+
+                        // Tampilkan pesan jika fallback digunakan
+                        showError('Download menggunakan tab baru. Jika gambar terbuka, klik kanan dan "Save image as..."');
+                        setTimeout(hideError, 3000);
+
+                    } catch (fallbackError) {
+                        showError('Gagal mengunduh. Silakan klik kanan pada gambar dan pilih "Save image as..."');
                     }
                 }
             }
