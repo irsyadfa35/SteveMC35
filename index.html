@@ -266,7 +266,7 @@
     ============================================ */
     .hamburger {
       position: fixed;
-      top: 16px;
+      top: 20px;
       left: 20px;
       z-index: 1001;
       display: flex;
@@ -274,7 +274,7 @@
       gap: 5px;
       cursor: pointer;
       padding: 10px 12px;
-      border-radius: 14px;
+      border-radius: 12px;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.06);
       backdrop-filter: blur(10px);
@@ -335,7 +335,7 @@
       position: fixed;
       top: 0;
       left: 0;
-      width: 300px;
+      width: 290px;
       height: 100%;
       background: rgba(12, 16, 30, 0.98);
       backdrop-filter: blur(20px);
@@ -345,7 +345,7 @@
       z-index: 1000;
       transform: translateX(-100%);
       transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      padding: 32px 24px;
+      padding: 28px 20px;
       display: flex;
       flex-direction: column;
     }
@@ -484,7 +484,7 @@
     ============================================ */
     .hero-banner {
       position: relative;
-      margin-top: 80px;
+      margin-top: 90px;
       margin-bottom: 50px;
       border-radius: 28px;
       overflow: hidden;
@@ -1716,6 +1716,7 @@
     const ownerBadge = document.getElementById('ownerBadge');
     const profileBtn = document.getElementById('profileBtn');
     const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const menuOverlay = document.getElementById('menuOverlay');
 
     let isInitialized = false;
 
@@ -1848,7 +1849,6 @@
     // ============================================================
     function loadMenu(session) {
       const menuContainer = document.getElementById('menuContainer');
-      const menuOverlay = document.getElementById('menuOverlay');
 
       if (!menuContainer) return;
 
@@ -1875,7 +1875,7 @@
             }
           });
 
-          // ===== PERBAIKAN: Fungsi toggle menu dengan hamburger =====
+          // ===== FUNGSI TOGGLE MENU =====
           function toggleMenu(forceState) {
             const isOpen = typeof forceState === 'boolean' ? forceState : !menuPanel.classList.contains('open');
             menuPanel.classList.toggle('open', isOpen);
@@ -1891,11 +1891,11 @@
             document.body.style.overflow = isOpen ? 'hidden' : '';
           }
 
-          // Hapus event listener lama dengan clone
+          // ===== CLONE HAMBURGER UNTUK HAPUS LISTENER LAMA =====
           const newHamburger = hamburgerBtn.cloneNode(true);
           hamburgerBtn.parentNode.replaceChild(newHamburger, hamburgerBtn);
 
-          // Update referensi hamburgerBtn ke yang baru
+          // Update referensi hamburgerBtn
           const newHamburgerBtn = document.getElementById('hamburgerBtn');
 
           newHamburgerBtn.addEventListener('click', (e) => {
@@ -2185,7 +2185,6 @@
       if (event === 'SIGNED_OUT') {
         console.log('👋 User signed out');
         updateTopNav(null);
-        // Reload halaman untuk update UI
         window.location.reload();
       }
 
