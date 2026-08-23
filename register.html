@@ -15,9 +15,12 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
+  <!-- ===== SUPABASE JS SDK v2 ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     /* ============================================
-       RESET & BASE
+       RESET & BASE (Tidak ada perubahan)
     ============================================ */
     * {
       margin: 0;
@@ -188,6 +191,48 @@
       margin-top: 6px;
     }
 
+    /* ===== ERROR MESSAGE ===== */
+    .error-message {
+      display: none;
+      background: rgba(255, 0, 0, 0.1);
+      border: 1px solid rgba(255, 0, 0, 0.2);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      color: #ff6b6b;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .error-message i {
+      margin-right: 8px;
+    }
+
+    /* ===== SUCCESS MESSAGE ===== */
+    .success-message {
+      display: none;
+      background: rgba(37, 211, 102, 0.1);
+      border: 1px solid rgba(37, 211, 102, 0.2);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      color: #25D366;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    .success-message i {
+      margin-right: 8px;
+    }
+
     /* Form */
     .form-group {
       margin-bottom: 16px;
@@ -332,13 +377,47 @@
       box-shadow: 0 4px 30px rgba(124, 77, 255, 0.3);
     }
 
-    .btn-register:hover {
+    .btn-register:hover:not(:disabled) {
       transform: translateY(-3px);
       box-shadow: 0 8px 50px rgba(124, 77, 255, 0.5);
     }
 
-    .btn-register:active {
+    .btn-register:active:not(:disabled) {
       transform: scale(0.98);
+    }
+
+    .btn-register:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .btn-register .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2.5px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    .btn-register.loading .spinner {
+      display: block;
+    }
+
+    .btn-register.loading .btn-text {
+      display: none;
+    }
+
+    .btn-register.loading .btn-icon {
+      display: none;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     /* Divider */
@@ -393,6 +472,12 @@
       border-color: rgba(255, 255, 255, 0.12);
       color: #fff;
       transform: translateY(-2px);
+    }
+
+    .btn-social:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
     }
 
     .btn-social i {
@@ -486,43 +571,60 @@
         <p>Buat akun baru untuk bergabung</p>
       </div>
 
-      <!-- Form -->
-      <form id="registerForm" onsubmit="return false;">
+      <!-- ===== ERROR MESSAGE ===== -->
+      <div class="error-message" id="errorMessage">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="errorText">Terjadi kesalahan</span>
+      </div>
+
+      <!-- ===== SUCCESS MESSAGE ===== -->
+      <div class="success-message" id="successMessage">
+        <i class="fas fa-check-circle"></i>
+        <span id="successText">Pendaftaran berhasil!</span>
+      </div>
+
+      <!-- ===== FORM REGISTER ===== -->
+      <form id="registerForm" novalidate>
+        <!-- Username -->
         <div class="form-group">
           <label>Username</label>
           <div class="input-wrapper">
             <i class="fas fa-user"></i>
-            <input type="text" placeholder="Masukkan username" required />
+            <input type="text" id="usernameInput" placeholder="Masukkan username" required minlength="3" />
           </div>
         </div>
 
+        <!-- Email -->
         <div class="form-group">
           <label>Email</label>
           <div class="input-wrapper">
             <i class="fas fa-envelope"></i>
-            <input type="email" placeholder="Masukkan email" required />
+            <input type="email" id="emailInput" placeholder="Masukkan email" required />
           </div>
         </div>
 
+        <!-- Password -->
         <div class="form-group">
           <label>Kata Sandi</label>
           <div class="input-wrapper">
             <i class="fas fa-lock"></i>
-            <input type="password" id="passwordInput" placeholder="Minimal 8 karakter" required />
+            <input type="password" id="passwordInput" placeholder="Minimal 8 karakter" required minlength="8" />
             <button type="button" class="toggle-password" onclick="togglePassword()">
               <i class="fas fa-eye" id="toggleIcon"></i>
             </button>
           </div>
         </div>
 
+        <!-- Konfirmasi Password -->
         <div class="form-group">
           <label>Konfirmasi Kata Sandi</label>
           <div class="input-wrapper">
             <i class="fas fa-check-circle"></i>
-            <input type="password" placeholder="Ulangi kata sandi" required />
+            <input type="password" id="confirmPasswordInput" placeholder="Ulangi kata sandi" required />
           </div>
         </div>
 
+        <!-- Terms -->
         <div class="terms">
           <input type="checkbox" id="termsCheck" required />
           <label for="termsCheck">
@@ -530,8 +632,11 @@
           </label>
         </div>
 
-        <button type="submit" class="btn-register">
-          <i class="fas fa-user-plus"></i> Daftar
+        <!-- Register Button -->
+        <button type="submit" class="btn-register" id="registerBtn">
+          <span class="btn-icon"><i class="fas fa-user-plus"></i></span>
+          <span class="btn-text">Daftar</span>
+          <span class="spinner"></span>
         </button>
       </form>
 
@@ -542,18 +647,25 @@
         <div class="line"></div>
       </div>
 
-      <!-- Social Register -->
+      <!-- ===== SOCIAL REGISTER ===== -->
       <div class="social-register">
-        <button class="btn-social" onclick="alert('Daftar dengan Google')">
+        <!-- GOOGLE - Terhubung dengan Supabase OAuth -->
+        <button class="btn-social" id="googleRegisterBtn">
           <i class="fab fa-google"></i> Google
         </button>
-        <button class="btn-social" onclick="alert('Daftar dengan GitHub')">
+
+        <!-- GITHUB - Belum diaktifkan -->
+        <button class="btn-social" id="githubRegisterBtn" disabled>
           <i class="fab fa-github"></i> GitHub
         </button>
-        <button class="btn-social" onclick="alert('Daftar dengan Discord')">
+
+        <!-- DISCORD - Belum diaktifkan -->
+        <button class="btn-social" id="discordRegisterBtn" disabled>
           <i class="fab fa-discord"></i> Discord
         </button>
-        <button class="btn-social" onclick="alert('Daftar dengan Twitter')">
+
+        <!-- TWITTER - Belum diaktifkan -->
+        <button class="btn-social" id="twitterRegisterBtn" disabled>
           <i class="fab fa-twitter"></i> Twitter
         </button>
       </div>
@@ -568,9 +680,18 @@
   </div>
 
   <script>
-    // ============================================
-    // PARTICLES
-    // ============================================
+    // ============================================================
+    // 1. SUPABASE KONFIGURASI
+    // ============================================================
+    const SUPABASE_URL = 'https://ydcdfnvtacwrrhcbsjdk.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_DABKAaVwkW5LvR7oP-pDNQ_9SyGiBrI';
+
+    // Inisialisasi Supabase Client
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ============================================================
+    // 2. PARTICLES BACKGROUND (tetap)
+    // ============================================================
     (function createParticles() {
       const container = document.getElementById('particles');
       for (let i = 0; i < 40; i++) {
@@ -586,9 +707,9 @@
       }
     })();
 
-    // ============================================
-    // TOGGLE PASSWORD
-    // ============================================
+    // ============================================================
+    // 3. TOGGLE PASSWORD (tetap)
+    // ============================================================
     function togglePassword() {
       const passwordInput = document.getElementById('passwordInput');
       const toggleIcon = document.getElementById('toggleIcon');
@@ -602,18 +723,294 @@
       }
     }
 
-    // ============================================
-    // REGISTER FORM SUBMIT
-    // ============================================
-    document.getElementById('registerForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const termsChecked = document.getElementById('termsCheck').checked;
+    // ============================================================
+    // 4. ELEMENT REFERENSI
+    // ============================================================
+    const registerForm = document.getElementById('registerForm');
+    const registerBtn = document.getElementById('registerBtn');
+    const usernameInput = document.getElementById('usernameInput');
+    const emailInput = document.getElementById('emailInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+    const termsCheck = document.getElementById('termsCheck');
+    const errorMessage = document.getElementById('errorMessage');
+    const errorText = document.getElementById('errorText');
+    const successMessage = document.getElementById('successMessage');
+    const successText = document.getElementById('successText');
+    const googleRegisterBtn = document.getElementById('googleRegisterBtn');
+
+    // ============================================================
+    // 5. FUNGSI UTILITY
+    // ============================================================
+    function showError(message) {
+      errorText.textContent = message;
+      errorMessage.classList.add('show');
+      successMessage.classList.remove('show');
+      setTimeout(() => {
+        errorMessage.classList.remove('show');
+      }, 6000);
+    }
+
+    function showSuccess(message) {
+      successText.textContent = message;
+      successMessage.classList.add('show');
+      errorMessage.classList.remove('show');
+    }
+
+    function hideAllMessages() {
+      errorMessage.classList.remove('show');
+      successMessage.classList.remove('show');
+    }
+
+    function setLoading(isLoading) {
+      registerBtn.disabled = isLoading;
+      registerBtn.classList.toggle('loading', isLoading);
+      usernameInput.disabled = isLoading;
+      emailInput.disabled = isLoading;
+      passwordInput.disabled = isLoading;
+      confirmPasswordInput.disabled = isLoading;
+      termsCheck.disabled = isLoading;
+    }
+
+    // ============================================================
+    // 6. VALIDASI FORM
+    // ============================================================
+    function validateForm() {
+      const username = usernameInput.value.trim();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+      const termsChecked = termsCheck.checked;
+
+      // Validasi Username
+      if (!username) {
+        showError('Username wajib diisi.');
+        return false;
+      }
+      if (username.length < 3) {
+        showError('Username minimal 3 karakter.');
+        return false;
+      }
+
+      // Validasi Email
+      if (!email) {
+        showError('Email wajib diisi.');
+        return false;
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showError('Masukkan email yang valid.');
+        return false;
+      }
+
+      // Validasi Password
+      if (!password) {
+        showError('Kata sandi wajib diisi.');
+        return false;
+      }
+      if (password.length < 8) {
+        showError('Kata sandi minimal 8 karakter.');
+        return false;
+      }
+
+      // Validasi Konfirmasi Password
+      if (!confirmPassword) {
+        showError('Konfirmasi kata sandi wajib diisi.');
+        return false;
+      }
+      if (password !== confirmPassword) {
+        showError('Kata sandi dan konfirmasi tidak sama.');
+        return false;
+      }
+
+      // Validasi Terms
       if (!termsChecked) {
-        alert('Harap setujui Syarat & Ketentuan terlebih dahulu!');
+        showError('Harap setujui Syarat &amp; Ketentuan.');
+        return false;
+      }
+
+      hideAllMessages();
+      return true;
+    }
+
+    // ============================================================
+    // 7. REGISTER - SUPABASE AUTH
+    // ============================================================
+    async function handleRegister(e) {
+      e.preventDefault();
+
+      // Validasi form
+      if (!validateForm()) {
         return;
       }
-      alert('Fitur pendaftaran sedang dalam pengembangan. Terima kasih!');
+
+      // Ambil data dari form
+      const username = usernameInput.value.trim();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      // Set loading state
+      setLoading(true);
+      hideAllMessages();
+
+      try {
+        console.log('📝 Mendaftarkan user:', email);
+
+        // ===== REGISTER KE SUPABASE =====
+        const { data, error } = await supabaseClient.auth.signUp({
+          email: email,
+          password: password,
+          options: {
+            data: {
+              username: username,
+              full_name: username
+            }
+          }
+        });
+
+        // ===== HANDLE ERROR =====
+        if (error) {
+          console.error('❌ Register error:', error);
+
+          // Handle error spesifik
+          if (error.message.includes('User already registered')) {
+            showError('Email sudah terdaftar. Silakan gunakan email lain atau login.');
+          } else if (error.message.includes('Password should be at least')) {
+            showError('Kata sandi minimal 8 karakter.');
+          } else if (error.message.includes('Invalid email')) {
+            showError('Email tidak valid. Periksa kembali email Anda.');
+          } else {
+            showError('Gagal mendaftar: ' + error.message);
+          }
+          setLoading(false);
+          return;
+        }
+
+        // ===== REGISTER BERHASIL =====
+        console.log('✅ Register berhasil:', data);
+
+        const session = data.session;
+        const user = data.user;
+
+        if (session) {
+          // Session langsung tersedia (email tidak perlu verifikasi)
+          showSuccess('Pendaftaran berhasil! Mengalihkan...');
+          setTimeout(() => {
+            window.location.href = 'https://stevemc.my.id/';
+          }, 1500);
+        } else if (user && user.identities && user.identities.length === 0) {
+          // User sudah terdaftar tapi belum login
+          showError('Email sudah terdaftar. Silakan login.');
+          setLoading(false);
+        } else {
+          // Verifikasi email aktif - session belum tersedia
+          showSuccess('Pendaftaran berhasil! Silakan cek email Anda untuk verifikasi.');
+          setTimeout(() => {
+            window.location.href = 'https://stevemc.my.id/login.html';
+          }, 3000);
+        }
+
+        setLoading(false);
+
+      } catch (error) {
+        // ===== HANDLE ERROR TAK TERDUGA =====
+        console.error('❌ Unexpected error:', error);
+        showError('Terjadi kesalahan. Silakan coba lagi.');
+        setLoading(false);
+      }
+    }
+
+    // ============================================================
+    // 8. GOOGLE OAUTH - REGISTER/LOGIN
+    // ============================================================
+    async function handleGoogleRegister() {
+      hideAllMessages();
+
+      try {
+        console.log('🔐 Login/Register dengan Google');
+
+        const { data, error } = await supabaseClient.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: 'https://stevemc.my.id/',
+            queryParams: {
+              access_type: 'offline',
+              prompt: 'consent',
+            }
+          }
+        });
+
+        if (error) {
+          console.error('❌ Google OAuth error:', error);
+          showError('Gagal login dengan Google: ' + error.message);
+          return;
+        }
+
+        // Supabase akan redirect ke Google OAuth page
+        console.log('✅ Redirect ke Google OAuth...');
+
+      } catch (error) {
+        console.error('❌ Unexpected Google OAuth error:', error);
+        showError('Terjadi kesalahan saat login dengan Google.');
+      }
+    }
+
+    // ============================================================
+    // 9. EVENT LISTENERS
+    // ============================================================
+
+    // Register form submit
+    registerForm.addEventListener('submit', handleRegister);
+
+    // Google register button
+    googleRegisterBtn.addEventListener('click', handleGoogleRegister);
+
+    // Enter key support untuk form
+    registerForm.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleRegister(e);
+      }
     });
+
+    // ============================================================
+    // 10. CEK SESSION - Jika sudah login, redirect ke beranda
+    // ============================================================
+    (async function checkSession() {
+      try {
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+
+        if (error) {
+          console.warn('Error checking session:', error);
+          return;
+        }
+
+        if (session) {
+          console.log('✅ User sudah login, redirect ke beranda');
+          window.location.href = 'https://stevemc.my.id/';
+        }
+
+      } catch (err) {
+        console.error('Error checking session:', err);
+      }
+    })();
+
+    // ============================================================
+    // 11. SUPABASE AUTH STATE CHANGE
+    // ============================================================
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      console.log('🔐 Auth state changed:', event);
+
+      if (event === 'SIGNED_IN' && session) {
+        console.log('✅ User signed in, redirecting...');
+        window.location.href = 'https://stevemc.my.id/';
+      }
+    });
+
+    console.log('%c📝 Register Page Ready!', 'font-size:16px;font-weight:bold;color:#7c4dff;');
+    console.log('📌 Supabase URL:', SUPABASE_URL);
+    console.log('📌 Redirect URL: https://stevemc.my.id/');
+    console.log('📌 Register dengan email/password atau Google');
   </script>
 
 </body>
