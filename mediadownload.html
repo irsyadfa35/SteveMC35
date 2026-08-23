@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#0a0f23" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediaDownload - Downloader Serba Ada</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="https://c.termai.cc/i131/K4M.jpg" />
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================
+       RESET & BASE
+    ============================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #080c1a;
+      color: #c8d6e5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(ellipse at 20% 50%, rgba(124, 77, 255, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(0, 229, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(255, 0, 80, 0.04) 0%, transparent 50%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Floating particles */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: rgba(167, 139, 250, 0.2);
+      border-radius: 50%;
+      animation: float-particle linear infinite;
+    }
+
+    @keyframes float-particle {
+      0% {
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-10vh) scale(1);
+        opacity: 0;
+      }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #080c1a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #7c4dff, #00e5ff);
+      border-radius: 10px;
+    }
+
+    /* ============================================
+       HAMBURGER - akan hilang saat menu terbuka
+    ============================================ */
+    .hamburger {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .hamburger:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(124, 77, 255, 0.3);
+    }
+
+    .hamburger span {
+      display: block;
+      width: 26px;
+      height: 2.5px;
+      background: #c8d6e5;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    /* Sembunyikan hamburger saat menu terbuka */
+    .hamburger.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: scale(0.8);
+    }
+
+    /* ============================================
+       MENU OVERLAY
+    ============================================ */
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    .menu-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* ============================================
+       MENU PANEL (dari menu.html)
+    ============================================ */
+    #menuContainer .menu-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 290px;
+      height: 100%;
+      background: rgba(12, 16, 30, 0.98);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 4px 0 60px rgba(0, 0, 0, 0.6);
+      z-index: 1000;
+      transform: translateX(-100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #menuContainer .menu-panel.open {
+      transform: translateX(0);
+    }
+
+    #menuContainer .menu-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 28px;
+    }
+
+    #menuContainer .menu-header .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #7c4dff, #00e5ff);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(124, 77, 255, 0.3);
+    }
+
+    #menuContainer .menu-header .brand-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    #menuContainer .menu-header .brand-text span {
+      background: linear-gradient(90deg, #7c4dff, #00e5ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    #menuContainer .menu-list {
+      list-style: none;
+      flex: 1;
+    }
+
+    #menuContainer .menu-list li {
+      margin-bottom: 4px;
+    }
+
+    #menuContainer .menu-list li a {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    #menuContainer .menu-list li a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%) scaleY(0);
+      width: 3px;
+      height: 24px;
+      background: linear-gradient(180deg, #7c4dff, #00e5ff);
+      border-radius: 0 4px 4px 0;
+      transition: transform 0.3s ease;
+    }
+
+    #menuContainer .menu-list li a:hover::before,
+    #menuContainer .menu-list li a.active::before {
+      transform: translateY(-50%) scaleY(1);
+    }
+
+    #menuContainer .menu-list li a:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    #menuContainer .menu-list li a i {
+      width: 24px;
+      font-size: 18px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.35);
+      transition: color 0.3s;
+    }
+
+    #menuContainer .menu-list li a:hover i,
+    #menuContainer .menu-list li a.active i {
+      color: #7c4dff;
+    }
+
+    #menuContainer .menu-list li a.active {
+      background: rgba(124, 77, 255, 0.12);
+      color: #fff;
+      border-right: 3px solid #7c4dff;
+    }
+
+    #menuContainer .menu-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 20px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.25);
+      text-align: center;
+    }
+
+    #menuContainer .menu-footer i {
+      color: #7c4dff;
+      margin: 0 4px;
+    }
+
+    /* ============================================
+       MAIN CONTENT - HANYA HEADER & TOMBOL
+    ============================================ */
+    .main-wrapper {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 80px 24px 40px;
+      width: 100%;
+    }
+
+    /* ============================================
+       HEADER
+    ============================================ */
+    .page-header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-top: 10px;
+    }
+
+    .page-header .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(124, 77, 255, 0.12);
+      border: 1px solid rgba(124, 77, 255, 0.15);
+      padding: 6px 18px;
+      border-radius: 60px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #a78bfa;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+    }
+
+    .page-header .badge i {
+      font-size: 0.7rem;
+    }
+
+    .page-header h1 {
+      font-size: 3rem;
+      font-weight: 900;
+      letter-spacing: -2px;
+      line-height: 1.05;
+      color: #fff;
+    }
+
+    .page-header h1 .highlight {
+      background: linear-gradient(135deg, #7c4dff, #00e5ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-header p {
+      color: rgba(200, 214, 229, 0.5);
+      max-width: 500px;
+      margin: 10px auto 0;
+      font-size: 1.05rem;
+    }
+
+    /* ============================================
+       DOWNLOAD BUTTONS GRID
+    ============================================ */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      margin-top: 6px;
+    }
+
+    .section-label .line {
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .section-label h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: rgba(200, 214, 229, 0.4);
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .section-label h2 i {
+      margin-right: 8px;
+      color: #7c4dff;
+    }
+
+    .download-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+
+    /* ============================================
+       DOWNLOAD BUTTON (per baris)
+    ============================================ */
+    .download-btn {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 18px 24px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      text-decoration: none;
+      color: #c8d6e5;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .download-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(124, 77, 255, 0.05), rgba(0, 229, 255, 0.03));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .download-btn:hover {
+      transform: translateX(6px);
+      border-color: rgba(124, 77, 255, 0.25);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .download-btn:hover::before {
+      opacity: 1;
+    }
+
+    .download-btn .icon-box {
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: #fff;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Warna icon per platform */
+    .download-btn .icon-box.tiktok { background: linear-gradient(135deg, #ff0050, #00f2ea); }
+    .download-btn .icon-box.youtube { background: linear-gradient(135deg, #ff0000, #cc0000); }
+    .download-btn .icon-box.spotify { background: linear-gradient(135deg, #1DB954, #1ed760); }
+    .download-btn .icon-box.instagram { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+    .download-btn .icon-box.twitter { background: linear-gradient(135deg, #1DA1F2, #0d8bd9); }
+    .download-btn .icon-box.facebook { background: linear-gradient(135deg, #1877F2, #0d65d9); }
+    .download-btn .icon-box.pinterest { background: linear-gradient(135deg, #E60023, #bd001c); }
+    .download-btn .icon-box.soundcloud { background: linear-gradient(135deg, #ff7700, #ff5500); }
+    .download-btn .icon-box.vimeo { background: linear-gradient(135deg, #1ab7ea, #0d8fc4); }
+    .download-btn .icon-box.dailymotion { background: linear-gradient(135deg, #0066dc, #004a9f); }
+
+    .download-btn .info {
+      flex: 1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .download-btn .info .name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #fff;
+      transition: color 0.3s;
+    }
+
+    .download-btn .info .desc {
+      font-size: 0.85rem;
+      color: rgba(200, 214, 229, 0.4);
+      margin-top: 2px;
+    }
+
+    .download-btn .status {
+      position: relative;
+      z-index: 1;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 14px;
+      border-radius: 60px;
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(200, 214, 229, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      white-space: nowrap;
+    }
+
+    .download-btn .status.ready {
+      background: rgba(124, 77, 255, 0.15);
+      color: #a78bfa;
+      border-color: rgba(124, 77, 255, 0.2);
+    }
+
+    .download-btn .status.coming {
+      background: rgba(255, 200, 0, 0.08);
+      color: #fbbf24;
+      border-color: rgba(255, 200, 0, 0.15);
+    }
+
+    .download-btn .arrow {
+      position: relative;
+      z-index: 1;
+      color: rgba(200, 214, 229, 0.15);
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+    }
+
+    .download-btn:hover .arrow {
+      color: #7c4dff;
+      transform: translateX(4px);
+    }
+
+    /* ============================================
+       FOOTER
+    ============================================ */
+    .footer {
+      text-align: center;
+      padding: 30px 24px 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      margin-top: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer .brand {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .footer .brand span {
+      background: linear-gradient(90deg, #7c4dff, #00e5ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .footer .copyright {
+      font-size: 0.85rem;
+      color: rgba(200, 214, 229, 0.25);
+      margin-top: 4px;
+    }
+
+    .footer .copyright i {
+      color: #7c4dff;
+      margin: 0 4px;
+    }
+
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 768px) {
+      .main-wrapper {
+        padding: 70px 16px 30px;
+      }
+
+      .page-header h1 {
+        font-size: 2.2rem;
+      }
+
+      .page-header p {
+        font-size: 0.95rem;
+      }
+
+      .download-btn {
+        padding: 14px 18px;
+        gap: 14px;
+      }
+
+      .download-btn .icon-box {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        border-radius: 12px;
+      }
+
+      .download-btn .info .name {
+        font-size: 0.95rem;
+      }
+
+      .download-btn .info .desc {
+        font-size: 0.75rem;
+      }
+
+      .download-btn .status {
+        font-size: 0.6rem;
+        padding: 3px 10px;
+      }
+
+      .download-btn .arrow {
+        font-size: 0.9rem;
+      }
+
+      .section-label h2 {
+        font-size: 0.85rem;
+      }
+
+      #menuContainer .menu-panel {
+        width: 280px;
+        padding: 24px 18px;
+      }
+
+      .hamburger {
+        top: 14px;
+        left: 14px;
+        padding: 8px 10px;
+      }
+
+      .hamburger span {
+        width: 22px;
+        height: 2px;
+      }
+
+      .page-header .badge {
+        font-size: 0.65rem;
+        padding: 4px 14px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .page-header h1 {
+        font-size: 1.8rem;
+      }
+
+      .download-btn {
+        padding: 12px 14px;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .download-btn .icon-box {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+        border-radius: 10px;
+      }
+
+      .download-btn .info .name {
+        font-size: 0.85rem;
+      }
+
+      .download-btn .info .desc {
+        font-size: 0.7rem;
+      }
+
+      .download-btn .status {
+        font-size: 0.55rem;
+        padding: 2px 8px;
+        margin-left: auto;
+      }
+
+      .download-btn .arrow {
+        display: none;
+      }
+
+      #menuContainer .menu-panel {
+        width: 260px;
+        padding: 20px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================
+       PARTICLES
+  ============================================ -->
+  <div class="particles" id="particles"></div>
+
+  <!-- ============================================
+       HAMBURGER
+  ============================================ -->
+  <div class="hamburger" id="hamburgerBtn" aria-label="Buka menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <!-- ============================================
+       MENU OVERLAY
+  ============================================ -->
+  <div class="menu-overlay" id="menuOverlay"></div>
+
+  <!-- ============================================
+       MENU CONTAINER
+  ============================================ -->
+  <div id="menuContainer"></div>
+
+  <!-- ============================================
+       MAIN CONTENT
+  ============================================ -->
+  <div class="main-wrapper">
+
+    <!-- ===== PAGE HEADER ===== -->
+    <div class="page-header">
+      <div class="badge">
+        <i class="fas fa-download"></i>
+        <span>Downloader Serba Ada</span>
+      </div>
+      <h1>Media<span class="highlight">Download</span></h1>
+      <p>Download video, audio, dan konten dari berbagai platform dengan mudah.</p>
+    </div>
+
+    <!-- ===== PLATFORM DOWNLOAD ===== -->
+    <div class="section-label">
+      <h2><i class="fas fa-th-list"></i> Platform Tersedia</h2>
+      <div class="line"></div>
+    </div>
+
+    <div class="download-grid">
+
+      <!-- TikTok -->
+      <a href="tiktokdl.html" class="download-btn">
+        <div class="icon-box tiktok"><i class="fab fa-tiktok"></i></div>
+        <div class="info">
+          <div class="name">TikTok Download</div>
+          <div class="desc">Download video TikTok tanpa watermark</div>
+        </div>
+        <span class="status ready"><i class="fas fa-check-circle"></i> Siap</span>
+        <div class="arrow"><i class="fas fa-chevron-right"></i></div>
+      </a>
+
+      <!-- YouTube MP3 -->
+      <a href="youtube.html" class="download-btn">
+        <div class="icon-box youtube"><i class="fab fa-youtube"></i></div>
+        <div class="info">
+          <div class="name">YouTube MP3</div>
+          <div class="desc">Konversi video YouTube ke audio MP3</div>
+        </div>
+        <span class="status ready"><i class="fas fa-check-circle"></i> Siap</span>
+        <div class="arrow"><i class="fas fa-chevron-right"></i></div>
+      </a>
+
+      <!-- YouTube Play -->
+      <a href="youtubeplay.html" class="download-btn">
+        <div class="icon-box youtube"><i class="fas fa-play-circle"></i></div>
+        <div class="info">
+          <div class="name">YouTube Play</div>
+          <div class="desc">Putar dan download video YouTube</div>
+        </div>
+        <span class="status ready"><i class="fas fa-check-circle"></i> Siap</span>
+        <div class="arrow"><i class="fas fa-chevron-right"></i></div>
+      </a>
+
+      <!-- Spotify -->
+      <a href="spotify.html" class="download-btn">
+        <div class="icon-box spotify"><i class="fab fa-spotify"></i></div>
+        <div class="info">
+          <div class="name">Spotify Search</div>
+          <div class="desc">Cari dan download lagu dari Spotify</div>
+        </div>
+        <span class="status ready"><i class="fas fa-check-circle"></i> Siap</span>
+        <div class="arrow"><i class="fas fa-chevron-right"></i></div>
+      </a>
+
+      <!-- Instagram -->
+      <a href="instagramdl.html" class="download-btn">
+        <div class="icon-box instagram"><i class="fab fa-instagram"></i></div>
+        <div class="info">
+          <div class="name">Instagram Download</div>
+          <div class="desc">Download foto, video, dan reel Instagram</div>
+        </div>
+        <span class="status ready"><i class="fas fa-check-circle"></i> Siap</span>
+        <div class="arrow"><i class="fas fa-chevron-right"></i></div>
+      </a>
+
+    </div>
+
+    <!-- ===== PLATFORM LAINNYA (Coming Soon) ===== -->
+    <div class="section-label">
+      <h2><i class="fas fa-clock"></i> Segera Hadir</h2>
+      <div class="line"></div>
+    </div>
+
+    <div class="download-grid">
+
+      <!-- Twitter/X -->
+      <div class="download-btn" style="cursor:default; opacity:0.7;">
+        <div class="icon-box twitter"><i class="fab fa-twitter"></i></div>
+        <div class="info">
+          <div class="name">Twitter/X Download</div>
+          <div class="desc">Download video dari Twitter/X</div>
+        </div>
+        <span class="status coming"><i class="fas fa-clock"></i> Coming Soon</span>
+        <div class="arrow" style="color:rgba(200,214,229,0.08);"><i class="fas fa-chevron-right"></i></div>
+      </div>
+
+      <!-- Facebook -->
+      <div class="download-btn" style="cursor:default; opacity:0.7;">
+        <div class="icon-box facebook"><i class="fab fa-facebook-f"></i></div>
+        <div class="info">
+          <div class="name">Facebook Download</div>
+          <div class="desc">Download video dari Facebook</div>
+        </div>
+        <span class="status coming"><i class="fas fa-clock"></i> Coming Soon</span>
+        <div class="arrow" style="color:rgba(200,214,229,0.08);"><i class="fas fa-chevron-right"></i></div>
+      </div>
+
+      <!-- Pinterest -->
+      <div class="download-btn" style="cursor:default; opacity:0.7;">
+        <div class="icon-box pinterest"><i class="fab fa-pinterest-p"></i></div>
+        <div class="info">
+          <div class="name">Pinterest Download</div>
+          <div class="desc">Download gambar dan video dari Pinterest</div>
+        </div>
+        <span class="status coming"><i class="fas fa-clock"></i> Coming Soon</span>
+        <div class="arrow" style="color:rgba(200,214,229,0.08);"><i class="fas fa-chevron-right"></i></div>
+      </div>
+
+      <!-- SoundCloud -->
+      <div class="download-btn" style="cursor:default; opacity:0.7;">
+        <div class="icon-box soundcloud"><i class="fab fa-soundcloud"></i></div>
+        <div class="info">
+          <div class="name">SoundCloud Download</div>
+          <div class="desc">Download audio dari SoundCloud</div>
+        </div>
+        <span class="status coming"><i class="fas fa-clock"></i> Coming Soon</span>
+        <div class="arrow" style="color:rgba(200,214,229,0.08);"><i class="fas fa-chevron-right"></i></div>
+      </div>
+
+      <!-- Vimeo -->
+      <div class="download-btn" style="cursor:default; opacity:0.7;">
+        <div class="icon-box vimeo"><i class="fab fa-vimeo-v"></i></div>
+        <div class="info">
+          <div class="name">Vimeo Download</div>
+          <div class="desc">Download video dari Vimeo</div>
+        </div>
+        <span class="status coming"><i class="fas fa-clock"></i> Coming Soon</span>
+        <div class="arrow" style="color:rgba(200,214,229,0.08);"><i class="fas fa-chevron-right"></i></div>
+      </div>
+
+      <!-- Dailymotion -->
+      <div class="download-btn" style="cursor:default; opacity:0.7;">
+        <div class="icon-box dailymotion"><i class="fab fa-dailymotion"></i></div>
+        <div class="info">
+          <div class="name">Dailymotion Download</div>
+          <div class="desc">Download video dari Dailymotion</div>
+        </div>
+        <span class="status coming"><i class="fas fa-clock"></i> Coming Soon</span>
+        <div class="arrow" style="color:rgba(200,214,229,0.08);"><i class="fas fa-chevron-right"></i></div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ============================================
+       FOOTER
+  ============================================ -->
+  <footer class="footer">
+    <div class="brand">Media<span>Download</span></div>
+    <div class="copyright">
+      <i class="fas fa-copyright"></i> 2026 by <i class="fas fa-code"></i> SteveMC
+    </div>
+  </footer>
+
+  <script>
+    // ============================================
+    // PARTICLES
+    // ============================================
+    (function createParticles() {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 40; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.width = (2 + Math.random() * 4) + 'px';
+        p.style.height = p.style.width;
+        p.style.animationDuration = (15 + Math.random() * 25) + 's';
+        p.style.animationDelay = (Math.random() * 20) + 's';
+        p.style.opacity = 0.2 + Math.random() * 0.3;
+        container.appendChild(p);
+      }
+    })();
+
+    // ============================================
+    // LOAD MENU DARI menu.html - TAMPILKAN SEMUA (TANPA DIHAPUS)
+    // ============================================
+    const menuContainer = document.getElementById('menuContainer');
+    const hamburger = document.getElementById('hamburgerBtn');
+    const menuOverlay = document.getElementById('menuOverlay');
+
+    fetch('menu.html')
+      .then(res => {
+        if (!res.ok) throw new Error('Menu tidak ditemukan');
+        return res.text();
+      })
+      .then(html => {
+        menuContainer.innerHTML = html;
+        const menuPanel = document.getElementById('menuPanel');
+        if (!menuPanel) return;
+
+        // Tandai link aktif (Media Download aktif karena kita di halaman ini)
+        const currentPage = window.location.pathname.split('/').pop() || 'mediadownload.html';
+        menuPanel.querySelectorAll('.menu-list a').forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === currentPage) {
+            link.classList.add('active');
+          }
+        });
+
+        function toggleMenu(forceState) {
+          const isOpen = typeof forceState === 'boolean' ? forceState : !menuPanel.classList.contains('open');
+          menuPanel.classList.toggle('open', isOpen);
+          menuOverlay.classList.toggle('open', isOpen);
+
+          if (isOpen) {
+            hamburger.classList.add('hidden');
+          } else {
+            hamburger.classList.remove('hidden');
+          }
+
+          document.body.style.overflow = isOpen ? 'hidden' : '';
+        }
+
+        hamburger.addEventListener('click', () => toggleMenu());
+        menuOverlay.addEventListener('click', () => toggleMenu(false));
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && menuPanel.classList.contains('open')) {
+            toggleMenu(false);
+          }
+        });
+
+        menuPanel.querySelectorAll('.menu-list a').forEach(link => {
+          link.addEventListener('click', () => {
+            if (link.getAttribute('href') !== '#') {
+              toggleMenu(false);
+            }
+          });
+        });
+      })
+      .catch(err => {
+        console.warn('Gagal memuat menu:', err);
+        // Fallback menu jika fetch gagal
+        menuContainer.innerHTML = `
+          <nav class="menu-panel" id="menuPanel">
+            <div class="menu-header">
+              <div class="brand-icon"><i class="fas fa-download"></i></div>
+              <div class="brand-text">Media<span>Download</span></div>
+            </div>
+            <ul class="menu-list">
+              <li><a href="index.html"><i class="fas fa-home"></i> Beranda</a></li>
+              <li><a href="mediadownload.html" class="active"><i class="fas fa-download"></i> Media Download</a></li>
+            </ul>
+            <div class="menu-footer">
+              <i class="fas fa-code"></i> v1.0 &bull; by SteveMC
+            </div>
+          </nav>
+        `;
+        const menuPanel = document.getElementById('menuPanel');
+        if (menuPanel) {
+          hamburger.addEventListener('click', () => {
+            menuPanel.classList.toggle('open');
+            menuOverlay.classList.toggle('open');
+            hamburger.classList.toggle('hidden');
+          });
+          menuOverlay.addEventListener('click', () => {
+            menuPanel.classList.remove('open');
+            menuOverlay.classList.remove('open');
+            hamburger.classList.remove('hidden');
+          });
+        }
+      });
+  </script>
+
+</body>
+</html>
