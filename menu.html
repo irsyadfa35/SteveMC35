@@ -1,200 +1,20 @@
 <!-- menu.html -->
+<!-- Menu Normal untuk User biasa (tanpa menu owner) -->
 <nav class="menu-panel" id="menuPanel">
   <div class="menu-header">
     <div class="brand-icon"><i class="fas fa-gamepad"></i></div>
     <div class="brand-text">Steve<span>MC</span></div>
   </div>
 
-  <!-- ===== USER PROFILE (diisi oleh JavaScript) ===== -->
-  <div id="userProfileContainer"></div>
+  <!-- User profile akan muncul di sini otomatis -->
 
   <ul class="menu-list">
     <li><a href="index.html"><i class="fas fa-home"></i> Beranda</a></li>
     <li><a href="mediadownload.html"><i class="fas fa-download"></i> Media Download</a></li>
     <li><a href="account.html"><i class="fas fa-user"></i> Akun Saya</a></li>
-    
-    <!-- ===== TOMBOL LOGIN (hanya muncul jika belum login) ===== -->
-    <li id="loginMenuItem">
-      <a href="login.html" class="login-nav-btn">
-        <i class="fas fa-sign-in-alt" style="color:#a78bfa;"></i> Login
-      </a>
-    </li>
   </ul>
 
   <div class="menu-footer">
     <i class="fas fa-code"></i> v1.0 &bull; by SteveMC
   </div>
 </nav>
-
-<script>
-  // ============================================================
-  // AUTO-LOAD USER PROFILE KE MENU + TAMPILKAN TOMBOL LOGIN
-  // ============================================================
-  (function loadUserProfile() {
-    // Cek apakah Supabase tersedia
-    if (typeof supabaseClient === 'undefined') {
-      console.warn('⚠️ Supabase tidak ditemukan, coba inisialisasi ulang');
-      if (window.supabaseClient) {
-        loadProfile(window.supabaseClient);
-      }
-      return;
-    }
-
-    loadProfile(supabaseClient);
-
-    async function loadProfile(supabase) {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-
-        if (error) {
-          console.warn('Error get session:', error);
-          return;
-        }
-
-        const container = document.getElementById('userProfileContainer');
-        const loginMenuItem = document.getElementById('loginMenuItem');
-        if (!container) return;
-
-        if (session && session.user) {
-          // ===== USER SUDAH LOGIN =====
-          const user = session.user;
-          const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
-          const email = user.email || '';
-          const avatar = user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
-          const initial = name.charAt(0).toUpperCase();
-
-          container.innerHTML = `
-            <div class="user-profile">
-              ${avatar 
-                ? `<img class="avatar" src="${avatar}" alt="Avatar" />` 
-                : `<div class="avatar" style="background:linear-gradient(135deg,#7c4dff,#00e5ff);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;color:#fff;">${initial}</div>`
-              }
-              <div class="info">
-                <div class="name">${name}</div>
-                <div class="email">${email}</div>
-              </div>
-            </div>
-            <button class="btn-logout-sidebar" id="logoutSidebarBtn">
-              <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
-          `;
-
-          // Sembunyikan tombol login
-          if (loginMenuItem) loginMenuItem.style.display = 'none';
-
-          // Event listener logout
-          const logoutBtn = document.getElementById('logoutSidebarBtn');
-          if (logoutBtn) {
-            logoutBtn.addEventListener('click', async () => {
-              await supabase.auth.signOut();
-              window.location.reload();
-            });
-          }
-
-        } else {
-          // ===== USER BELUM LOGIN =====
-          // Tampilkan tombol login di menu
-          if (loginMenuItem) loginMenuItem.style.display = 'block';
-          
-          // Kosongkan container profile
-          container.innerHTML = '';
-        }
-
-      } catch (err) {
-        console.error('Error loading user profile:', err);
-      }
-    }
-  })();
-</script>
-
-<style>
-  /* ============================================
-     STYLE UNTUK USER PROFILE DI MENU
-  ============================================ */
-  .user-profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    margin-bottom: 8px;
-  }
-
-  .user-profile .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #7c4dff;
-    flex-shrink: 0;
-  }
-
-  .user-profile .info {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .user-profile .info .name {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #fff;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .user-profile .info .email {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.4);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .btn-logout-sidebar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    border-radius: 10px;
-    color: #ff6b6b;
-    background: rgba(255, 0, 0, 0.06);
-    border: 1px solid rgba(255, 0, 0, 0.08);
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    font-family: inherit;
-    width: 100%;
-    text-align: left;
-    margin-bottom: 8px;
-  }
-
-  .btn-logout-sidebar:hover {
-    background: rgba(255, 0, 0, 0.12);
-    border-color: rgba(255, 0, 0, 0.15);
-  }
-
-  .btn-logout-sidebar i {
-    width: 20px;
-    text-align: center;
-  }
-
-  .login-nav-btn {
-    color: #a78bfa !important;
-  }
-
-  .login-nav-btn i {
-    color: #a78bfa !important;
-  }
-
-  .login-nav-btn:hover {
-    color: #7c4dff !important;
-  }
-
-  .login-nav-btn:hover i {
-    color: #7c4dff !important;
-  }
-</style>
