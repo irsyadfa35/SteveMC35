@@ -212,57 +212,6 @@
       margin-right: 8px;
     }
 
-    /* ===== SUCCESS MESSAGE (untuk user info) ===== */
-    .user-info {
-      display: none;
-      background: rgba(37, 211, 102, 0.1);
-      border: 1px solid rgba(37, 211, 102, 0.2);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-      text-align: center;
-    }
-
-    .user-info.show {
-      display: block;
-    }
-
-    .user-info .avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      margin: 0 auto 8px;
-      object-fit: cover;
-      border: 2px solid #25D366;
-    }
-
-    .user-info .name {
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .user-info .email {
-      font-size: 0.85rem;
-      color: rgba(255, 255, 255, 0.4);
-    }
-
-    .btn-logout {
-      margin-top: 8px;
-      padding: 6px 16px;
-      background: rgba(255, 0, 0, 0.15);
-      border: 1px solid rgba(255, 0, 0, 0.2);
-      border-radius: 8px;
-      color: #ff6b6b;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-family: inherit;
-    }
-
-    .btn-logout:hover {
-      background: rgba(255, 0, 0, 0.25);
-    }
-
     /* Form */
     .form-group {
       margin-bottom: 18px;
@@ -408,13 +357,47 @@
       box-shadow: 0 4px 30px rgba(124, 77, 255, 0.3);
     }
 
-    .btn-login:hover {
+    .btn-login:hover:not(:disabled) {
       transform: translateY(-3px);
       box-shadow: 0 8px 50px rgba(124, 77, 255, 0.5);
     }
 
-    .btn-login:active {
+    .btn-login:active:not(:disabled) {
       transform: scale(0.98);
+    }
+
+    .btn-login:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .btn-login .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2.5px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    .btn-login.loading .spinner {
+      display: block;
+    }
+
+    .btn-login.loading .btn-text {
+      display: none;
+    }
+
+    .btn-login.loading .btn-icon {
+      display: none;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     /* Divider */
@@ -580,26 +563,13 @@
         <span id="errorText">Terjadi kesalahan</span>
       </div>
 
-      <!-- ===== USER INFO (saat sudah login) ===== -->
-      <div class="user-info" id="userInfo">
-        <img class="avatar" id="userAvatar" src="" alt="Avatar" />
-        <div class="name" id="userName">Nama User</div>
-        <div class="email" id="userEmail">email@user.com</div>
-        <button class="btn-logout" id="logoutBtn">
-          <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
-      </div>
-
-      <!-- ===== FORM LOGIN (Email/Password) ===== -->
-      <!-- CATATAN: Form ini untuk sementara tidak terhubung ke Supabase Auth.
-           Nanti bisa dihubungkan dengan supabaseClient.auth.signInWithPassword()
-           setelah backend email/password siap. -->
-      <form id="loginForm" onsubmit="return false;">
+      <!-- ===== FORM LOGIN ===== -->
+      <form id="loginForm" novalidate>
         <div class="form-group">
           <label>Email atau Username</label>
           <div class="input-wrapper">
             <i class="fas fa-envelope"></i>
-            <input type="email" id="emailInput" placeholder="Masukkan email atau username" />
+            <input type="text" id="emailInput" placeholder="Masukkan email atau username" required />
           </div>
         </div>
 
@@ -607,7 +577,7 @@
           <label>Kata Sandi</label>
           <div class="input-wrapper">
             <i class="fas fa-lock"></i>
-            <input type="password" id="passwordInput" placeholder="Masukkan kata sandi" />
+            <input type="password" id="passwordInput" placeholder="Masukkan kata sandi" required />
             <button type="button" class="toggle-password" onclick="togglePassword()">
               <i class="fas fa-eye" id="toggleIcon"></i>
             </button>
@@ -616,15 +586,15 @@
 
         <div class="form-options">
           <label>
-            <input type="checkbox" checked /> Ingat saya
+            <input type="checkbox" id="rememberMe" /> Ingat saya
           </label>
-          <a href="#">Lupa kata sandi?</a>
+          <a href="#" id="forgotPasswordLink">Lupa kata sandi?</a>
         </div>
 
-        <!-- CATATAN: Tombol ini untuk sementara belum terhubung ke Supabase Auth.
-             Nanti bisa diganti dengan supabaseClient.auth.signInWithPassword() -->
-        <button type="submit" class="btn-login" id="emailLoginBtn">
-          <i class="fas fa-sign-in-alt"></i> Masuk
+        <button type="submit" class="btn-login" id="loginBtn">
+          <span class="btn-icon"><i class="fas fa-sign-in-alt"></i></span>
+          <span class="btn-text">Masuk</span>
+          <span class="spinner"></span>
         </button>
       </form>
 
@@ -637,7 +607,7 @@
 
       <!-- ===== SOCIAL LOGIN ===== -->
       <div class="social-login">
-        <!-- GOOGLE - Sudah terhubung dengan Supabase OAuth -->
+        <!-- GOOGLE - Terhubung dengan Supabase OAuth -->
         <button class="btn-social" id="googleLoginBtn">
           <i class="fab fa-google"></i> Google
         </button>
@@ -671,10 +641,8 @@
     // ============================================================
     // 1. SUPABASE KONFIGURASI
     // ============================================================
-    // ===== ISI ANON KEY DI BAWAH INI =====
     const SUPABASE_URL = 'https://ydcdfnvtacwrrhcbsjdk.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_DABKAaVwkW5LvR7oP-pDNQ_9SyGiBrI';
-    // ======================================
 
     // Inisialisasi Supabase Client
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -716,156 +684,146 @@
     // ============================================================
     // 4. ELEMENT REFERENSI
     // ============================================================
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const emailInput = document.getElementById('emailInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const rememberMe = document.getElementById('rememberMe');
     const errorMessage = document.getElementById('errorMessage');
     const errorText = document.getElementById('errorText');
-    const userInfo = document.getElementById('userInfo');
-    const userAvatar = document.getElementById('userAvatar');
-    const userName = document.getElementById('userName');
-    const userEmail = document.getElementById('userEmail');
-    const logoutBtn = document.getElementById('logoutBtn');
     const googleLoginBtn = document.getElementById('googleLoginBtn');
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
 
     // ============================================================
-    // 5. FUNGSI UTILITY - TAMPILKAN ERROR
+    // 5. FUNGSI UTILITY
     // ============================================================
     function showError(message) {
       errorText.textContent = message;
       errorMessage.classList.add('show');
-      // Sembunyikan setelah 5 detik
-      clearTimeout(window.errorTimeout);
-      window.errorTimeout = setTimeout(() => {
+      setTimeout(() => {
         errorMessage.classList.remove('show');
-      }, 5000);
+      }, 6000);
     }
 
     function hideError() {
       errorMessage.classList.remove('show');
     }
 
-    // ============================================================
-    // 6. FUNGSI - UPDATE UI SAAT LOGIN
-    // ============================================================
-    function updateUIForUser(session) {
-      if (session && session.user) {
-        const user = session.user;
-
-        // Ambil data user dari Supabase
-        const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
-        const email = user.email || '';
-        const avatar = user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
-
-        // Update UI
-        userName.textContent = name;
-        userEmail.textContent = email;
-        if (avatar) {
-          userAvatar.src = avatar;
-          userAvatar.style.display = 'block';
-        } else {
-          userAvatar.style.display = 'none';
-        }
-
-        // Tampilkan info user, sembunyikan form
-        userInfo.classList.add('show');
-        document.getElementById('loginForm').style.display = 'none';
-        document.querySelector('.divider').style.display = 'none';
-        document.querySelector('.social-login').style.display = 'none';
-        document.querySelector('.register-link').style.display = 'none';
-
-        // Ubah header
-        document.querySelector('.login-header p').textContent = 'Selamat datang kembali!';
-
-        hideError();
-
-      } else {
-        // Tidak ada session - tampilkan form login
-        userInfo.classList.remove('show');
-        document.getElementById('loginForm').style.display = 'block';
-        document.querySelector('.divider').style.display = 'flex';
-        document.querySelector('.social-login').style.display = 'grid';
-        document.querySelector('.register-link').style.display = 'block';
-        document.querySelector('.login-header p').textContent = 'Masuk ke akun Anda untuk melanjutkan';
-      }
+    function setLoading(isLoading) {
+      loginBtn.disabled = isLoading;
+      loginBtn.classList.toggle('loading', isLoading);
+      emailInput.disabled = isLoading;
+      passwordInput.disabled = isLoading;
     }
 
     // ============================================================
-    // 7. CEK SESSION SAAT HALAMAN DIBUKA
+    // 6. LOGIN DENGAN EMAIL/USERNAME + PASSWORD
     // ============================================================
-    async function checkSession() {
-      try {
-        const { data: { session }, error } = await supabaseClient.auth.getSession();
+    async function handleLogin(e) {
+      e.preventDefault();
+      hideError();
 
+      const emailOrUsername = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      // Validasi input
+      if (!emailOrUsername) {
+        showError('Masukkan email atau username.');
+        return;
+      }
+      if (!password) {
+        showError('Masukkan kata sandi.');
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        // Coba login dengan email
+        let email = emailOrUsername;
+
+        // Jika input bukan email (kemungkinan username), coba cari email dari database
+        if (!emailOrUsername.includes('@')) {
+          // Cari user dengan username tersebut
+          const { data: users, error: searchError } = await supabaseClient
+            .from('user_profiles')
+            .select('user_id, email')
+            .eq('username', emailOrUsername)
+            .maybeSingle();
+
+          if (searchError) {
+            console.warn('Search error:', searchError);
+            // Lanjutkan dengan mencoba login menggunakan input sebagai email
+          }
+
+          if (users && users.email) {
+            email = users.email;
+          } else {
+            // Coba cek di auth.users (tidak bisa langsung, jadi kita coba login)
+            // Biarkan Supabase menangani error
+          }
+        }
+
+        // ===== LOGIN KE SUPABASE =====
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
+
+        // ===== HANDLE ERROR =====
         if (error) {
-          console.warn('Error get session:', error);
+          console.error('❌ Login error:', error);
+
+          if (error.message.includes('Invalid login credentials')) {
+            // Coba cek apakah input adalah username
+            if (!emailOrUsername.includes('@')) {
+              showError('Username atau password salah. Periksa kembali.');
+            } else {
+              showError('Email atau password salah. Periksa kembali.');
+            }
+          } else if (error.message.includes('Email not confirmed')) {
+            showError('Email belum diverifikasi. Silakan cek email Anda.');
+          } else {
+            showError('Gagal login: ' + error.message);
+          }
+          setLoading(false);
           return;
         }
 
-        if (session) {
-          // User sudah login
-          updateUIForUser(session);
-        } else {
-          // User belum login
-          updateUIForUser(null);
+        // ===== LOGIN BERHASIL =====
+        console.log('✅ Login berhasil:', data);
+
+        // Simpan session di localStorage jika "Ingat saya" dicentang
+        if (rememberMe.checked) {
+          // Supabase sudah mengelola session secara otomatis
+          console.log('🔒 Session akan diingat');
         }
 
-      } catch (err) {
-        console.error('Error checking session:', err);
-        showError('Gagal memeriksa session login.');
+        // Redirect ke beranda
+        setTimeout(() => {
+          window.location.href = 'https://stevemc.my.id/';
+        }, 500);
+
+      } catch (error) {
+        console.error('❌ Unexpected error:', error);
+        showError('Terjadi kesalahan. Silakan coba lagi.');
+        setLoading(false);
       }
     }
 
     // ============================================================
-    // 8. SUPABASE AUTH STATE CHANGE LISTENER
+    // 7. GOOGLE OAUTH - LOGIN
     // ============================================================
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event, session ? 'User logged in' : 'No session');
-
-      if (event === 'SIGNED_IN' && session) {
-        // User baru saja login
-        updateUIForUser(session);
-        // Redirect ke index.html setelah login berhasil
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 500);
-      }
-
-      if (event === 'SIGNED_OUT') {
-        // User logout
-        updateUIForUser(null);
-        // Redirect ke login.html setelah logout
-        setTimeout(() => {
-          window.location.href = 'login.html';
-        }, 500);
-      }
-
-      if (event === 'TOKEN_REFRESHED') {
-        // Token diperbarui - update UI jika perlu
-        if (session) {
-          updateUIForUser(session);
-        }
-      }
-
-      if (event === 'USER_UPDATED') {
-        // Data user berubah
-        if (session) {
-          updateUIForUser(session);
-        }
-      }
-    });
-
-    // ============================================================
-    // 9. LOGIN DENGAN GOOGLE (Supabase OAuth)
-    // ============================================================
-    googleLoginBtn.addEventListener('click', async function() {
+    async function handleGoogleLogin() {
       hideError();
 
       try {
-        // Redirect URL - gunakan URL halaman login saat ini
-        const redirectUrl = 'https://www.stevemc.my.id/login.html';
+        console.log('🔐 Login dengan Google');
 
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: redirectUrl,
+            redirectTo: 'https://stevemc.my.id/',
             queryParams: {
               access_type: 'offline',
               prompt: 'consent',
@@ -874,99 +832,114 @@
         });
 
         if (error) {
-          console.error('Google login error:', error);
+          console.error('❌ Google OAuth error:', error);
           showError('Gagal login dengan Google: ' + error.message);
           return;
         }
 
-        // Supabase akan redirect ke Google OAuth page
-        // Tidak ada action lain yang diperlukan
+        console.log('✅ Redirect ke Google OAuth...');
 
-      } catch (err) {
-        console.error('Unexpected error:', err);
+      } catch (error) {
+        console.error('❌ Unexpected Google OAuth error:', error);
         showError('Terjadi kesalahan saat login dengan Google.');
       }
-    });
+    }
 
     // ============================================================
-    // 10. LOGOUT
+    // 8. FORGOT PASSWORD (Reset Password)
     // ============================================================
-    logoutBtn.addEventListener('click', async function() {
-      try {
-        const { error } = await supabaseClient.auth.signOut();
-        if (error) {
-          console.error('Logout error:', error);
-          showError('Gagal logout: ' + error.message);
-          return;
-        }
-        // Auth state change listener akan menangani update UI
-      } catch (err) {
-        console.error('Unexpected logout error:', err);
-        showError('Terjadi kesalahan saat logout.');
-      }
-    });
-
-    // ============================================================
-    // 11. EMAIL LOGIN (untuk sementara - belum terhubung ke Supabase)
-    // ============================================================
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
+    async function handleForgotPassword(e) {
       e.preventDefault();
 
-      const email = document.getElementById('emailInput').value.trim();
-      const password = document.getElementById('passwordInput').value.trim();
+      const email = prompt('Masukkan email Anda untuk reset password:');
+      if (!email) return;
 
-      if (!email || !password) {
-        showError('Harap isi email dan kata sandi.');
+      if (!email.includes('@') || !email.includes('.')) {
+        alert('Masukkan email yang valid.');
         return;
       }
 
-      // ===== CATATAN =====
-      // Untuk menghubungkan email/password ke Supabase, gunakan:
-      // const { data, error } = await supabaseClient.auth.signInWithPassword({
-      //   email: email,
-      //   password: password
-      // });
-      //
-      // if (error) showError(error.message);
-      // else { ... }
-      // ===================
+      try {
+        const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+          redirectTo: 'https://stevemc.my.id/reset-password.html'
+        });
 
-      // Sementara hanya alert
-      alert('Fitur login email/password sedang dalam pengembangan. Silakan gunakan tombol Google.');
+        if (error) {
+          alert('Gagal mengirim email reset: ' + error.message);
+          return;
+        }
+
+        alert('Email reset password telah dikirim. Silakan cek inbox Anda.');
+      } catch (error) {
+        alert('Terjadi kesalahan. Silakan coba lagi.');
+      }
+    }
+
+    // ============================================================
+    // 9. EVENT LISTENERS
+    // ============================================================
+
+    // Login form submit
+    loginForm.addEventListener('submit', handleLogin);
+
+    // Google login button
+    googleLoginBtn.addEventListener('click', handleGoogleLogin);
+
+    // Forgot password
+    forgotPasswordLink.addEventListener('click', handleForgotPassword);
+
+    // Enter key support
+    loginForm.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleLogin(e);
+      }
     });
 
     // ============================================================
-    // 12. JALANKAN CEK SESSION SAAT PERTAMA KALI
+    // 10. CEK SESSION - Jika sudah login, redirect ke beranda
     // ============================================================
-    checkSession();
+    (async function checkSession() {
+      try {
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
 
-    // ============================================================
-    // 13. CEK URL PARAMETER UNTUK ERROR DARI REDIRECT
-    // ============================================================
-    // Jika ada error di URL (misal dari OAuth redirect), tampilkan
-    (function checkUrlParams() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const errorDesc = urlParams.get('error_description');
-      const errorCode = urlParams.get('error_code');
+        if (error) {
+          console.warn('Error checking session:', error);
+          return;
+        }
 
-      if (errorDesc) {
-        showError('Login gagal: ' + decodeURIComponent(errorDesc));
-        // Hapus parameter dari URL
-        const newUrl = window.location.pathname;
-        window.history.replaceState({}, document.title, newUrl);
-      }
+        if (session) {
+          console.log('✅ User sudah login, redirect ke beranda');
+          window.location.href = 'https://stevemc.my.id/';
+        }
 
-      if (errorCode) {
-        showError('Login gagal (kode: ' + errorCode + '). Silakan coba lagi.');
-        const newUrl = window.location.pathname;
-        window.history.replaceState({}, document.title, newUrl);
+      } catch (err) {
+        console.error('Error checking session:', err);
       }
     })();
 
-    console.log('%c🔐 Supabase Auth Ready!', 'font-size:16px;font-weight:bold;color:#7c4dff;');
-    console.log('📌 Google OAuth: Aktif');
-    console.log('📌 Email/Password: Belum terhubung (perlu implementasi)');
-    console.log('📌 GitHub/Discord/Twitter: Belum diaktifkan');
+    // ============================================================
+    // 11. SUPABASE AUTH STATE CHANGE
+    // ============================================================
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      console.log('🔐 Auth state changed:', event);
+
+      if (event === 'SIGNED_IN' && session) {
+        console.log('✅ User signed in, redirecting...');
+        window.location.href = 'https://stevemc.my.id/';
+      }
+
+      if (event === 'PASSWORD_RECOVERY') {
+        console.log('🔑 Password recovery mode');
+        // Redirect ke halaman reset password
+        window.location.href = 'https://stevemc.my.id/reset-password.html';
+      }
+    });
+
+    console.log('%c🔐 Login Page Ready!', 'font-size:16px;font-weight:bold;color:#7c4dff;');
+    console.log('📌 Supabase URL:', SUPABASE_URL);
+    console.log('📌 Redirect URL: https://stevemc.my.id/');
+    console.log('📌 Login dengan email/username + password atau Google');
   </script>
 
 </body>
