@@ -20,7 +20,7 @@
 
   <style>
     /* ============================================
-       RESET & BASE (Sama seperti sebelumnya)
+       RESET & BASE
     ============================================ */
     * {
       margin: 0;
@@ -43,6 +43,7 @@
       flex-direction: column;
     }
 
+    /* Animated background */
     body::before {
       content: '';
       position: fixed;
@@ -58,6 +59,7 @@
       pointer-events: none;
     }
 
+    /* Floating particles */
     .particles {
       position: fixed;
       top: 0;
@@ -95,6 +97,9 @@
       }
     }
 
+    /* ============================================
+       SCROLLBAR
+    ============================================ */
     ::-webkit-scrollbar {
       width: 6px;
     }
@@ -372,27 +377,6 @@
       background-clip: text;
     }
 
-    /* ===== OWNER BADGE DI HEADER ===== */
-    .owner-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: linear-gradient(135deg, #ffd700, #f59e0b);
-      color: #1a1a2e;
-      padding: 4px 14px;
-      border-radius: 60px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-left: 8px;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-    }
-
-    .owner-badge i {
-      font-size: 0.65rem;
-    }
-
     /* ============================================
        LOADING STATE
     ============================================ */
@@ -524,8 +508,7 @@
       border: 1px solid rgba(37, 211, 102, 0.15);
     }
 
-    /* ===== OWNER BADGE DI VALUE ===== */
-    .value .owner-role-badge {
+    .owner-role-badge {
       display: inline-block;
       padding: 2px 12px;
       border-radius: 60px;
@@ -538,7 +521,7 @@
       box-shadow: 0 0 20px rgba(255, 215, 0, 0.15);
     }
 
-    .value .owner-role-badge i {
+    .owner-role-badge i {
       margin-right: 4px;
       font-size: 0.65rem;
     }
@@ -604,6 +587,55 @@
 
     .btn-action i {
       font-size: 1rem;
+    }
+
+    /* ============================================
+       NOT LOGGED IN
+    ============================================ */
+    .not-logged-in {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .not-logged-in i {
+      font-size: 56px;
+      margin-bottom: 16px;
+      color: rgba(255, 255, 255, 0.06);
+    }
+
+    .not-logged-in h2 {
+      color: #fff;
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    .not-logged-in p {
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 20px;
+    }
+
+    .btn-login-account {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 36px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, #7c4dff, #00e5ff);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(124, 77, 255, 0.2);
+    }
+
+    .btn-login-account:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(124, 77, 255, 0.4);
     }
 
     /* ============================================
@@ -825,25 +857,20 @@
     // ============================================================
     // 2. OWNER SYSTEM - KONFIGURASI
     // ============================================================
-    // ===== OWNER SYSTEM =====
     const OWNER_ID = 'ce5879ba-007c-4258-acd1-75246073a151';
 
-    // ============================================================
-    // 3. OWNER SYSTEM - FUNGSI PENGECEKAN
-    // ============================================================
-    // ===== OWNER SYSTEM =====
     function isOwner(user) {
       if (!user || !user.id) return false;
       return user.id === OWNER_ID;
     }
 
     // ============================================================
-    // 4. ELEMENT REFERENSI
+    // 3. ELEMENT REFERENSI
     // ============================================================
     const accountContent = document.getElementById('accountContent');
 
     // ============================================================
-    // 5. PARTICLES BACKGROUND
+    // 4. PARTICLES BACKGROUND
     // ============================================================
     (function createParticles() {
       const container = document.getElementById('particles');
@@ -861,14 +888,24 @@
     })();
 
     // ============================================================
-    // 6. CEK SESSION & LOAD USER DATA
+    // 5. CEK SESSION & LOAD USER DATA
     // ============================================================
     async function loadAccountData() {
       try {
         const { data: { session }, error } = await supabaseClient.auth.getSession();
 
+        // ===== JIKA BELUM LOGIN =====
         if (error || !session) {
-          window.location.replace('https://stevemc.my.id/login.html');
+          accountContent.innerHTML = `
+            <div class="account-card not-logged-in" style="padding:60px 20px;text-align:center;">
+              <i class="fas fa-user-circle"></i>
+              <h2>Belum Login</h2>
+              <p>Silakan login untuk melihat informasi akun Anda.</p>
+              <a href="login.html" class="btn-login-account">
+                <i class="fas fa-sign-in-alt"></i> Login Sekarang
+              </a>
+            </div>
+          `;
           return;
         }
 
@@ -892,7 +929,7 @@
           minute: '2-digit'
         }) : 'Tidak diketahui';
 
-        // ===== OWNER SYSTEM: Cek apakah user adalah owner =====
+        // ===== CEK APAKAH USER ADALAH OWNER =====
         const isOwnerUser = isOwner(user);
         console.log('🆔 User ID:', user.id);
         console.log('👑 Status Owner:', isOwnerUser ? 'TRUE ✅' : 'FALSE ❌');
@@ -925,14 +962,14 @@
     }
 
     // ============================================================
-    // 7. RENDER DATA AKUN
+    // 6. RENDER DATA AKUN
     // ============================================================
     function renderAccountData(data) {
       const initial = data.name.charAt(0).toUpperCase();
 
-      // ===== OWNER SYSTEM: Tampilkan badge owner jika user adalah owner =====
+      // ===== OWNER BADGE =====
       const ownerBadgeHTML = data.isOwner
-        ? `<span class="owner-badge"><i class="fas fa-crown"></i> Owner</span>`
+        ? `<span class="owner-badge" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#ffd700,#f59e0b);color:#1a1a2e;padding:2px 12px;border-radius:60px;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-left:8px;box-shadow:0 0 20px rgba(255,215,0,0.2);"><i class="fas fa-crown"></i> Owner</span>`
         : '';
 
       const roleBadgeHTML = data.isOwner
@@ -991,7 +1028,7 @@
               <span class="label"><i class="fas fa-clock"></i> Terakhir Login</span>
               <span class="value">${data.lastSignIn}</span>
             </div>
-            <!-- ===== OWNER SYSTEM: Tampilkan role ===== -->
+            <!-- ===== ROLE ===== -->
             <div class="detail-row">
               <span class="label"><i class="fas fa-user-tag"></i> Role</span>
               <span class="value">${roleBadgeHTML}</span>
@@ -1019,12 +1056,12 @@
       // Event listener logout
       document.getElementById('logoutBtn').addEventListener('click', async () => {
         await supabaseClient.auth.signOut();
-        window.location.replace('https://stevemc.my.id/login.html');
+        window.location.href = 'https://stevemc.my.id/login.html';
       });
     }
 
     // ============================================================
-    // 8. COPY USER ID
+    // 7. COPY USER ID
     // ============================================================
     function copyUserID() {
       const idElement = document.querySelector('.detail-row .value[style*="font-size:0.8rem"]');
@@ -1044,7 +1081,7 @@
     }
 
     // ============================================================
-    // 9. LOAD MENU - Memilih menu berdasarkan status owner
+    // 8. LOAD MENU
     // ============================================================
     function loadMenu() {
       const menuContainer = document.getElementById('menuContainer');
@@ -1053,16 +1090,14 @@
 
       if (!menuContainer) return;
 
-      // ===== OWNER SYSTEM: Cek session untuk menentukan menu =====
+      // Cek apakah user owner untuk menentukan menu
       supabaseClient.auth.getSession().then(({ data: { session } }) => {
         const isOwnerUser = session && isOwner(session.user);
         const menuFile = isOwnerUser ? 'menu_owner.html' : 'menu.html';
 
-        console.log(`📋 Memuat menu: ${menuFile} (${isOwnerUser ? 'Owner' : 'User'})`);
-
         fetch(menuFile)
           .then(res => {
-            if (!res.ok) throw new Error(`Menu ${menuFile} tidak ditemukan`);
+            if (!res.ok) throw new Error('Menu tidak ditemukan');
             return res.text();
           })
           .then(html => {
@@ -1150,23 +1185,22 @@
     }
 
     // ============================================================
-    // 10. SUPABASE AUTH STATE CHANGE
+    // 9. SUPABASE AUTH STATE CHANGE
     // ============================================================
     supabaseClient.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
-        window.location.replace('https://stevemc.my.id/login.html');
+        window.location.href = 'https://stevemc.my.id/login.html';
       }
     });
 
     // ============================================================
-    // 11. JALANKAN
+    // 10. JALANKAN
     // ============================================================
     loadMenu();
     loadAccountData();
 
     console.log('%c👤 SteveMC Account Page', 'font-size:16px;font-weight:bold;color:#7c4dff;');
     console.log('📌 Halaman informasi akun aktif');
-    console.log('👑 Owner ID:', OWNER_ID);
   </script>
 
 </body>
