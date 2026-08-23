@@ -21,8 +21,7 @@
 
   <style>
     /* ============================================
-       SEMUA STYLE TETAP SAMA SEPERTI SEBELUMNYA
-       (Tidak ada perubahan pada desain)
+       SEMUA STYLE TETAP SAMA (Tidak ada perubahan)
     ============================================ */
     * {
       margin: 0;
@@ -86,8 +85,7 @@
     }
 
     /* ============================================
-       SEMUA STYLE YANG ADA SEBELUMNYA
-       (Tetap dipertahankan)
+       SEMUA STYLE YANG ADA SEBELUMNYA (Dipertahankan)
     ============================================ */
     body::before {
       content: '';
@@ -152,7 +150,7 @@
       border-radius: 10px;
     }
 
-    /* ===== USER AVATAR DI SIDEBAR ===== */
+    /* ===== USER PROFILE DI SIDEBAR ===== */
     .user-profile {
       display: flex;
       align-items: center;
@@ -1619,21 +1617,34 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ============================================================
-    // 2. ELEMENT REFERENSI
+    // 2. FLAG UNTUK MENCEGAH EKSEKUSI BERGANDA
+    // ============================================================
+    let isInitialized = false;
+    let isRedirecting = false;
+
+    // ============================================================
+    // 3. ELEMENT REFERENSI
     // ============================================================
     const authLoading = document.getElementById('authLoading');
     const mainContent = document.getElementById('mainContent');
     const mainFooter = document.getElementById('mainFooter');
 
     // ============================================================
-    // 3. FUNGSI - TAMPILKAN KONTEN
+    // 4. FUNGSI - TAMPILKAN KONTEN (hanya sekali)
     // ============================================================
     function showMainContent() {
+      if (isInitialized) {
+        console.log('⚠️ Konten sudah ditampilkan, skip');
+        return;
+      }
+
+      console.log('✅ Menampilkan konten utama');
       mainContent.style.display = 'block';
       mainFooter.style.display = 'block';
       authLoading.classList.add('hidden');
+      isInitialized = true;
 
-      // Jalankan semua fungsi setelah konten tampil
+      // Jalankan semua fungsi setelah konten tampil (hanya sekali)
       initializeSlider();
       fetchData();
       initializeGreetingAndTyping();
@@ -1641,7 +1652,7 @@
     }
 
     // ============================================================
-    // 4. CEK SESSION - Redirect jika tidak login
+    // 5. CEK SESSION - Redirect jika tidak login
     // ============================================================
     async function checkSession() {
       try {
@@ -1649,14 +1660,19 @@
 
         if (error) {
           console.warn('Error get session:', error);
-          window.location.replace('https://stevemc.my.id/login.html');
+          if (!isRedirecting) {
+            isRedirecting = true;
+            window.location.replace('https://stevemc.my.id/login.html');
+          }
           return;
         }
 
         if (!session) {
-          // Tidak ada session, redirect ke login
           console.log('❌ Tidak ada session, redirect ke login');
-          window.location.replace('https://stevemc.my.id/login.html');
+          if (!isRedirecting) {
+            isRedirecting = true;
+            window.location.replace('https://stevemc.my.id/login.html');
+          }
           return;
         }
 
@@ -1667,16 +1683,19 @@
         // Update menu dengan user info setelah menu dimuat
         setTimeout(() => {
           updateMenuWithUser(session);
-        }, 500);
+        }, 800);
 
       } catch (err) {
         console.error('Error checking session:', err);
-        window.location.replace('https://stevemc.my.id/login.html');
+        if (!isRedirecting) {
+          isRedirecting = true;
+          window.location.replace('https://stevemc.my.id/login.html');
+        }
       }
     }
 
     // ============================================================
-    // 5. UPDATE MENU DENGAN USER INFO
+    // 6. UPDATE MENU DENGAN USER INFO
     // ============================================================
     function updateMenuWithUser(session) {
       const menuPanel = document.getElementById('menuPanel');
@@ -1687,16 +1706,11 @@
       const email = user.email || '';
       const avatar = user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
 
-      // Cari posisi untuk menambahkan user profile (setelah menu-list)
       const menuList = menuPanel.querySelector('.menu-list');
       if (menuList) {
-        // Cek apakah sudah ada user profile sebelumnya
         const existingProfile = menuPanel.querySelector('.user-profile');
-        if (existingProfile) {
-          existingProfile.remove();
-        }
+        if (existingProfile) existingProfile.remove();
 
-        // Buat elemen user profile
         const profileDiv = document.createElement('div');
         profileDiv.className = 'user-profile';
         profileDiv.innerHTML = `
@@ -1707,30 +1721,25 @@
           </div>
         `;
 
-        // Sisipkan setelah menu-list
         menuList.parentNode.insertBefore(profileDiv, menuList.nextSibling);
 
-        // Tambahkan tombol logout di menu
         const existingLogout = menuPanel.querySelector('.btn-logout-sidebar');
-        if (existingLogout) {
-          existingLogout.remove();
-        }
+        if (existingLogout) existingLogout.remove();
 
         const logoutBtn = document.createElement('button');
         logoutBtn.className = 'btn-logout-sidebar';
         logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
         logoutBtn.addEventListener('click', async () => {
           await supabaseClient.auth.signOut();
-          window.location.replace('https://stevemc.my.id/login.html');
+          // SIGNED_OUT event akan menangani redirect
         });
 
-        // Sisipkan setelah user profile
         profileDiv.parentNode.insertBefore(logoutBtn, profileDiv.nextSibling);
       }
     }
 
     // ============================================================
-    // 6. PARTICLES BACKGROUND
+    // 7. PARTICLES BACKGROUND
     // ============================================================
     (function createParticles() {
       const container = document.getElementById('particles');
@@ -1748,7 +1757,7 @@
     })();
 
     // ============================================================
-    // 7. GREETING & TYPING EFFECT
+    // 8. GREETING & TYPING EFFECT
     // ============================================================
     function initializeGreetingAndTyping() {
       const greetingEl = document.getElementById('greeting');
@@ -1776,7 +1785,7 @@
     }
 
     // ============================================================
-    // 8. SLIDER / CAROUSEL
+    // 9. SLIDER / CAROUSEL (hanya sekali)
     // ============================================================
     function initializeSlider() {
       const wrapper = document.getElementById('sliderWrapper');
@@ -1843,7 +1852,7 @@
     }
 
     // ============================================================
-    // 9. FETCH DATA DARI API
+    // 10. FETCH DATA DARI API (hanya sekali)
     // ============================================================
     async function fetchData() {
       const dataArea = document.getElementById('dataArea');
@@ -1936,7 +1945,7 @@
     }
 
     // ============================================================
-    // 10. LOAD MENU DARI menu.html
+    // 11. LOAD MENU DARI menu.html (hanya sekali)
     // ============================================================
     function loadMenu() {
       const menuContainer = document.getElementById('menuContainer');
@@ -1984,7 +1993,11 @@
             document.body.style.overflow = isOpen ? 'hidden' : '';
           }
 
-          hamburger.addEventListener('click', () => toggleMenu());
+          // Hapus event listener lama jika ada (mencegah duplikasi)
+          const newHamburger = hamburger.cloneNode(true);
+          hamburger.parentNode.replaceChild(newHamburger, hamburger);
+
+          newHamburger.addEventListener('click', () => toggleMenu());
           menuOverlay.addEventListener('click', () => toggleMenu(false));
 
           document.addEventListener('keydown', (e) => {
@@ -2020,50 +2033,74 @@
           `;
           const menuPanel = document.getElementById('menuPanel');
           if (menuPanel) {
-            hamburger.addEventListener('click', () => {
+            const newHamburger = hamburger.cloneNode(true);
+            hamburger.parentNode.replaceChild(newHamburger, hamburger);
+
+            newHamburger.addEventListener('click', () => {
               menuPanel.classList.toggle('open');
               menuOverlay.classList.toggle('open');
-              hamburger.classList.toggle('hidden');
+              newHamburger.classList.toggle('hidden');
             });
             menuOverlay.addEventListener('click', () => {
               menuPanel.classList.remove('open');
               menuOverlay.classList.remove('open');
-              hamburger.classList.remove('hidden');
+              newHamburger.classList.remove('hidden');
             });
           }
         });
     }
 
     // ============================================================
-    // 11. SUPABASE AUTH STATE CHANGE LISTENER
+    // 12. SUPABASE AUTH STATE CHANGE LISTENER (TANPA RELOAD)
     // ============================================================
     supabaseClient.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event);
+      console.log('🔐 Auth state changed:', event);
+
+      if (event === 'SIGNED_IN' && session) {
+        // ===== PERBAIKAN UTAMA: TIDAK ADA RELOAD! =====
+        console.log('✅ User signed in (session restored)');
+        
+        // Jika konten belum ditampilkan, tampilkan
+        if (!isInitialized) {
+          showMainContent();
+          setTimeout(() => {
+            updateMenuWithUser(session);
+          }, 800);
+        } else {
+          // Jika sudah ditampilkan, update menu saja
+          updateMenuWithUser(session);
+        }
+      }
 
       if (event === 'SIGNED_OUT') {
         console.log('👋 User signed out, redirecting to login...');
-        window.location.replace('https://stevemc.my.id/login.html');
-      }
-
-      if (event === 'SIGNED_IN' && session) {
-        console.log('✅ User signed in');
-        // Refresh halaman untuk update UI
-        window.location.reload();
+        if (!isRedirecting) {
+          isRedirecting = true;
+          window.location.replace('https://stevemc.my.id/login.html');
+        }
       }
 
       if (event === 'TOKEN_REFRESHED') {
-        console.log('🔄 Token refreshed');
+        console.log('🔄 Token refreshed (no action needed)');
+        // TIDAK ADA RELOAD!
+      }
+
+      if (event === 'USER_UPDATED') {
+        console.log('📝 User updated, updating UI...');
+        if (session) {
+          updateMenuWithUser(session);
+        }
       }
     });
 
     // ============================================================
-    // 12. JALANKAN CEK SESSION
+    // 13. JALANKAN CEK SESSION
     // ============================================================
     checkSession();
 
-    console.log('%c🔐 SteveMC Auth Ready!', 'font-size:16px;font-weight:bold;color:#7c4dff;');
+    console.log('%c🔐 SteveMC Auth Fixed!', 'font-size:16px;font-weight:bold;color:#7c4dff;');
+    console.log('📌 Infinite reload loop telah diperbaiki');
     console.log('📌 Supabase URL:', SUPABASE_URL);
-    console.log('📌 Redirect URL: https://stevemc.my.id/');
   </script>
 
 </body>
