@@ -509,6 +509,34 @@
       text-decoration: underline;
     }
 
+    /* ===== TOMBOL LOGIN NANTI ===== */
+    .btn-skip {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 14px;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .btn-skip:hover {
+      color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .btn-skip i {
+      margin-right: 8px;
+      font-size: 0.9rem;
+    }
+
     /* ============================================
        RESPONSIVE
     ============================================ */
@@ -546,6 +574,11 @@
 
       .back-btn {
         font-size: 0.8rem;
+      }
+
+      .btn-skip {
+        font-size: 0.85rem;
+        padding: 12px;
       }
     }
   </style>
@@ -655,6 +688,11 @@
         </button>
       </div>
 
+      <!-- ===== TOMBOL LOGIN NANTI ===== -->
+      <button class="btn-skip" id="skipLoginBtn">
+        <i class="fas fa-clock"></i> Login Nanti
+      </button>
+
       <!-- Register Link -->
       <div class="register-link">
         Belum punya akun? <a href="register.html">Daftar sekarang</a>
@@ -720,6 +758,7 @@
     const successMessage = document.getElementById('successMessage');
     const successText = document.getElementById('successText');
     const googleLoginBtn = document.getElementById('googleLoginBtn');
+    const skipLoginBtn = document.getElementById('skipLoginBtn');
 
     // ============================================================
     // 5. FUNGSI UTILITY
@@ -764,7 +803,6 @@
       const emailOrUsername = emailInput.value.trim();
       const password = passwordInput.value;
 
-      // Validasi input
       if (!emailOrUsername) {
         showError('Masukkan email atau username.');
         return;
@@ -779,7 +817,6 @@
       try {
         let email = emailOrUsername;
 
-        // Jika input bukan email (kemungkinan username), coba cari email dari database
         if (!emailOrUsername.includes('@')) {
           const { data: users, error: searchError } = await supabaseClient
             .from('user_profiles')
@@ -796,13 +833,11 @@
           }
         }
 
-        // ===== LOGIN KE SUPABASE =====
         const { data, error } = await supabaseClient.auth.signInWithPassword({
           email: email,
           password: password
         });
 
-        // ===== HANDLE ERROR =====
         if (error) {
           console.error('❌ Login error:', error);
 
@@ -821,11 +856,9 @@
           return;
         }
 
-        // ===== LOGIN BERHASIL =====
         console.log('✅ Login berhasil:', data);
         showSuccess('Login berhasil! Mengalihkan...');
 
-        // Redirect ke beranda
         setTimeout(() => {
           window.location.href = 'https://stevemc.my.id/';
         }, 1500);
@@ -872,16 +905,21 @@
     }
 
     // ============================================================
-    // 8. EVENT LISTENERS
+    // 8. LOGIN NANTI - SKIP LOGIN
+    // ============================================================
+    function handleSkipLogin() {
+      console.log('⏭️ User memilih "Login Nanti", langsung ke beranda');
+      window.location.href = 'https://stevemc.my.id/';
+    }
+
+    // ============================================================
+    // 9. EVENT LISTENERS
     // ============================================================
 
-    // Login form submit
     loginForm.addEventListener('submit', handleLogin);
-
-    // Google login button
     googleLoginBtn.addEventListener('click', handleGoogleLogin);
+    skipLoginBtn.addEventListener('click', handleSkipLogin);
 
-    // Enter key support
     loginForm.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -890,7 +928,7 @@
     });
 
     // ============================================================
-    // 9. CEK SESSION - Jika sudah login, redirect ke beranda
+    // 10. CEK SESSION - Jika sudah login, redirect ke beranda
     // ============================================================
     (async function checkSession() {
       try {
@@ -912,7 +950,7 @@
     })();
 
     // ============================================================
-    // 10. SUPABASE AUTH STATE CHANGE
+    // 11. SUPABASE AUTH STATE CHANGE
     // ============================================================
     supabaseClient.auth.onAuthStateChange((event, session) => {
       console.log('🔐 Auth state changed:', event);
@@ -930,7 +968,7 @@
 
     console.log('%c🔐 Login Page Ready!', 'font-size:16px;font-weight:bold;color:#7c4dff;');
     console.log('📌 Supabase URL:', SUPABASE_URL);
-    console.log('📌 Redirect URL: https://stevemc.my.id/');
+    console.log('📌 Klik "Login Nanti" untuk melewati login');
   </script>
 
 </body>
