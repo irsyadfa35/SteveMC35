@@ -78,44 +78,60 @@ export default async function handler(req, res) {
                 });
 
             // ─── SEND MESSAGE ──────────────────────────────────────
-            case 'send-message':
-                // Ambil data dari query atau body
-                const name = params.name || body?.name || 'Tidak diketahui';
-                const email = params.email || body?.email || 'Tidak diketahui';
-                const pesan = params.pesan || body?.pesan || body?.message || 'Tidak ada pesan';
+            case 'send-message': {
+    const body = req.body || {}
 
-                // Format pesan untuk log
-                const waMessage = `
-📩 PESAN DARI WEBSITE
+    const name =
+        body.name ||
+        params.name ||
+        'Tidak diketahui'
+
+    const email =
+        body.email ||
+        params.email ||
+        'Tidak diketahui'
+
+    const pesan =
+        body.pesan ||
+        body.message ||
+        params.pesan ||
+        'Tidak ada pesan'
+
+    const waMessage = `
+📩 *PESAN DARI WEBSITE*
 
 👤 Nama: ${name}
 📧 Email: ${email}
 📝 Pesan: ${pesan}
 ⏰ Dikirim: ${new Date().toLocaleString('id-ID')}
-🌐 IP: ${req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'Tidak diketahui'}
-                `.trim();
+🌐 IP: ${req.headers['x-forwarded-for'] || 'Tidak diketahui'}
+`.trim()
 
-                console.log('📨 [TESTING] Pesan untuk Owner:');
-                console.log(waMessage);
+    console.log('📨 DATA WEBSITE:')
+    console.log({
+        name,
+        email,
+        pesan
+    })
 
-                // Simpan ke log (opsional)
-                // fs.appendFileSync('messages.log', `[${new Date().toISOString()}] ${waMessage}\n\n`);
+    console.log('📨 PESAN OWNER:')
+    console.log(waMessage)
 
-                return res.status(200).json({
-                    status: true,
-                    message: 'Pesan berhasil dikirim ke Owner',
-                    data: {
-                        to: '6281234567890', // Nomor owner
-                        name: name,
-                        email: email,
-                        pesan: pesan,
-                        sentAt: new Date().toISOString()
-                    },
-                    // Untuk testing, tampilkan pesan yang dikirim
-                    debug: {
-                        waMessage: waMessage
-                    }
-                });
+    return res.status(200).json({
+        status: true,
+        message: 'Data berhasil diterima API',
+        data: {
+            name,
+            email,
+            pesan
+        },
+        debug: {
+            method: req.method,
+            body: body,
+            waMessage
+        }
+    })
+}
 
             // ─── STATUS ─────────────────────────────────────────────
             case 'status':
