@@ -1,5 +1,5 @@
 // api/index.js
-// Endpoint: https://domain.com/api?fitur=hello
+// Endpoint: https://domain.com/api/index?fitur=send-message
 
 export default async function handler(req, res) {
     // ============================================================
@@ -79,35 +79,43 @@ export default async function handler(req, res) {
 
             // ─── SEND MESSAGE ──────────────────────────────────────
             case 'send-message': {
-    const name = body?.name || params.name || 'Tidak diketahui';
-    const email = body?.email || params.email || 'Tidak diketahui';
-    const pesan = body?.pesan || params.pesan || 'Tidak ada pesan';
+                // Ambil data dari body (POST) atau query (GET)
+                const name = body?.name || params.name || 'Tidak diketahui';
+                const email = body?.email || params.email || 'Tidak diketahui';
+                const pesan = body?.pesan || params.pesan || 'Tidak ada pesan';
 
-    const waMessage = `
+                // Format pesan WhatsApp
+                const waMessage = `
 📩 *PESAN DARI WEBSITE*
 
 👤 Nama: ${name}
 📧 Email: ${email}
 📝 Pesan: ${pesan}
 ⏰ Dikirim: ${new Date().toLocaleString('id-ID')}
-    `.trim();
+🌐 IP: ${req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'Tidak diketahui'}
+                `.trim();
 
-    console.log(waMessage);
+                console.log('📨 Pesan diterima:');
+                console.log(waMessage);
 
-    return res.status(200).json({
-        status: true,
-        message: 'Data berhasil diterima API',
-        data: {
-            name,
-            email,
-            pesan
-        },
-        debug: {
-            method: req.method,
-            body: body,
-            waMessage
-        }
-    });
+                // ============================================================
+                // RESPONSE - Data yang dikirim balik SAMA PERSIS dengan input
+                // ============================================================
+                return res.status(200).json({
+                    status: true,
+                    message: 'Data berhasil diterima API',
+                    data: {
+                        name: name,
+                        email: email,
+                        pesan: pesan
+                    },
+                    debug: {
+                        method: req.method,
+                        body: body,
+                        waMessage: waMessage
+                    }
+                });
+            }
 
             // ─── STATUS ─────────────────────────────────────────────
             case 'status':
