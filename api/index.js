@@ -1,0 +1,176 @@
+// api/index.js
+// Endpoint: https://domain.com/api?fitur=hello
+
+export default async function handler(req, res) {
+    // ============================================================
+    // CORS
+    // ============================================================
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
+
+    if (req.method === 'OPTIONS') {
+        return res.status(204).end();
+    }
+
+    // ============================================================
+    // AMBIL PARAMETER
+    // ============================================================
+    const { fitur, ...params } = req.query;
+    const body = req.method === 'POST' ? req.body : null;
+
+    console.log(`📡 Request: ${req.method} /api?fitur=${fitur}`);
+    console.log('📥 Query:', params);
+    if (body) console.log('📥 Body:', body);
+
+    // ============================================================
+    // HANDLE FITUR
+    // ============================================================
+    try {
+        switch (fitur) {
+
+            // ─── HELLO ──────────────────────────────────────────────
+            case 'hello':
+                return res.status(200).json({
+                    status: true,
+                    message: 'Hello World',
+                    timestamp: new Date().toISOString()
+                });
+
+            // ─── PING ───────────────────────────────────────────────
+            case 'ping':
+                return res.status(200).json({
+                    status: true,
+                    message: 'Pong!',
+                    timestamp: new Date().toISOString()
+                });
+
+            // ─── INFO ──────────────────────────────────────────────
+            case 'info':
+                return res.status(200).json({
+                    status: true,
+                    name: 'SteveMC API',
+                    version: '1.0.0',
+                    endpoints: [
+                        'hello - Say hello',
+                        'ping - Ping pong',
+                        'info - Info API',
+                        'echo - Echo message',
+                        'send-message - Kirim pesan ke owner',
+                        'status - Status API'
+                    ],
+                    timestamp: new Date().toISOString()
+                });
+
+            // ─── ECHO ──────────────────────────────────────────────
+            case 'echo':
+                const message = params.message || body?.message || 'Tidak ada pesan';
+                return res.status(200).json({
+                    status: true,
+                    message: `Echo: ${message}`,
+                    data: {
+                        echo: message,
+                        method: req.method,
+                        query: params,
+                        body: body
+                    },
+                    timestamp: new Date().toISOString()
+                });
+
+            // ─── SEND MESSAGE ──────────────────────────────────────
+            case 'send-message':
+                // Ambil data dari query atau body
+                const name = params.name || body?.name || 'Tidak diketahui';
+                const email = params.email || body?.email || 'Tidak diketahui';
+                const pesan = params.pesan || body?.pesan || body?.message || 'Tidak ada pesan';
+
+                // Format pesan untuk log
+                const waMessage = `
+📩 PESAN DARI WEBSITE
+
+👤 Nama: ${name}
+📧 Email: ${email}
+📝 Pesan: ${pesan}
+⏰ Dikirim: ${new Date().toLocaleString('id-ID')}
+🌐 IP: ${req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'Tidak diketahui'}
+                `.trim();
+
+                console.log('📨 [TESTING] Pesan untuk Owner:');
+                console.log(waMessage);
+
+                // Simpan ke log (opsional)
+                // fs.appendFileSync('messages.log', `[${new Date().toISOString()}] ${waMessage}\n\n`);
+
+                return res.status(200).json({
+                    status: true,
+                    message: 'Pesan berhasil dikirim ke Owner',
+                    data: {
+                        to: '6281234567890', // Nomor owner
+                        name: name,
+                        email: email,
+                        pesan: pesan,
+                        sentAt: new Date().toISOString()
+                    },
+                    // Untuk testing, tampilkan pesan yang dikirim
+                    debug: {
+                        waMessage: waMessage
+                    }
+                });
+
+            // ─── STATUS ─────────────────────────────────────────────
+            case 'status':
+                return res.status(200).json({
+                    status: true,
+                    server: 'Online',
+                    uptime: process.uptime(),
+                    memory: process.memoryUsage(),
+                    timestamp: new Date().toISOString()
+                });
+
+            // ─── USER ──────────────────────────────────────────────
+            case 'user':
+                const userId = params.id || body?.id || '1';
+                const users = {
+                    '1': { id: 1, name: 'SteveMC', role: 'admin', email: 'steve@example.com' },
+                    '2': { id: 2, name: 'John Doe', role: 'user', email: 'john@example.com' },
+                    '3': { id: 3, name: 'Jane Smith', role: 'user', email: 'jane@example.com' }
+                };
+
+                const user = users[userId] || null;
+
+                if (!user) {
+                    return res.status(404).json({
+                        status: false,
+                        message: `User dengan ID ${userId} tidak ditemukan`
+                    });
+                }
+
+                return res.status(200).json({
+                    status: true,
+                    data: user,
+                    timestamp: new Date().toISOString()
+                });
+
+            // ─── DEFAULT ────────────────────────────────────────────
+            default:
+                return res.status(404).json({
+                    status: false,
+                    message: `Fitur "${fitur}" tidak ditemukan`,
+                    available_fitur: [
+                        'hello', 'ping', 'info', 'echo',
+                        'send-message', 'status', 'user'
+                    ],
+                    timestamp: new Date().toISOString()
+                });
+        }
+
+    } catch (error) {
+        console.error('❌ Error:', error);
+        return res.status(500).json({
+            status: false,
+            message: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+            timestamp: new Date().toISOString()
+        });
+    }
+}
