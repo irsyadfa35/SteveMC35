@@ -79,23 +79,9 @@ export default async function handler(req, res) {
 
             // ─── SEND MESSAGE ──────────────────────────────────────
             case 'send-message': {
-    const body = req.body || {}
-
-    const name =
-        body.name ||
-        params.name ||
-        'Tidak diketahui'
-
-    const email =
-        body.email ||
-        params.email ||
-        'Tidak diketahui'
-
-    const pesan =
-        body.pesan ||
-        body.message ||
-        params.pesan ||
-        'Tidak ada pesan'
+    const name = body?.name || params.name || 'Tidak diketahui';
+    const email = body?.email || params.email || 'Tidak diketahui';
+    const pesan = body?.pesan || params.pesan || 'Tidak ada pesan';
 
     const waMessage = `
 📩 *PESAN DARI WEBSITE*
@@ -104,18 +90,9 @@ export default async function handler(req, res) {
 📧 Email: ${email}
 📝 Pesan: ${pesan}
 ⏰ Dikirim: ${new Date().toLocaleString('id-ID')}
-🌐 IP: ${req.headers['x-forwarded-for'] || 'Tidak diketahui'}
-`.trim()
+    `.trim();
 
-    console.log('📨 DATA WEBSITE:')
-    console.log({
-        name,
-        email,
-        pesan
-    })
-
-    console.log('📨 PESAN OWNER:')
-    console.log(waMessage)
+    console.log(waMessage);
 
     return res.status(200).json({
         status: true,
@@ -130,8 +107,7 @@ export default async function handler(req, res) {
             body: body,
             waMessage
         }
-    })
-}
+    });
 
             // ─── STATUS ─────────────────────────────────────────────
             case 'status':
