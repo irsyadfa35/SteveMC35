@@ -1,14 +1,9 @@
-// api/index.js - dengan penyimpanan Supabase
-
-import { createClient } from '@supabase/supabase-js';
-
-// Inisialisasi Supabase
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+// api/index.js - TANPA SUPABASE (Hanya log)
 
 export default async function handler(req, res) {
+    // ============================================================
     // CORS
+    // ============================================================
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
@@ -17,34 +12,78 @@ export default async function handler(req, res) {
         return res.status(204).end();
     }
 
+    // ============================================================
+    // AMBIL PARAMETER
+    // ============================================================
     const { fitur, ...params } = req.query;
     const body = req.method === 'POST' ? req.body : null;
 
+    console.log(`📡 Request: ${req.method} /api?fitur=${fitur}`);
+    console.log('📥 Query:', params);
+    if (body) console.log('📥 Body:', body);
+
+    // ============================================================
+    // HANDLE FITUR
+    // ============================================================
     try {
         switch (fitur) {
 
+            // ─── HELLO ──────────────────────────────────────────────
+            case 'hello':
+                return res.status(200).json({
+                    status: true,
+                    message: 'Hello World',
+                    timestamp: new Date().toISOString()
+                });
+
+            // ─── PING ───────────────────────────────────────────────
+            case 'ping':
+                return res.status(200).json({
+                    status: true,
+                    message: 'Pong!',
+                    timestamp: new Date().toISOString()
+                });
+
+            // ─── INFO ──────────────────────────────────────────────
+            case 'info':
+                return res.status(200).json({
+                    status: true,
+                    name: 'SteveMC API',
+                    version: '1.0.0',
+                    endpoints: [
+                        'hello - Say hello',
+                        'ping - Ping pong',
+                        'info - Info API',
+                        'echo - Echo message',
+                        'send-message - Kirim pesan ke owner',
+                        'status - Status API'
+                    ],
+                    timestamp: new Date().toISOString()
+                });
+
+            // ─── ECHO ──────────────────────────────────────────────
+            case 'echo':
+                const message = params.message || body?.message || 'Tidak ada pesan';
+                return res.status(200).json({
+                    status: true,
+                    message: `Echo: ${message}`,
+                    data: {
+                        echo: message,
+                        method: req.method,
+                        query: params,
+                        body: body
+                    },
+                    timestamp: new Date().toISOString()
+                });
+
+            // ─── SEND MESSAGE ──────────────────────────────────────
             case 'send-message': {
+                // Ambil data dari body (POST) atau query (GET)
                 const name = body?.name || params.name || 'Tidak diketahui';
                 const email = body?.email || params.email || 'Tidak diketahui';
                 const pesan = body?.pesan || params.pesan || 'Tidak ada pesan';
 
-                // SIMPAN KE SUPABASE
-                const { data, error } = await supabase
-                    .from('messages')
-                    .insert([
-                        { 
-                            name: name, 
-                            email: email, 
-                            message: pesan,
-                            created_at: new Date().toISOString()
-                        }
-                    ])
-                    .select();
-
-                if (error) {
-                    console.error('❌ Supabase error:', error);
-                }
-
+                // Format pesan WhatsApp
                 const waMessage = `
 📩 *PESAN DARI WEBSITE*
 
@@ -55,16 +94,19 @@ export default async function handler(req, res) {
 🌐 IP: ${req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'Tidak diketahui'}
                 `.trim();
 
-                console.log('📨 Pesan diterima:', waMessage);
+                console.log('📨 Pesan diterima:');
+                console.log(waMessage);
 
+                // ============================================================
+                // RESPONSE - Data yang dikirim balik SAMA PERSIS dengan input
+                // ============================================================
                 return res.status(200).json({
                     status: true,
                     message: 'Data berhasil diterima API',
                     data: {
                         name: name,
                         email: email,
-                        pesan: pesan,
-                        saved: data ? true : false
+                        pesan: pesan
                     },
                     debug: {
                         method: req.method,
@@ -74,35 +116,49 @@ export default async function handler(req, res) {
                 });
             }
 
-            // ─── GET MESSAGES ──────────────────────────────────────
-            case 'get-messages': {
-                const { data, error } = await supabase
-                    .from('messages')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(10);
+            // ─── STATUS ─────────────────────────────────────────────
+            case 'status':
+                return res.status(200).json({
+                    status: true,
+                    server: 'Online',
+                    uptime: process.uptime(),
+                    memory: process.memoryUsage(),
+                    timestamp: new Date().toISOString()
+                });
 
-                if (error) {
-                    return res.status(500).json({
+            // ─── USER ──────────────────────────────────────────────
+            case 'user':
+                const userId = params.id || body?.id || '1';
+                const users = {
+                    '1': { id: 1, name: 'SteveMC', role: 'admin', email: 'steve@example.com' },
+                    '2': { id: 2, name: 'John Doe', role: 'user', email: 'john@example.com' },
+                    '3': { id: 3, name: 'Jane Smith', role: 'user', email: 'jane@example.com' }
+                };
+
+                const user = users[userId] || null;
+
+                if (!user) {
+                    return res.status(404).json({
                         status: false,
-                        message: error.message
+                        message: `User dengan ID ${userId} tidak ditemukan`
                     });
                 }
 
                 return res.status(200).json({
                     status: true,
-                    data: data,
-                    total: data.length
+                    data: user,
+                    timestamp: new Date().toISOString()
                 });
-            }
 
-            // ... fitur lainnya
-
+            // ─── DEFAULT ────────────────────────────────────────────
             default:
                 return res.status(404).json({
                     status: false,
                     message: `Fitur "${fitur}" tidak ditemukan`,
-                    available_fitur: ['hello', 'ping', 'info', 'send-message', 'get-messages', 'status'],
+                    available_fitur: [
+                        'hello', 'ping', 'info', 'echo',
+                        'send-message', 'status', 'user'
+                    ],
                     timestamp: new Date().toISOString()
                 });
         }
@@ -112,6 +168,7 @@ export default async function handler(req, res) {
         return res.status(500).json({
             status: false,
             message: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
             timestamp: new Date().toISOString()
         });
     }
