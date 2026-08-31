@@ -98,135 +98,163 @@ export default async function handler(req, res) {
       // Draw original image
       ctx.drawImage(image, 0, 0, width, height);
 
-      // Helper function to wrap text
-      function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-        const words = text.split(' ');
+      // ============================================================
+      // FUNGSI WRAP TEXT (SAMA DENGAN HTML PREVIEW)
+      // ============================================================
+      function wrapText(ctx, text, maxWidth, maxSize, minSize, fontFamily) {
+        if (!text) return { lines: [], fontSize: maxSize };
+        
+        let size = maxSize;
         let lines = [];
-        let currentLine = words[0] || '';
-
-        for (let i = 1; i < words.length; i++) {
-          const word = words[i];
-          const testLine = currentLine + ' ' + word;
-          const metrics = ctx.measureText(testLine);
-          if (metrics.width < maxWidth) {
-            currentLine = testLine;
-          } else {
-            lines.push(currentLine);
-            currentLine = word;
+        let success = false;
+        
+        while (size >= minSize) {
+          ctx.font = `bold ${size}px ${fontFamily}`;
+          const words = text.split(' ');
+          lines = [];
+          let currentLine = words[0] || '';
+          
+          for (let i = 1; i < words.length; i++) {
+            const testLine = currentLine + ' ' + words[i];
+            const metrics = ctx.measureText(testLine);
+            if (metrics.width > maxWidth) {
+              lines.push(currentLine);
+              currentLine = words[i];
+            } else {
+              currentLine = testLine;
+            }
           }
-        }
-        if (currentLine) {
           lines.push(currentLine);
-        }
-        return lines;
-      }
-
-      // ============================================================
-      // FUNCTION DRAW TEXT WITH OUTLINE (DIPERBAIKI)
-      // ============================================================
-      function drawTextWithOutline(ctx, text, x, y, maxWidth, maxHeight) {
-        if (!text) return;
-
-        let fontSize = Math.min(Math.min(width, height) / 8, 80);
-        let lines = [];
-        let lineHeight = 0;
-        let totalHeight = 0;
-
-        // Cari ukuran font yang sesuai
-        while (fontSize >= 10) {
-          ctx.font = `bold ${fontSize}px Arial`;
-
-          lineHeight = fontSize * 1.2;
-          lines = wrapText(ctx, text, x, y, maxWidth, lineHeight);
-          totalHeight = lines.length * lineHeight;
-
-          // Pastikan setiap baris tidak melebihi maxWidth
-          const widestLine = Math.max(
-            ...lines.map(line => ctx.measureText(line).width)
-          );
-
-          if (
-            widestLine <= maxWidth &&
-            totalHeight <= maxHeight
-          ) {
+          
+          const maxLineWidth = Math.max(...lines.map(line => ctx.measureText(line).width));
+          if (maxLineWidth <= maxWidth) {
+            success = true;
             break;
           }
-
-          fontSize -= 2;
+          size -= 2;
         }
+        
+        if (!success || lines.length === 0) {
+          ctx.font = `bold ${minSize}px ${fontFamily}`;
+          const words = text.split(' ');
+          lines = [];
+          let currentLine = words[0] || '';
+          
+          for (let i = 1; i < words.length; i++) {
+            const testLine = currentLine + ' ' + words[i];
+            const metrics = ctx.measureText(testLine);
+            if (metrics.width > maxWidth) {
+              lines.push(currentLine);
+              currentLine = words[i];
+            } else {
+              currentLine = testLine;
+            }
+          }
+          lines.push(currentLine);
+          return { lines, fontSize: minSize };
+        }
+        
+        return { lines, fontSize: size };
+      }
 
-        // Font final
-        ctx.font = `bold ${fontSize}px Arial`;
+      // ============================================================
+      // FUNGSI DRAW TEXT WITH OUTLINE (SAMA DENGAN HTML PREVIEW)
+      // ============================================================
+      function drawTextWithOutline(ctx, lines, y, width, height, fontSize, fontFamily, color, outline, outlineWidth) {
+        if (lines.length === 0) return;
+
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
+        ctx.font = `bold ${fontSize}px ${fontFamily}`;
 
-        lineHeight = fontSize * 1.2;
-        totalHeight = lines.length * lineHeight;
-
-        // Posisi awal
-        const startY = y - (totalHeight / 2) + (lineHeight / 2);
-
+        const lineHeight = fontSize * 1.2;
+        const outlineSteps = Math.max(1, Math.round(outlineWidth / 2));
+        
         lines.forEach((line, index) => {
-          const lineY = startY + (index * lineHeight);
-
-          // =========================
-          // OUTLINE HITAM (DIGAMBAR PERTAMA)
-          // =========================
+          const lineY = y + (index * lineHeight) + (lineHeight / 2);
+          
+          ctx.fillStyle = outline;
+          ctx.lineWidth = outlineWidth;
+          ctx.strokeStyle = outline;
           ctx.lineJoin = 'round';
-          ctx.miterLimit = 2;
-
-          ctx.strokeStyle = '#000000';
-          ctx.lineWidth = Math.max(4, fontSize * 0.08);
-
-          ctx.strokeText(line, x, lineY);
-
-          // =========================
-          // TEKS PUTIH (DIGAMBAR KEDUA - DI ATAS OUTLINE)
-          // =========================
-          ctx.fillStyle = '#FFFFFF';
-          ctx.fillText(line, x, lineY);
+          ctx.lineCap = 'round';
+          
+          // Multiple stroke for thicker outline
+          for (let i = 0; i < outlineSteps; i++) {
+            const offset = i * 0.5;
+            ctx.strokeText(line, width / 2 + offset, lineY);
+            ctx.strokeText(line, width / 2 - offset, lineY);
+            ctx.strokeText(line, width / 2, lineY + offset);
+            ctx.strokeText(line, width / 2, lineY - offset);
+          }
+          
+          ctx.strokeText(line, width / 2, lineY);
+          ctx.fillStyle = color;
+          ctx.fillText(line, width / 2, lineY);
         });
-
-        return lines.length;
       }
 
       // ============================================================
-      // DRAW TEXT ON IMAGE
+      // PARAMETER TEKS (SAMA DENGAN HTML PREVIEW)
       // ============================================================
-      const padding = 30;
-      const maxWidth = width * 0.90;
-      const maxHeight = height * 0.35;
+      const maxTextWidth = width * 0.9;
+      const fontFamily = 'Arial Black, Impact, sans-serif';
+      const color = '#FFFFFF';
+      const outline = '#000000';
+      const outlineWidth = 4;
+      const margin = 10;
+      const maxSize = 100;
+      const minSize = 16;
 
-      // =========================
-      // TEKS ATAS
-      // =========================
+      // ============================================================
+      // PROSES TEKS ATAS
+      // ============================================================
       if (topText) {
-        const topY = Math.max(60, height * 0.12);
-
-        drawTextWithOutline(
-          ctx,
-          topText,
-          width / 2,
-          topY,
-          maxWidth,
-          maxHeight
-        );
+        const topResult = wrapText(ctx, topText, maxTextWidth, maxSize, minSize, fontFamily);
+        const topLines = topResult.lines;
+        const topFontSize = topResult.fontSize;
+        
+        if (topLines.length > 0) {
+          const topY = margin;
+          drawTextWithOutline(
+            ctx,
+            topLines,
+            topY,
+            width,
+            height,
+            topFontSize,
+            fontFamily,
+            color,
+            outline,
+            outlineWidth
+          );
+        }
       }
 
-      // =========================
-      // TEKS BAWAH
-      // =========================
+      // ============================================================
+      // PROSES TEKS BAWAH
+      // ============================================================
       if (bottomText) {
-        const bottomY = height * 0.88;
-
-        drawTextWithOutline(
-          ctx,
-          bottomText,
-          width / 2,
-          bottomY,
-          maxWidth,
-          maxHeight
-        );
+        const bottomResult = wrapText(ctx, bottomText, maxTextWidth, maxSize, minSize, fontFamily);
+        const bottomLines = bottomResult.lines;
+        const bottomFontSize = bottomResult.fontSize;
+        
+        if (bottomLines.length > 0) {
+          const bottomHeight = bottomLines.length * (bottomFontSize * 1.2);
+          const bottomY = height - bottomHeight - margin;
+          drawTextWithOutline(
+            ctx,
+            bottomLines,
+            bottomY,
+            width,
+            height,
+            bottomFontSize,
+            fontFamily,
+            color,
+            outline,
+            outlineWidth
+          );
+        }
       }
 
       processedBuffer = canvas.toBuffer('image/png');
