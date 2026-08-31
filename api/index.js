@@ -1,17 +1,9 @@
 // api/index.js
 
 import axios from 'axios';
-import { createCanvas, loadImage } from 'canvas';
-import FormData from 'form-data';
-
-const TERMAI_KEY = 'AIzaBj7z2z3xBjsk';
-const TERMAI_UPLOAD = `https://c.termai.cc/api/upload?key=${TERMAI_KEY}`;
 
 export default async function handler(req, res) {
 
-    // ================================
-    // CORS
-    // ================================
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader(
         'Access-Control-Allow-Methods',
@@ -28,13 +20,14 @@ export default async function handler(req, res) {
 
     try {
 
-        // ================================
-        // AMBIL DATA
-        // ================================
         const query = req.query || {};
-        const body = req.method === 'POST' ? (req.body || {}) : {};
+        const body = req.method === 'POST'
+            ? (req.body || {})
+            : {};
 
-        if (query.fitur !== 'edit-foto' && !body.imageUrl) {
+        const fitur = query.fitur;
+
+        if (fitur !== 'edit-foto') {
             return res.status(400).json({
                 status: false,
                 message: 'Gunakan fitur=edit-foto'
@@ -46,257 +39,60 @@ export default async function handler(req, res) {
             query.imageUrl;
 
         const topText =
-            body.topText ??
-            query.topText ??
+            body.topText ||
+            query.topText ||
             '';
 
         const bottomText =
-            body.bottomText ??
-            query.bottomText ??
+            body.bottomText ||
+            query.bottomText ||
             '';
 
-        // ================================
-        // VALIDASI
-        // ================================
         if (!imageUrl) {
             return res.status(400).json({
                 status: false,
-                message: 'Parameter imageUrl wajib diisi'
+                message: 'imageUrl wajib diisi'
             });
         }
 
-        if (!topText && !bottomText) {
-            return res.status(400).json({
-                status: false,
-                message: 'topText atau bottomText wajib diisi'
-            });
-        }
-
-        console.log('📸 EDIT FOTO');
-        console.log('Image:', imageUrl);
+        console.log('TEST API');
+        console.log('Image URL:', imageUrl);
         console.log('Top:', topText);
         console.log('Bottom:', bottomText);
 
-        // ================================
-        // DOWNLOAD GAMBAR
-        // ================================
-        const imageResponse = await axios.get(imageUrl, {
+        // Test download saja
+        const response = await axios.get(imageUrl, {
             responseType: 'arraybuffer',
-            timeout: 30000,
-            maxContentLength: 15 * 1024 * 1024
+            timeout: 30000
         });
 
-        const imageBuffer = Buffer.from(imageResponse.data);
+        const buffer = Buffer.from(response.data);
 
         console.log(
-            '✅ Gambar berhasil didownload:',
-            imageBuffer.length,
-            'bytes'
+            'Gambar berhasil didownload:',
+            buffer.length
         );
 
-        // ================================
-        // LOAD GAMBAR
-        // ================================
-        const image = await loadImage(imageBuffer);
-
-        const width = image.width;
-        const height = image.height;
-
-        console.log(`📐 Ukuran: ${width}x${height}`);
-
-        // ================================
-        // CANVAS
-        // ================================
-        const canvas = createCanvas(width, height);
-        const ctx = canvas.getContext('2d');
-
-        ctx.drawImage(
-            image,
-            0,
-            0,
-            width,
-            height
-        );
-
-        // ================================
-        // PENGATURAN TEXT
-        // ================================
-        const maxWidth = width * 0.9;
-
-        function getFontSize(text) {
-
-            let size = Math.min(
-                Math.floor(width / 8),
-                100
-            );
-
-            ctx.font = `bold ${size}px Arial`;
-
-            while (
-                ctx.measureText(text).width > maxWidth &&
-                size > 20
-            ) {
-                size -= 2;
-                ctx.font = `bold ${size}px Arial`;
-            }
-
-            return size;
-        }
-
-        function drawText(text, y) {
-
-            if (!text) return;
-
-            const fontSize = getFontSize(text);
-
-            ctx.font = `bold ${fontSize}px Arial`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            // Outline
-            ctx.lineWidth = Math.max(
-                4,
-                Math.floor(fontSize / 12)
-            );
-
-            ctx.strokeStyle = '#000000';
-            ctx.fillStyle = '#FFFFFF';
-            ctx.lineJoin = 'round';
-
-            ctx.strokeText(
-                text,
-                width / 2,
-                y
-            );
-
-            ctx.fillText(
-                text,
-                width / 2,
-                y
-            );
-        }
-
-        // ================================
-        // TEXT ATAS
-        // ================================
-        if (topText) {
-
-            drawText(
-                topText,
-                Math.max(50, height * 0.12)
-            );
-        }
-
-        // ================================
-        // TEXT BAWAH
-        // ================================
-        if (bottomText) {
-
-            drawText(
-                bottomText,
-                Math.min(
-                    height - 50,
-                    height * 0.88
-                )
-            );
-        }
-
-        // ================================
-        // HASIL PNG
-        // ================================
-        const outputBuffer =
-            canvas.toBuffer('image/png');
-
-        console.log(
-            '✅ Canvas berhasil dibuat:',
-            outputBuffer.length,
-            'bytes'
-        );
-
-        // ================================
-        // UPLOAD TERMAI
-        // ================================
-        const form = new FormData();
-
-        form.append(
-            'file',
-            outputBuffer,
-            {
-                filename: 'stevemc-edited.png',
-                contentType: 'image/png'
-            }
-        );
-
-        console.log('📤 Upload ke Termai...');
-
-        const uploadResponse = await axios.post(
-            TERMAI_UPLOAD,
-            form,
-            {
-                headers: {
-                    ...form.getHeaders()
-                },
-                timeout: 60000,
-                maxContentLength: 20 * 1024 * 1024,
-                maxBodyLength: 20 * 1024 * 1024
-            }
-        );
-
-        console.log(
-            '📥 Response Termai:',
-            uploadResponse.data
-        );
-
-        const result = uploadResponse.data;
-
-        // ================================
-        // CARI URL HASIL
-        // ================================
-        const resultUrl =
-            result?.url ||
-            result?.path ||
-            result?.data?.url ||
-            result?.data?.path;
-
-        if (!resultUrl) {
-
-            console.error(
-                '❌ Termai tidak memberikan URL:',
-                result
-            );
-
-            return res.status(500).json({
-                status: false,
-                message: 'Upload berhasil tetapi URL gambar tidak ditemukan',
-                termai: result
-            });
-        }
-
-        // ================================
-        // RESPONSE
-        // ================================
         return res.status(200).json({
             status: true,
-            message: 'Foto berhasil diedit dan diupload',
+            message: 'API berjalan dan gambar berhasil didownload',
             data: {
-                imageUrl: resultUrl,
-                width,
-                height,
+                imageUrl,
                 topText,
-                bottomText
+                bottomText,
+                imageSize: buffer.length
             }
         });
 
     } catch (error) {
 
-        console.error(
-            '❌ ERROR:',
-            error
-        );
+        console.error('ERROR:', error);
 
         return res.status(500).json({
             status: false,
-            message: error.message || 'Internal Server Error'
+            message: error?.message || 'Unknown error',
+            name: error?.name || 'UnknownError',
+            code: error?.code || null
         });
     }
 }
