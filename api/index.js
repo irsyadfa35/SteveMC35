@@ -18,10 +18,13 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
 
+  // TERMAI API Key - hardcoded as requested
+  const TERMAI_KEY = 'AIzaBj7z2z3xBjsk';
+
   try {
-    // Extract parameters from POST or GET
     let imageUrl, topText, bottomText;
 
+    // Extract parameters from POST or GET
     if (req.method === 'POST') {
       imageUrl = req.body?.imageUrl;
       topText = req.body?.topText || '';
@@ -29,12 +32,15 @@ export default async function handler(req, res) {
     } else {
       // GET request
       const { query } = req;
+      
+      // Check if fitur parameter is correct
       if (query.fitur !== 'edit-foto') {
         return res.status(400).json({
           status: false,
           message: 'Invalid fitur parameter. Use: fitur=edit-foto'
         });
       }
+      
       imageUrl = query.imageUrl;
       topText = query.topText || '';
       bottomText = query.bottomText || '';
@@ -55,7 +61,10 @@ export default async function handler(req, res) {
       // If decoding fails, use as is
     }
 
-    // Download image
+    console.log(`Processing image: ${imageUrl}`);
+    console.log(`Top text: "${topText}", Bottom text: "${bottomText}"`);
+
+    // Step 2: Download image
     let imageBuffer;
     try {
       const response = await axios.get(imageUrl, {
@@ -64,20 +73,24 @@ export default async function handler(req, res) {
         maxContentLength: 10 * 1024 * 1024 // 10MB limit
       });
       imageBuffer = Buffer.from(response.data);
+      console.log(`Image downloaded: ${imageBuffer.length} bytes`);
     } catch (error) {
       console.error('Download error:', error.message);
       return res.status(500).json({
         status: false,
-        message: 'Gagal memuat gambar'
+        message: 'Gagal memuat gambar',
+        error: error.message,
+        statusCode: error.response?.status || 500
       });
     }
 
-    // Process image with canvas
+    // Step 3-4: Process image with canvas
     let processedBuffer;
     try {
       const image = await loadImage(imageBuffer);
       const width = image.width;
       const height = image.height;
+      console.log(`Image dimensions: ${width}x${height}`);
 
       const canvas = createCanvas(width, height);
       const ctx = canvas.getContext('2d');
@@ -85,152 +98,218 @@ export default async function handler(req, res) {
       // Draw original image
       ctx.drawImage(image, 0, 0, width, height);
 
-      // Function to wrap text
+      // Helper function to wrap text
       function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
         const words = text.split(' ');
         let lines = [];
-        let currentLine = words[0];
+        let currentLine = words[0] || '';
 
         for (let i = 1; i < words.length; i++) {
           const word = words[i];
-          const width = ctx.measureText(currentLine + ' ' + word).width;
-          if (width < maxWidth) {
-            currentLine += ' ' + word;
+          const testLine = currentLine + ' ' + word;
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width < maxWidth) {
+            currentLine = testLine;
           } else {
             lines.push(currentLine);
             currentLine = word;
           }
         }
-        lines.push(currentLine);
+        if (currentLine) {
+          lines.push(currentLine);
+        }
         return lines;
       }
 
-      // Function to draw text with outline
-      function drawTextWithOutline(ctx, text, x, y, fontSize, maxWidth) {
-        const lineHeight = fontSize * 1.2;
-        const lines = wrapText(ctx, text, x, y, maxWidth, lineHeight);
-        
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        
-        // Adjust font size if text too long
-        let currentFontSize = fontSize;
-        let currentLines = lines;
-        let totalHeight = currentLines.length * lineHeight;
-        
-        // If text exceeds image boundaries, reduce font size
-        while (totalHeight > height * 0.4 && currentFontSize > 10) {
-          currentFontSize -= 2;
-          const newLineHeight = currentFontSize * 1.2;
-          ctx.font = `bold ${currentFontSize}px Arial`;
-          currentLines = wrapText(ctx, text, x, y, maxWidth, newLineHeight);
-          totalHeight = currentLines.length * newLineHeight;
+      // Helper function to draw text with outline
+      function drawTextWithOutline(ctx, text, x, y, maxWidth, maxHeight) {
+        if (!text) return;
+
+        let fontSize = Math.min(Math.min(width, height) / 8, 80);
+        let lines = [];
+        let lineHeight;
+        let totalHeight;
+
+        // Try to find optimal font size
+        while (fontSize > 10) {
+          lineHeight = fontSize * 1.3;
+          ctx.font = `bold ${fontSize}px Arial`;
+          
+          lines = wrapText(ctx, text, x, y, maxWidth, lineHeight);
+          totalHeight = lines.length * lineHeight;
+          
+          if (totalHeight <= maxHeight) {
+            break;
+          }
+          fontSize -= 2;
         }
 
-        // Draw each line
+        // Final font setting
+        ctx.font = `bold ${fontSize}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+
+        // Calculate starting Y position to center text vertically
         const startY = y - (totalHeight / 2);
-        currentLines.forEach((line, index) => {
-          const lineY = startY + (index * (currentFontSize * 1.2));
+
+        // Draw each line
+        lines.forEach((line, index) => {
+          const lineY = startY + (index * lineHeight);
           
-          // Draw outline (black)
+          // Draw black outline (multiple offsets for better visibility)
           ctx.shadowColor = 'black';
-          ctx.shadowBlur = 10;
-          ctx.shadowOffsetX = 2;
-          ctx.shadowOffsetY = 2;
-          
-          // Draw filled text (white)
-          ctx.shadowColor = 'transparent';
-          ctx.fillStyle = 'white';
-          ctx.font = `bold ${currentFontSize}px Arial`;
-          
-          // Draw black outline
-          ctx.shadowColor = 'black';
-          ctx.shadowBlur = 8;
+          ctx.shadowBlur = 15;
           ctx.shadowOffsetX = 3;
           ctx.shadowOffsetY = 3;
-          ctx.fillText(line, x, lineY);
-          
-          // Draw white text on top
-          ctx.shadowColor = 'transparent';
           ctx.fillStyle = 'white';
           ctx.fillText(line, x, lineY);
+          
+          // Clear shadow and draw white text on top
+          ctx.shadowColor = 'transparent';
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 0;
+          ctx.fillStyle = 'white';
+          ctx.fillText(line, x, lineY);
+          
+          // Draw black stroke for additional outline
+          ctx.strokeStyle = 'black';
+          ctx.lineWidth = 3;
+          ctx.strokeText(line, x, lineY);
         });
-        
-        return currentLines.length;
+
+        return lines.length;
       }
 
-      const padding = 20;
+      const padding = 30;
       const maxWidth = width - (padding * 2);
-      const defaultFontSize = Math.min(width / 15, 60);
+      const maxHeight = height * 0.35; // Max 35% of image height for text
 
       // Draw top text
       if (topText) {
         const topY = padding + 20;
-        drawTextWithOutline(ctx, topText, width / 2, topY, defaultFontSize, maxWidth);
+        drawTextWithOutline(ctx, topText, width / 2, topY, maxWidth, maxHeight);
       }
 
       // Draw bottom text
       if (bottomText) {
         const bottomY = height - padding - 20;
-        drawTextWithOutline(ctx, bottomText, width / 2, bottomY, defaultFontSize, maxWidth);
+        drawTextWithOutline(ctx, bottomText, width / 2, bottomY, maxWidth, maxHeight);
       }
 
       processedBuffer = canvas.toBuffer('image/png');
+      console.log(`Image processed: ${processedBuffer.length} bytes`);
     } catch (error) {
-      console.error('Processing error:', error.message);
+      console.error('Canvas processing error:', error);
       return res.status(500).json({
         status: false,
-        message: 'Gagal memproses gambar'
+        message: 'Gagal memproses gambar dengan Canvas',
+        error: error.message,
+        stack: error.stack
       });
     }
 
-    // Upload to Termai
+    // Step 5-6: Upload to Termai
     let uploadResult;
     try {
-      const formData = new FormData();
-      formData.append('key', 'AIzaBj7z2z3xBjsk');
-      
       // Detect file type
-      const fileType = await fileTypeFromBuffer(processedBuffer);
+      let fileType = null;
+      try {
+        fileType = await fileTypeFromBuffer(processedBuffer);
+      } catch (e) {
+        // If file-type detection fails, default to PNG
+      }
+      
       const mimeType = fileType ? fileType.mime : 'image/png';
       const extension = fileType ? fileType.ext : 'png';
-      
+
+      const formData = new FormData();
       formData.append('file', processedBuffer, {
         filename: `edited-image.${extension}`,
         contentType: mimeType
       });
 
-      const response = await axios.post('https://c.termai.cc/api/upload', formData, {
-        headers: {
-          ...formData.getHeaders(),
-        },
-        timeout: 30000,
-        maxContentLength: 10 * 1024 * 1024
-      });
+      console.log(`Uploading to Termai with key: ${TERMAI_KEY}`);
+      
+      const response = await axios.post(
+        `https://c.termai.cc/api/upload?key=${TERMAI_KEY}`,
+        formData,
+        {
+          headers: {
+            ...formData.getHeaders(),
+          },
+          timeout: 120000,
+          maxContentLength: Infinity,
+          maxBodyLength: Infinity
+        }
+      );
 
       uploadResult = response.data;
+      console.log('Termai response:', JSON.stringify(uploadResult));
+
+      // Extract URL from various possible response structures
+      let imageUrlResult = null;
+      
+      if (uploadResult && typeof uploadResult === 'object') {
+        // Check different possible response structures
+        if (uploadResult.url) {
+          imageUrlResult = uploadResult.url;
+        } else if (uploadResult.path) {
+          imageUrlResult = uploadResult.path;
+        } else if (uploadResult.data) {
+          if (uploadResult.data.url) {
+            imageUrlResult = uploadResult.data.url;
+          } else if (uploadResult.data.path) {
+            imageUrlResult = uploadResult.data.path;
+          } else if (typeof uploadResult.data === 'string') {
+            imageUrlResult = uploadResult.data;
+          }
+        } else if (typeof uploadResult === 'string') {
+          imageUrlResult = uploadResult;
+        }
+      }
+
+      // If no URL found, check if response itself is a URL string
+      if (!imageUrlResult && typeof uploadResult === 'string') {
+        imageUrlResult = uploadResult;
+      }
+
+      if (!imageUrlResult) {
+        throw new Error(`Could not extract image URL from Termai response: ${JSON.stringify(uploadResult)}`);
+      }
+
+      // Return success response
+      return res.status(200).json({
+        status: true,
+        message: 'Foto berhasil diedit dan diupload',
+        data: {
+          imageUrl: imageUrlResult
+        }
+      });
+
     } catch (error) {
-      console.error('Upload error:', error.message);
+      console.error('Upload error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+
       return res.status(500).json({
         status: false,
-        message: 'Gagal upload gambar ke Termai'
+        message: 'Gagal upload gambar ke Termai',
+        error: error.message,
+        termai: error.response?.data || null,
+        statusCode: error.response?.status || 500
       });
     }
 
-    // Return success response
-    return res.status(200).json({
-      status: true,
-      message: 'Foto berhasil diedit dan diupload',
-      data: {
-        imageUrl: uploadResult.url || uploadResult.path || uploadResult
-      }
-    });
-
   } catch (error) {
-    console.error('Unhandled error:', error.message);
+    console.error('Unhandled error:', error);
     return res.status(500).json({
       status: false,
-      message: 'Terjadi kesalahan pada server'
+      message: 'Terjadi kesalahan pada server',
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 }
