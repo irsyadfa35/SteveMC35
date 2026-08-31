@@ -18,7 +18,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
 
-  // TERMAI API Key
+  // TERMAI API Key - SEGERA GANTI/ROTASI KEY INI!
   const TERMAI_KEY = 'AIzaBj7z2z3xBjsk';
 
   try {
@@ -121,80 +121,112 @@ export default async function handler(req, res) {
         return lines;
       }
 
-      // Helper function to draw text with outline
+      // ============================================================
+      // FUNCTION DRAW TEXT WITH OUTLINE (DIPERBAIKI)
+      // ============================================================
       function drawTextWithOutline(ctx, text, x, y, maxWidth, maxHeight) {
         if (!text) return;
 
         let fontSize = Math.min(Math.min(width, height) / 8, 80);
         let lines = [];
-        let lineHeight;
-        let totalHeight;
+        let lineHeight = 0;
+        let totalHeight = 0;
 
-        // Try to find optimal font size
-        while (fontSize > 10) {
-          lineHeight = fontSize * 1.3;
+        // Cari ukuran font yang sesuai
+        while (fontSize >= 10) {
           ctx.font = `bold ${fontSize}px Arial`;
-          
+
+          lineHeight = fontSize * 1.2;
           lines = wrapText(ctx, text, x, y, maxWidth, lineHeight);
           totalHeight = lines.length * lineHeight;
-          
-          if (totalHeight <= maxHeight) {
+
+          // Pastikan setiap baris tidak melebihi maxWidth
+          const widestLine = Math.max(
+            ...lines.map(line => ctx.measureText(line).width)
+          );
+
+          if (
+            widestLine <= maxWidth &&
+            totalHeight <= maxHeight
+          ) {
             break;
           }
+
           fontSize -= 2;
         }
 
-        // Final font setting
+        // Font final
         ctx.font = `bold ${fontSize}px Arial`;
         ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
+        ctx.textBaseline = 'middle';
 
-        // Calculate starting Y position to center text vertically
-        const startY = y - (totalHeight / 2);
+        lineHeight = fontSize * 1.2;
+        totalHeight = lines.length * lineHeight;
 
-        // Draw each line
+        // Posisi awal
+        const startY = y - (totalHeight / 2) + (lineHeight / 2);
+
         lines.forEach((line, index) => {
           const lineY = startY + (index * lineHeight);
-          
-          // Draw black outline (multiple offsets for better visibility)
-          ctx.shadowColor = 'black';
-          ctx.shadowBlur = 15;
-          ctx.shadowOffsetX = 3;
-          ctx.shadowOffsetY = 3;
-          ctx.fillStyle = 'white';
-          ctx.fillText(line, x, lineY);
-          
-          // Clear shadow and draw white text on top
-          ctx.shadowColor = 'transparent';
-          ctx.shadowBlur = 0;
-          ctx.shadowOffsetX = 0;
-          ctx.shadowOffsetY = 0;
-          ctx.fillStyle = 'white';
-          ctx.fillText(line, x, lineY);
-          
-          // Draw black stroke for additional outline
-          ctx.strokeStyle = 'black';
-          ctx.lineWidth = 3;
+
+          // =========================
+          // OUTLINE HITAM (DIGAMBAR PERTAMA)
+          // =========================
+          ctx.lineJoin = 'round';
+          ctx.miterLimit = 2;
+
+          ctx.strokeStyle = '#000000';
+          ctx.lineWidth = Math.max(4, fontSize * 0.08);
+
           ctx.strokeText(line, x, lineY);
+
+          // =========================
+          // TEKS PUTIH (DIGAMBAR KEDUA - DI ATAS OUTLINE)
+          // =========================
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillText(line, x, lineY);
         });
 
         return lines.length;
       }
 
+      // ============================================================
+      // DRAW TEXT ON IMAGE
+      // ============================================================
       const padding = 30;
-      const maxWidth = width - (padding * 2);
-      const maxHeight = height * 0.35; // Max 35% of image height for text
+      const maxWidth = width * 0.90;
+      const maxHeight = height * 0.35;
 
-      // Draw top text
+      // =========================
+      // TEKS ATAS
+      // =========================
       if (topText) {
-        const topY = padding + 20;
-        drawTextWithOutline(ctx, topText, width / 2, topY, maxWidth, maxHeight);
+        const topY = Math.max(60, height * 0.12);
+
+        drawTextWithOutline(
+          ctx,
+          topText,
+          width / 2,
+          topY,
+          maxWidth,
+          maxHeight
+        );
       }
 
-      // Draw bottom text
+      // =========================
+      // TEKS BAWAH
+      // =========================
       if (bottomText) {
-        const bottomY = height - padding - 20;
-        drawTextWithOutline(ctx, bottomText, width / 2, bottomY, maxWidth, maxHeight);
+        const bottomY = height * 0.88;
+
+        drawTextWithOutline(
+          ctx,
+          bottomText,
+          width / 2,
+          bottomY,
+          maxWidth,
+          maxHeight
+        );
       }
 
       processedBuffer = canvas.toBuffer('image/png');
