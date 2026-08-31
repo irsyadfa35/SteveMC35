@@ -84,188 +84,214 @@ export default async function handler(req, res) {
       });
     }
 
-    // Step 3-4: Process image with canvas
+    // ============================================================
+    // PROCESS IMAGE WITH CANVAS
+    // ============================================================
     let processedBuffer;
+
     try {
       const image = await loadImage(imageBuffer);
+
       const width = image.width;
       const height = image.height;
-      console.log(`📐 Image dimensions: ${width}x${height}`);
+
+      console.log(`📐 Image: ${width}x${height}`);
 
       const canvas = createCanvas(width, height);
       const ctx = canvas.getContext('2d');
 
-      // Draw original image
+      // Gambar gambar asli
       ctx.drawImage(image, 0, 0, width, height);
 
       // ============================================================
-      // FUNGSI WRAP TEXT (SAMA DENGAN HTML PREVIEW)
+      // KONFIGURASI TEKS
       // ============================================================
-      function wrapText(ctx, text, maxWidth, maxSize, minSize, fontFamily) {
-        if (!text) return { lines: [], fontSize: maxSize };
-        
-        let size = maxSize;
-        let lines = [];
-        let success = false;
-        
-        while (size >= minSize) {
-          ctx.font = `bold ${size}px ${fontFamily}`;
-          const words = text.split(' ');
-          lines = [];
-          let currentLine = words[0] || '';
-          
-          for (let i = 1; i < words.length; i++) {
-            const testLine = currentLine + ' ' + words[i];
-            const metrics = ctx.measureText(testLine);
-            if (metrics.width > maxWidth) {
+      const FONT = 'Arial';
+      const TEXT_COLOR = '#FFFFFF';
+      const OUTLINE_COLOR = '#000000';
+
+      const maxTextWidth = width * 0.90;
+      const maxFontSize = Math.min(100, Math.max(30, width / 8));
+      const minFontSize = 16;
+
+      // ============================================================
+      // WRAP TEXT
+      // ============================================================
+      function getTextLines(text, fontSize) {
+        if (!text) return [];
+
+        ctx.font = `bold ${fontSize}px ${FONT}`;
+
+        const words = String(text).trim().split(/\s+/);
+
+        const lines = [];
+        let currentLine = '';
+
+        for (const word of words) {
+          const testLine = currentLine
+            ? `${currentLine} ${word}`
+            : word;
+
+          const textWidth = ctx.measureText(testLine).width;
+
+          if (textWidth <= maxTextWidth) {
+            currentLine = testLine;
+          } else {
+            if (currentLine) {
               lines.push(currentLine);
-              currentLine = words[i];
-            } else {
-              currentLine = testLine;
             }
+
+            currentLine = word;
           }
-          lines.push(currentLine);
-          
-          const maxLineWidth = Math.max(...lines.map(line => ctx.measureText(line).width));
-          if (maxLineWidth <= maxWidth) {
-            success = true;
-            break;
-          }
-          size -= 2;
         }
-        
-        if (!success || lines.length === 0) {
-          ctx.font = `bold ${minSize}px ${fontFamily}`;
-          const words = text.split(' ');
-          lines = [];
-          let currentLine = words[0] || '';
-          
-          for (let i = 1; i < words.length; i++) {
-            const testLine = currentLine + ' ' + words[i];
-            const metrics = ctx.measureText(testLine);
-            if (metrics.width > maxWidth) {
-              lines.push(currentLine);
-              currentLine = words[i];
-            } else {
-              currentLine = testLine;
-            }
-          }
+
+        if (currentLine) {
           lines.push(currentLine);
-          return { lines, fontSize: minSize };
         }
-        
-        return { lines, fontSize: size };
+
+        return lines;
       }
 
       // ============================================================
-      // FUNGSI DRAW TEXT WITH OUTLINE (SAMA DENGAN HTML PREVIEW)
+      // CARI FONT SIZE
       // ============================================================
-      function drawTextWithOutline(ctx, lines, y, width, height, fontSize, fontFamily, color, outline, outlineWidth) {
-        if (lines.length === 0) return;
+      function calculateText(text) {
+        if (!text) {
+          return {
+            lines: [],
+            fontSize: maxFontSize
+          };
+        }
+
+        let fontSize = maxFontSize;
+
+        while (fontSize > minFontSize) {
+          const lines = getTextLines(text, fontSize);
+
+          const tooWide = lines.some(line => {
+            ctx.font = `bold ${fontSize}px ${FONT}`;
+            return ctx.measureText(line).width > maxTextWidth;
+          });
+
+          if (!tooWide) {
+            return {
+              lines,
+              fontSize
+            };
+          }
+
+          fontSize -= 2;
+        }
+
+        return {
+          lines: getTextLines(text, minFontSize),
+          fontSize: minFontSize
+        };
+      }
+
+      // ============================================================
+      // DRAW TEXT
+      // ============================================================
+      function drawText(text, position) {
+        if (!text) return;
+
+        const result = calculateText(text);
+
+        const lines = result.lines;
+        const fontSize = result.fontSize;
+
+        if (!lines.length) return;
+
+        ctx.font = `bold ${fontSize}px ${FONT}`;
 
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.font = `bold ${fontSize}px ${fontFamily}`;
+
+        ctx.lineJoin = 'round';
+        ctx.miterLimit = 2;
 
         const lineHeight = fontSize * 1.2;
-        const outlineSteps = Math.max(1, Math.round(outlineWidth / 2));
-        
+        const totalHeight = lines.length * lineHeight;
+
+        let centerY;
+
+        if (position === 'top') {
+          centerY = Math.max(
+            totalHeight / 2 + 20,
+            height * 0.12
+          );
+        } else {
+          centerY = Math.min(
+            height - totalHeight / 2 - 20,
+            height * 0.88
+          );
+        }
+
+        const startY =
+          centerY -
+          ((lines.length - 1) * lineHeight) / 2;
+
         lines.forEach((line, index) => {
-          const lineY = y + (index * lineHeight) + (lineHeight / 2);
-          
-          ctx.fillStyle = outline;
-          ctx.lineWidth = outlineWidth;
-          ctx.strokeStyle = outline;
-          ctx.lineJoin = 'round';
-          ctx.lineCap = 'round';
-          
-          // Multiple stroke for thicker outline
-          for (let i = 0; i < outlineSteps; i++) {
-            const offset = i * 0.5;
-            ctx.strokeText(line, width / 2 + offset, lineY);
-            ctx.strokeText(line, width / 2 - offset, lineY);
-            ctx.strokeText(line, width / 2, lineY + offset);
-            ctx.strokeText(line, width / 2, lineY - offset);
-          }
-          
-          ctx.strokeText(line, width / 2, lineY);
-          ctx.fillStyle = color;
-          ctx.fillText(line, width / 2, lineY);
+          const y = startY + index * lineHeight;
+
+          // ========================================================
+          // OUTLINE HITAM
+          // ========================================================
+          ctx.strokeStyle = OUTLINE_COLOR;
+          ctx.lineWidth = Math.max(4, fontSize * 0.08);
+
+          ctx.strokeText(
+            line,
+            width / 2,
+            y
+          );
+
+          // ========================================================
+          // TEKS PUTIH
+          // ========================================================
+          ctx.fillStyle = TEXT_COLOR;
+
+          ctx.fillText(
+            line,
+            width / 2,
+            y
+          );
         });
+
+        console.log(
+          `✏️ Text "${text}" | font=${fontSize}px | lines=${lines.length}`
+        );
       }
 
       // ============================================================
-      // PARAMETER TEKS (SAMA DENGAN HTML PREVIEW)
+      // TEKS ATAS
       // ============================================================
-      const maxTextWidth = width * 0.9;
-      const fontFamily = 'Arial Black, Impact, sans-serif';
-      const color = '#FFFFFF';
-      const outline = '#000000';
-      const outlineWidth = 4;
-      const margin = 10;
-      const maxSize = 100;
-      const minSize = 16;
+      drawText(topText, 'top');
 
       // ============================================================
-      // PROSES TEKS ATAS
+      // TEKS BAWAH
       // ============================================================
-      if (topText) {
-        const topResult = wrapText(ctx, topText, maxTextWidth, maxSize, minSize, fontFamily);
-        const topLines = topResult.lines;
-        const topFontSize = topResult.fontSize;
-        
-        if (topLines.length > 0) {
-          const topY = margin;
-          drawTextWithOutline(
-            ctx,
-            topLines,
-            topY,
-            width,
-            height,
-            topFontSize,
-            fontFamily,
-            color,
-            outline,
-            outlineWidth
-          );
-        }
-      }
+      drawText(bottomText, 'bottom');
 
       // ============================================================
-      // PROSES TEKS BAWAH
+      // HASIL
       // ============================================================
-      if (bottomText) {
-        const bottomResult = wrapText(ctx, bottomText, maxTextWidth, maxSize, minSize, fontFamily);
-        const bottomLines = bottomResult.lines;
-        const bottomFontSize = bottomResult.fontSize;
-        
-        if (bottomLines.length > 0) {
-          const bottomHeight = bottomLines.length * (bottomFontSize * 1.2);
-          const bottomY = height - bottomHeight - margin;
-          drawTextWithOutline(
-            ctx,
-            bottomLines,
-            bottomY,
-            width,
-            height,
-            bottomFontSize,
-            fontFamily,
-            color,
-            outline,
-            outlineWidth
-          );
-        }
-      }
-
       processedBuffer = canvas.toBuffer('image/png');
-      console.log(`✅ Image processed: ${processedBuffer.length} bytes`);
+
+      console.log(
+        `✅ Image processed: ${processedBuffer.length} bytes`
+      );
+
     } catch (error) {
-      console.error('❌ Canvas processing error:', error);
+      console.error(
+        '❌ Canvas processing error:',
+        error
+      );
+
       return res.status(500).json({
         status: false,
         message: 'Gagal memproses gambar dengan Canvas',
-        error: error.message,
-        stack: error.stack
+        error: error.message
       });
     }
 
