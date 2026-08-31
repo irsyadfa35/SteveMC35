@@ -18,7 +18,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
 
-  // TERMAI API Key - hardcoded as requested
+  // TERMAI API Key
   const TERMAI_KEY = 'AIzaBj7z2z3xBjsk';
 
   try {
@@ -61,8 +61,8 @@ export default async function handler(req, res) {
       // If decoding fails, use as is
     }
 
-    console.log(`Processing image: ${imageUrl}`);
-    console.log(`Top text: "${topText}", Bottom text: "${bottomText}"`);
+    console.log(`📥 Processing image: ${imageUrl}`);
+    console.log(`📝 Top text: "${topText}", Bottom text: "${bottomText}"`);
 
     // Step 2: Download image
     let imageBuffer;
@@ -73,9 +73,9 @@ export default async function handler(req, res) {
         maxContentLength: 10 * 1024 * 1024 // 10MB limit
       });
       imageBuffer = Buffer.from(response.data);
-      console.log(`Image downloaded: ${imageBuffer.length} bytes`);
+      console.log(`✅ Image downloaded: ${imageBuffer.length} bytes`);
     } catch (error) {
-      console.error('Download error:', error.message);
+      console.error('❌ Download error:', error.message);
       return res.status(500).json({
         status: false,
         message: 'Gagal memuat gambar',
@@ -90,7 +90,7 @@ export default async function handler(req, res) {
       const image = await loadImage(imageBuffer);
       const width = image.width;
       const height = image.height;
-      console.log(`Image dimensions: ${width}x${height}`);
+      console.log(`📐 Image dimensions: ${width}x${height}`);
 
       const canvas = createCanvas(width, height);
       const ctx = canvas.getContext('2d');
@@ -198,9 +198,9 @@ export default async function handler(req, res) {
       }
 
       processedBuffer = canvas.toBuffer('image/png');
-      console.log(`Image processed: ${processedBuffer.length} bytes`);
+      console.log(`✅ Image processed: ${processedBuffer.length} bytes`);
     } catch (error) {
-      console.error('Canvas processing error:', error);
+      console.error('❌ Canvas processing error:', error);
       return res.status(500).json({
         status: false,
         message: 'Gagal memproses gambar dengan Canvas',
@@ -209,102 +209,100 @@ export default async function handler(req, res) {
       });
     }
 
-    // Step 5-6: Upload to Termai
-    let uploadResult;
+    // ============================================================
+    // UPLOAD KE TERMAI
+    // ============================================================
     try {
-      // Detect file type
-      let fileType = null;
-      try {
-        fileType = await fileTypeFromBuffer(processedBuffer);
-      } catch (e) {
-        // If file-type detection fails, default to PNG
-      }
-      
-      const mimeType = fileType ? fileType.mime : 'image/png';
-      const extension = fileType ? fileType.ext : 'png';
-
       const formData = new FormData();
+
       formData.append('file', processedBuffer, {
-        filename: `edited-image.${extension}`,
-        contentType: mimeType
+        filename: 'edited-image.png',
+        contentType: 'image/png'
       });
 
-      console.log(`Uploading to Termai with key: ${TERMAI_KEY}`);
-      
+      const uploadUrl =
+        `https://c.termai.cc/api/upload?key=${encodeURIComponent(TERMAI_KEY)}`;
+
+      console.log('📤 Upload URL:', uploadUrl);
+      console.log('📦 Buffer:', processedBuffer.length, 'bytes');
+
       const response = await axios.post(
-        `https://c.termai.cc/api/upload?key=${TERMAI_KEY}`,
+        uploadUrl,
         formData,
         {
           headers: {
-            ...formData.getHeaders(),
+            ...formData.getHeaders()
           },
           timeout: 120000,
+          maxBodyLength: Infinity,
           maxContentLength: Infinity,
-          maxBodyLength: Infinity
+          validateStatus: () => true
         }
       );
 
-      uploadResult = response.data;
-      console.log('Termai response:', JSON.stringify(uploadResult));
+      console.log('📡 Termai HTTP:', response.status);
+      console.log('📥 Termai response:', response.data);
 
-      // Extract URL from various possible response structures
-      let imageUrlResult = null;
-      
-      if (uploadResult && typeof uploadResult === 'object') {
-        // Check different possible response structures
-        if (uploadResult.url) {
-          imageUrlResult = uploadResult.url;
-        } else if (uploadResult.path) {
-          imageUrlResult = uploadResult.path;
-        } else if (uploadResult.data) {
-          if (uploadResult.data.url) {
-            imageUrlResult = uploadResult.data.url;
-          } else if (uploadResult.data.path) {
-            imageUrlResult = uploadResult.data.path;
-          } else if (typeof uploadResult.data === 'string') {
-            imageUrlResult = uploadResult.data;
-          }
-        } else if (typeof uploadResult === 'string') {
-          imageUrlResult = uploadResult;
-        }
+      // Jangan anggap semua HTTP response sebagai sukses
+      if (response.status < 200 || response.status >= 300) {
+        return res.status(500).json({
+          status: false,
+          message: 'Termai menolak upload',
+          statusCode: response.status,
+          termai: response.data
+        });
       }
 
-      // If no URL found, check if response itself is a URL string
-      if (!imageUrlResult && typeof uploadResult === 'string') {
-        imageUrlResult = uploadResult;
+      const uploadResult = response.data;
+
+      // Cari URL hasil upload
+      let resultUrl = null;
+
+      if (typeof uploadResult === 'string') {
+        resultUrl = uploadResult;
+      } else if (uploadResult?.url) {
+        resultUrl = uploadResult.url;
+      } else if (uploadResult?.path) {
+        resultUrl = uploadResult.path;
+      } else if (uploadResult?.data?.url) {
+        resultUrl = uploadResult.data.url;
+      } else if (uploadResult?.data?.path) {
+        resultUrl = uploadResult.data.path;
+      } else if (typeof uploadResult?.data === 'string') {
+        resultUrl = uploadResult.data;
       }
 
-      if (!imageUrlResult) {
-        throw new Error(`Could not extract image URL from Termai response: ${JSON.stringify(uploadResult)}`);
+      if (!resultUrl) {
+        return res.status(500).json({
+          status: false,
+          message: 'Upload berhasil tetapi URL gambar tidak ditemukan',
+          termai: uploadResult
+        });
       }
 
-      // Return success response
       return res.status(200).json({
         status: true,
         message: 'Foto berhasil diedit dan diupload',
         data: {
-          imageUrl: imageUrlResult
+          imageUrl: resultUrl
         }
       });
 
     } catch (error) {
-      console.error('Upload error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status
-      });
+      console.error('❌ TERMAI ERROR:', error);
 
       return res.status(500).json({
         status: false,
         message: 'Gagal upload gambar ke Termai',
         error: error.message,
+        statusCode: error.response?.status || null,
         termai: error.response?.data || null,
-        statusCode: error.response?.status || 500
+        headers: error.response?.headers || null
       });
     }
 
   } catch (error) {
-    console.error('Unhandled error:', error);
+    console.error('❌ Unhandled error:', error);
     return res.status(500).json({
       status: false,
       message: 'Terjadi kesalahan pada server',
