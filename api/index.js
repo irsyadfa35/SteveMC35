@@ -2,7 +2,6 @@
 import axios from 'axios';
 import { createCanvas, loadImage } from 'canvas';
 import FormData from 'form-data';
-import { fileTypeFromBuffer } from 'file-type';
 
 export default async function handler(req, res) {
   // Handle CORS preflight
