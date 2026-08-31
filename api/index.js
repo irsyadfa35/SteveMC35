@@ -1,5 +1,5 @@
 // api/index.js
-// Endpoint: https://domain.com/api/index?fitur=edit-foto
+// Endpoint: https://www.stevemc.my.id/api/index
 
 import { createCanvas, loadImage } from 'canvas';
 import FormData from 'form-data';
@@ -40,14 +40,15 @@ async function uploadTermai(buffer) {
 // ============================================================
 // FUNGSI WRAP TEXT
 // ============================================================
-function wrapText(ctx, text, maxWidth, fontSize, fontFamily) {
-    if (!text) return { lines: [], fontSize: fontSize };
+function wrapText(ctx, text, maxWidth, maxSize, minSize) {
+    if (!text) return { lines: [], fontSize: maxSize };
     
-    let size = fontSize;
+    let size = maxSize;
     let lines = [];
     let success = false;
+    const fontFamily = 'Arial Black, Impact, sans-serif';
     
-    while (size >= 12) {
+    while (size >= minSize) {
         ctx.font = `bold ${size}px ${fontFamily}`;
         const words = text.split(' ');
         lines = [];
@@ -74,7 +75,7 @@ function wrapText(ctx, text, maxWidth, fontSize, fontFamily) {
     }
     
     if (!success || lines.length === 0) {
-        ctx.font = `bold 12px ${fontFamily}`;
+        ctx.font = `bold ${minSize}px ${fontFamily}`;
         const words = text.split(' ');
         lines = [];
         let currentLine = words[0] || '';
@@ -90,14 +91,14 @@ function wrapText(ctx, text, maxWidth, fontSize, fontFamily) {
             }
         }
         lines.push(currentLine);
-        return { lines, fontSize: 12 };
+        return { lines, fontSize: minSize };
     }
     
     return { lines, fontSize: size };
 }
 
 // ============================================================
-// FUNGSI EDIT FOTO
+// FUNGSI EDIT FOTO (CORE)
 // ============================================================
 async function editFoto(params) {
     const {
@@ -135,23 +136,17 @@ async function editFoto(params) {
     const maxTextWidth = w * (maxWidthPercent / 100);
     const fontFamily = 'Arial Black, Impact, sans-serif';
 
-    // ============================================================
-    // PROSES TEKS ATAS
-    // ============================================================
-    const topResult = wrapText(ctx, topText, maxTextWidth, parseInt(maxFontSize), fontFamily);
+    // Proses teks atas
+    const topResult = wrapText(ctx, topText, maxTextWidth, parseInt(maxFontSize), parseInt(minFontSize));
     const topLines = topResult.lines;
     const topFontSize = topResult.fontSize;
 
-    // ============================================================
-    // PROSES TEKS BAWAH
-    // ============================================================
-    const bottomResult = wrapText(ctx, bottomText, maxTextWidth, parseInt(maxFontSize), fontFamily);
+    // Proses teks bawah
+    const bottomResult = wrapText(ctx, bottomText, maxTextWidth, parseInt(maxFontSize), parseInt(minFontSize));
     const bottomLines = bottomResult.lines;
     const bottomFontSize = bottomResult.fontSize;
 
-    // ============================================================
-    // FUNGSI DRAW TEXT DENGAN OUTLINE
-    // ============================================================
+    // Fungsi draw text dengan outline
     function drawTextWithOutline(lines, y, size) {
         if (lines.length === 0) return;
 
@@ -182,32 +177,25 @@ async function editFoto(params) {
             }
             
             ctx.strokeText(line, w / 2, lineY);
-
-            // Teks utama
             ctx.fillStyle = textColor;
             ctx.fillText(line, w / 2, lineY);
         });
     }
 
-    // ============================================================
-    // GAMBAR TEKS
-    // ============================================================
-    const marginPx = parseInt(margin);
-
+    // Gambar teks atas (paling atas)
     if (topLines.length > 0) {
-        const topY = marginPx;
+        const topY = parseInt(margin);
         drawTextWithOutline(topLines, topY, topFontSize);
     }
 
+    // Gambar teks bawah (paling bawah)
     if (bottomLines.length > 0) {
         const bottomHeight = bottomLines.length * (bottomFontSize * 1.2);
-        const bottomY = h - bottomHeight - marginPx;
+        const bottomY = h - bottomHeight - parseInt(margin);
         drawTextWithOutline(bottomLines, bottomY, bottomFontSize);
     }
 
-    // ============================================================
-    // KONVERSI KE BUFFER & UPLOAD
-    // ============================================================
+    // Upload ke Termai
     const buffer = canvas.toBuffer('image/png');
     const uploadedUrl = await uploadTermai(buffer);
 
@@ -237,9 +225,7 @@ async function editFoto(params) {
 // HANDLER UTAMA
 // ============================================================
 export default async function handler(req, res) {
-    // ============================================================
     // CORS
-    // ============================================================
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
@@ -309,14 +295,7 @@ export default async function handler(req, res) {
                         example: {
                             imageUrl: 'https://c.termai.cc/i154/ErlE.jpg',
                             topText: 'SELAMAT ULANG TAHUN',
-                            bottomText: '🎉🎂🎉',
-                            textColor: '#FFFFFF',
-                            outlineColor: '#000000',
-                            maxFontSize: 100,
-                            minFontSize: 16,
-                            outlineWidth: 4,
-                            margin: 10,
-                            maxWidthPercent: 90
+                            bottomText: '🎉🎂🎉'
                         }
                     });
                 }
