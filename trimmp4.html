@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trim Video - Download Tanpa Rusak</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0c0c1a, #1a1a2e, #0c0c1a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 750px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .header .icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.25);
+        }
+
+        .header h1 {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .header h1 span {
+            color: #ff6b6b;
+        }
+
+        .header .badge {
+            margin-left: auto;
+            background: rgba(255, 107, 107, 0.12);
+            color: #ff6b6b;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 107, 107, 0.12);
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+        }
+
+        .upload-area:hover {
+            border-color: rgba(255, 107, 107, 0.3);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .upload-area.dragover {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        .upload-area i {
+            font-size: 48px;
+            color: rgba(255, 255, 255, 0.1);
+            margin-bottom: 12px;
+        }
+
+        .upload-area p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 15px;
+        }
+
+        .upload-area .hint {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.2);
+            margin-top: 8px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .progress-container {
+            display: none;
+            margin-bottom: 16px;
+        }
+
+        .progress-container.show {
+            display: block;
+        }
+
+        .progress-bar-upload {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-upload .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ee5a24, #ff6b6b);
+            background-size: 200% 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            animation: shimmer 1.5s ease-in-out infinite;
+            width: 0%;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        .progress-text .percentage {
+            color: #ff6b6b;
+            font-weight: 700;
+        }
+
+        .video-container {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.5);
+            margin-bottom: 12px;
+            display: none;
+        }
+
+        .video-container.show {
+            display: block;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: auto;
+            display: block;
+            max-height: 400px;
+        }
+
+        .video-container .video-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 16px 12px;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .video-container .video-controls .play-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .video-container .video-controls .play-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+        }
+
+        .video-container .video-controls .time-display {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            font-weight: 500;
+            min-width: 100px;
+        }
+
+        .timeline-wrapper {
+            margin: 12px 0 8px;
+            padding: 8px 0 4px;
+            display: none;
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .timeline-wrapper.show {
+            display: block;
+        }
+
+        .timeline-track {
+            position: relative;
+            width: 100%;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: visible;
+            cursor: pointer;
+        }
+
+        .timeline-selected {
+            position: absolute;
+            height: 100%;
+            background: rgba(255, 107, 107, 0.15);
+            border-radius: 12px;
+            border: 2px solid rgba(255, 107, 107, 0.3);
+            left: 0%;
+            right: 0%;
+            pointer-events: none;
+            transition: none;
+        }
+
+        .timeline-progress {
+            position: absolute;
+            top: -2px;
+            bottom: -2px;
+            width: 3px;
+            background: #ff6b6b;
+            border-radius: 4px;
+            left: 0%;
+            z-index: 15;
+            pointer-events: none;
+            transition: none;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+        }
+
+        .timeline-progress::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.6);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .handle {
+            position: absolute;
+            top: -6px;
+            width: 20px;
+            height: 56px;
+            cursor: ew-resize;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: none;
+            touch-action: none;
+        }
+
+        .handle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: #ff6b6b;
+            border-radius: 4px;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .handle::after {
+            content: '⬤';
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ff6b6b;
+            font-size: 8px;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+        }
+
+        .handle .handle-label {
+            position: absolute;
+            bottom: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+            background: rgba(0,0,0,0.5);
+            padding: 2px 8px;
+            border-radius: 6px;
+            backdrop-filter: blur(4px);
+        }
+
+        .handle-left {
+            left: 0%;
+            transform: translateX(-50%);
+        }
+
+        .handle-left .handle-label {
+            color: #ff6b6b;
+        }
+
+        .handle-right {
+            right: 0%;
+            transform: translateX(50%);
+        }
+
+        .handle-right .handle-label {
+            color: #ff6b6b;
+        }
+
+        .handle:hover::before {
+            background: #ff4757;
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+        }
+
+        .handle:active::before {
+            background: #ff4757;
+            box-shadow: 0 0 40px rgba(255, 107, 107, 0.6);
+        }
+
+        .timeline-markers {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 10px 0;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .duration-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin: 8px 0 16px;
+            display: none;
+        }
+
+        .duration-info.show {
+            display: grid;
+        }
+
+        .duration-info .info-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 10px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            text-align: center;
+        }
+
+        .duration-info .info-box .label {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.5px;
+        }
+
+        .duration-info .info-box .value {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .duration-info .info-box .value span {
+            font-size: 12px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: #fff;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00ff88, #00b894);
+            color: #0c0c1a;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-danger {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 68, 68, 0.2);
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: rgba(255, 68, 68, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+        .btn.loading .btn-text {
+            display: none;
+        }
+        .btn.loading .btn-icon {
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .download-progress {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 16px;
+            background: rgba(255, 107, 107, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 107, 107, 0.1);
+        }
+
+        .download-progress.show {
+            display: block;
+        }
+
+        .download-progress .progress-label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .download-progress .progress-bar-download {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .download-progress .progress-bar-download .fill-download {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ee5a24);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        /* FFmpeg loading */
+        .ffmpeg-loading {
+            display: none;
+            text-align: center;
+            padding: 8px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 12px;
+        }
+
+        .ffmpeg-loading.show {
+            display: block;
+        }
+
+        .ffmpeg-loading i {
+            margin-right: 8px;
+            color: #ff6b6b;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 16px; }
+            .duration-info { grid-template-columns: 1fr 1fr; }
+            .action-buttons { flex-direction: column; }
+            .header h1 { font-size: 17px; }
+            .upload-area { padding: 25px 16px; }
+            .video-container .video-controls { padding: 12px 10px 8px; flex-wrap: wrap; }
+            .handle { width: 16px; height: 44px; top: -4px; }
+            .handle .handle-label { font-size: 8px; bottom: -18px; padding: 1px 6px; }
+            .timeline-track { height: 36px; }
+            .duration-info .info-box .value { font-size: 14px; }
+        }
+
+        @media (max-width: 400px) {
+            .duration-info { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="icon"><i class="fas fa-video"></i></div>
+            <h1>Trim <span>Video</span></h1>
+            <span class="badge"><i class="fas fa-cut"></i> Editor</span>
+        </div>
+
+        <div class="upload-area" id="uploadArea">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Klik atau drag & drop video di sini</p>
+            <span class="hint">Support: MP4, WebM, AVI, MOV, MKV</span>
+        </div>
+        <input type="file" id="fileInput" accept="video/*" />
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar-upload">
+                <div class="fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                <span>Mengupload video...</span>
+                <span class="percentage" id="progressPercentage">0%</span>
+            </div>
+        </div>
+
+        <div class="video-container" id="videoContainer">
+            <video id="videoPlayer"></video>
+            <div class="video-controls">
+                <button class="play-btn" id="playBtn"><i class="fas fa-play"></i></button>
+                <span class="time-display" id="timeDisplay">00:00 / 00:00</span>
+            </div>
+        </div>
+
+        <div class="timeline-wrapper" id="timelineWrapper">
+            <div class="timeline-track" id="timelineTrack">
+                <div class="timeline-selected" id="timelineSelected"></div>
+                <div class="timeline-progress" id="timelineProgress"></div>
+                <div class="handle handle-left" id="handleLeft">
+                    <span class="handle-label" id="leftLabel">00:00</span>
+                </div>
+                <div class="handle handle-right" id="handleRight">
+                    <span class="handle-label" id="rightLabel">00:00</span>
+                </div>
+            </div>
+            <div class="timeline-markers">
+                <span id="markerStart">00:00</span>
+                <span id="markerMid">00:00</span>
+                <span id="markerEnd">00:00</span>
+            </div>
+        </div>
+
+        <div class="duration-info" id="durationInfo">
+            <div class="info-box">
+                <div class="label">Mulai</div>
+                <div class="value" id="startDisplay">00:00 <span>detik</span></div>
+            </div>
+            <div class="info-box">
+                <div class="label">Selesai</div>
+                <div class="value" id="endDisplay">00:00 <span>detik</span></div>
+            </div>
+            <div class="info-box">
+                <div class="label">Durasi Terpilih</div>
+                <div class="value" id="durationDisplay">00:00 <span>detik</span></div>
+            </div>
+        </div>
+
+        <div class="ffmpeg-loading" id="ffmpegLoading">
+            <i class="fas fa-spinner fa-spin"></i> Memuat FFmpeg...
+        </div>
+
+        <div class="download-progress" id="downloadProgress">
+            <div class="progress-label">⏳ Memproses video...</div>
+            <div class="progress-bar-download">
+                <div class="fill-download" id="downloadFill"></div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" id="playBtnTrim" disabled>
+                <i class="fas fa-play btn-icon"></i>
+                <span class="btn-text">Putar Seleksi</span>
+                <span class="spinner"></span>
+            </button>
+            <button class="btn btn-success" id="downloadBtn" disabled>
+                <i class="fas fa-download btn-icon"></i>
+                <span class="btn-text">Download</span>
+                <span class="spinner"></span>
+            </button>
+            <button class="btn btn-danger" id="resetBtn">
+                <i class="fas fa-trash"></i> Reset
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.6/dist/ffmpeg.min.js"></script>
+    <script>
+        // ============================================================
+        // DOM ELEMENTS
+        // ============================================================
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const videoContainer = document.getElementById('videoContainer');
+        const playBtn = document.getElementById('playBtn');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const timelineWrapper = document.getElementById('timelineWrapper');
+        const timelineTrack = document.getElementById('timelineTrack');
+        const timelineSelected = document.getElementById('timelineSelected');
+        const timelineProgress = document.getElementById('timelineProgress');
+        const handleLeft = document.getElementById('handleLeft');
+        const handleRight = document.getElementById('handleRight');
+        const leftLabel = document.getElementById('leftLabel');
+        const rightLabel = document.getElementById('rightLabel');
+        const markerStart = document.getElementById('markerStart');
+        const markerMid = document.getElementById('markerMid');
+        const markerEnd = document.getElementById('markerEnd');
+        const startDisplay = document.getElementById('startDisplay');
+        const endDisplay = document.getElementById('endDisplay');
+        const durationDisplay = document.getElementById('durationDisplay');
+        const durationInfo = document.getElementById('durationInfo');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercentage = document.getElementById('progressPercentage');
+        const playBtnTrim = document.getElementById('playBtnTrim');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const downloadProgress = document.getElementById('downloadProgress');
+        const downloadFill = document.getElementById('downloadFill');
+        const ffmpegLoading = document.getElementById('ffmpegLoading');
+
+        // ============================================================
+        // STATE
+        // ============================================================
+        let videoFile = null;
+        let videoUrl = null;
+        let videoDuration = 0;
+        let isPlaying = false;
+        let isDragging = false;
+        let dragTarget = null;
+        let startPercent = 0;
+        let endPercent = 100;
+        let isVideoLoaded = false;
+        let ffmpeg = null;
+        let ffmpegLoaded = false;
+
+        // ============================================================
+        // FUNGSI FORMAT WAKTU
+        // ============================================================
+        function formatTime(seconds) {
+            if (!seconds || isNaN(seconds) || seconds < 0) return '00:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        // ============================================================
+        // FUNGSI UPDATE UI
+        // ============================================================
+        function updateUI() {
+            const startTime = (startPercent / 100) * videoDuration;
+            const endTime = (endPercent / 100) * videoDuration;
+            const duration = endTime - startTime;
+
+            handleLeft.style.left = startPercent + '%';
+            handleRight.style.right = (100 - endPercent) + '%';
+            timelineSelected.style.left = startPercent + '%';
+            timelineSelected.style.right = (100 - endPercent) + '%';
+
+            leftLabel.textContent = formatTime(startTime);
+            rightLabel.textContent = formatTime(endTime);
+
+            markerStart.textContent = formatTime(0);
+            markerMid.textContent = formatTime(videoDuration / 2);
+            markerEnd.textContent = formatTime(videoDuration);
+
+            startDisplay.innerHTML = `${formatTime(startTime)} <span>detik</span>`;
+            endDisplay.innerHTML = `${formatTime(endTime)} <span>detik</span>`;
+            durationDisplay.innerHTML = `${formatTime(duration)} <span>detik</span>`;
+
+            if (!isDragging) {
+                const currentTime = videoPlayer.currentTime;
+                const progressPercent = (currentTime / videoDuration) * 100;
+                const clampedProgress = Math.max(startPercent, Math.min(endPercent, progressPercent));
+                timelineProgress.style.left = clampedProgress + '%';
+            }
+
+            timeDisplay.textContent = `${formatTime(videoPlayer.currentTime)} / ${formatTime(videoDuration)}`;
+        }
+
+        // ============================================================
+        // UPDATE PROGRESS
+        // ============================================================
+        function updateProgress() {
+            if (!isVideoLoaded || isDragging) return;
+            
+            const currentTime = videoPlayer.currentTime;
+            const startTime = (startPercent / 100) * videoDuration;
+            const endTime = (endPercent / 100) * videoDuration;
+            
+            const progressPercent = (currentTime / videoDuration) * 100;
+            const clampedProgress = Math.max(startPercent, Math.min(endPercent, progressPercent));
+            timelineProgress.style.left = clampedProgress + '%';
+            
+            timeDisplay.textContent = `${formatTime(currentTime)} / ${formatTime(videoDuration)}`;
+            
+            if (currentTime >= endTime && !videoPlayer.paused) {
+                videoPlayer.pause();
+                videoPlayer.currentTime = startTime;
+                updatePlayButton();
+                updateProgress();
+            }
+        }
+
+        // ============================================================
+        // LOAD VIDEO
+        // ============================================================
+        function loadVideo(file) {
+            videoFile = file;
+            
+            progressContainer.classList.add('show');
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 8 + 2;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        progressContainer.classList.remove('show');
+                        loadVideoToPlayer(file);
+                    }, 300);
+                }
+                progressFill.style.width = progress + '%';
+                progressPercentage.textContent = Math.round(progress) + '%';
+            }, 150);
+        }
+
+        function loadVideoToPlayer(file) {
+            const url = URL.createObjectURL(file);
+            videoUrl = url;
+            videoPlayer.src = url;
+            
+            videoPlayer.onloadedmetadata = function() {
+                videoDuration = videoPlayer.duration;
+                
+                videoContainer.classList.add('show');
+                timelineWrapper.classList.add('show');
+                durationInfo.classList.add('show');
+                playBtnTrim.disabled = false;
+                downloadBtn.disabled = false;
+                isVideoLoaded = true;
+
+                startPercent = 0;
+                endPercent = 100;
+                updateUI();
+                
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                isPlaying = false;
+                timeDisplay.textContent = `00:00 / ${formatTime(videoDuration)}`;
+                timelineProgress.style.left = '0%';
+
+                console.log('✅ Video loaded:', file.name);
+                console.log('📊 Duration:', videoDuration, 'seconds');
+            };
+        }
+
+        // ============================================================
+        // LOAD FFMPEG
+        // ============================================================
+        async function loadFFmpeg() {
+            if (ffmpegLoaded) return;
+            
+            ffmpegLoading.classList.add('show');
+            
+            try {
+                const { createFFmpeg, fetchFile } = FFmpeg;
+                ffmpeg = createFFmpeg({ 
+                    log: true,
+                    corePath: 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
+                });
+                
+                await ffmpeg.load();
+                ffmpegLoaded = true;
+                ffmpegLoading.classList.remove('show');
+                console.log('✅ FFmpeg loaded!');
+            } catch (error) {
+                console.error('❌ FFmpeg load error:', error);
+                ffmpegLoading.classList.remove('show');
+                alert('❌ Gagal memuat FFmpeg. Silakan refresh halaman.');
+            }
+        }
+
+        // ============================================================
+        // PLAY / PAUSE
+        // ============================================================
+        function togglePlay() {
+            if (!isVideoLoaded) return;
+            
+            const startTime = (startPercent / 100) * videoDuration;
+            const endTime = (endPercent / 100) * videoDuration;
+            
+            if (videoPlayer.paused) {
+                if (videoPlayer.currentTime >= endTime || videoPlayer.currentTime < startTime) {
+                    videoPlayer.currentTime = startTime;
+                }
+                videoPlayer.play();
+            } else {
+                videoPlayer.pause();
+            }
+        }
+
+        function updatePlayButton() {
+            if (videoPlayer.paused) {
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                isPlaying = false;
+            } else {
+                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                isPlaying = true;
+            }
+        }
+
+        function playSelection() {
+            if (!isVideoLoaded) return;
+            const startTime = (startPercent / 100) * videoDuration;
+            videoPlayer.currentTime = startTime;
+            videoPlayer.play();
+        }
+
+        // ============================================================
+        // SKIP - Klik pada timeline
+        // ============================================================
+        function skipToPosition(e) {
+            if (!isVideoLoaded) return;
+            
+            const rect = timelineTrack.getBoundingClientRect();
+            const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+            let percent = ((clientX - rect.left) / rect.width) * 100;
+            percent = Math.max(0, Math.min(100, percent));
+            
+            const clampedPercent = Math.max(startPercent, Math.min(endPercent, percent));
+            const time = (clampedPercent / 100) * videoDuration;
+            
+            videoPlayer.currentTime = time;
+            timelineProgress.style.left = clampedPercent + '%';
+            
+            if (!videoPlayer.paused) {
+                videoPlayer.play();
+            }
+        }
+
+        // ============================================================
+        // DOWNLOAD DENGAN FFMPEG (TANPA RUSAK)
+        // ============================================================
+        async function downloadTrimmedVideo() {
+            if (!isVideoLoaded || !videoFile) return;
+
+            const startTime = (startPercent / 100) * videoDuration;
+            const endTime = (endPercent / 100) * videoDuration;
+            const duration = endTime - startTime;
+
+            if (duration <= 0) {
+                alert('⚠️ Durasi yang dipilih tidak valid!');
+                return;
+            }
+
+            // Load FFmpeg jika belum
+            if (!ffmpegLoaded) {
+                await loadFFmpeg();
+                if (!ffmpegLoaded) return;
+            }
+
+            // Tampilkan progress download
+            downloadProgress.classList.add('show');
+            downloadFill.style.width = '0%';
+            downloadBtn.classList.add('loading');
+            downloadBtn.disabled = true;
+
+            try {
+                const { fetchFile } = FFmpeg;
+                
+                // Baca file sebagai buffer
+                const fileBuffer = await videoFile.arrayBuffer();
+                const fileName = videoFile.name;
+                const ext = fileName.split('.').pop() || 'mp4';
+                const inputName = `input.${ext}`;
+                const outputName = `output.${ext}`;
+
+                // Tulis file ke FFmpeg
+                ffmpeg.FS('writeFile', inputName, new Uint8Array(fileBuffer));
+
+                // Update progress
+                downloadFill.style.width = '20%';
+
+                // Jalankan perintah FFmpeg untuk memotong
+                await ffmpeg.run(
+                    '-i', inputName,
+                    '-ss', startTime.toString(),
+                    '-to', endTime.toString(),
+                    '-c', 'copy',
+                    outputName
+                );
+
+                downloadFill.style.width = '80%';
+
+                // Baca hasil
+                const data = ffmpeg.FS('readFile', outputName);
+                const blob = new Blob([data.buffer], { type: 'video/mp4' });
+                const url = URL.createObjectURL(blob);
+                
+                downloadFill.style.width = '100%';
+
+                // Download
+                const link = document.createElement('a');
+                const name = videoFile.name.replace(/\.[^.]+$/, '');
+                link.download = `trimmed_${name}.mp4`;
+                link.href = url;
+                
+                setTimeout(() => {
+                    link.click();
+                    setTimeout(() => URL.revokeObjectURL(url), 5000);
+                    
+                    downloadProgress.classList.remove('show');
+                    downloadBtn.classList.remove('loading');
+                    downloadBtn.disabled = false;
+                    console.log('✅ Video terpotong berhasil di-download!');
+                }, 500);
+
+                // Cleanup
+                ffmpeg.FS('unlink', inputName);
+                ffmpeg.FS('unlink', outputName);
+
+            } catch (error) {
+                console.error('❌ Error saat memotong video:', error);
+                alert('❌ Gagal memotong video: ' + error.message);
+                downloadProgress.classList.remove('show');
+                downloadBtn.classList.remove('loading');
+                downloadBtn.disabled = false;
+            }
+        }
+
+        // ============================================================
+        // HANDLE DRAG
+        // ============================================================
+        function handleDrag(e) {
+            if (!isVideoLoaded || !isDragging || !dragTarget) return;
+            
+            const rect = timelineTrack.getBoundingClientRect();
+            const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+            let percent = ((clientX - rect.left) / rect.width) * 100;
+            percent = Math.max(0, Math.min(100, percent));
+            
+            if (dragTarget === 'left') {
+                if (percent < endPercent - 2) {
+                    startPercent = Math.round(percent);
+                }
+            } else if (dragTarget === 'right') {
+                if (percent > startPercent + 2) {
+                    endPercent = Math.round(percent);
+                }
+            }
+            
+            updateUI();
+            const startTime = (startPercent / 100) * videoDuration;
+            videoPlayer.currentTime = startTime;
+            timelineProgress.style.left = startPercent + '%';
+        }
+
+        function startDrag(e, target) {
+            if (!isVideoLoaded) return;
+            isDragging = true;
+            dragTarget = target;
+            videoPlayer.pause();
+            updatePlayButton();
+            document.addEventListener('mousemove', handleDrag);
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchmove', handleDrag);
+            document.addEventListener('touchend', stopDrag);
+            e.preventDefault();
+        }
+
+        function stopDrag() {
+            isDragging = false;
+            dragTarget = null;
+            document.removeEventListener('mousemove', handleDrag);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchmove', handleDrag);
+            document.removeEventListener('touchend', stopDrag);
+        }
+
+        // ============================================================
+        // RESET
+        // ============================================================
+        function resetAll() {
+            if (videoUrl) URL.revokeObjectURL(videoUrl);
+            videoPlayer.pause();
+            videoPlayer.src = '';
+            videoFile = null;
+            videoUrl = null;
+            videoDuration = 0;
+            isVideoLoaded = false;
+            isPlaying = false;
+            
+            videoContainer.classList.remove('show');
+            timelineWrapper.classList.remove('show');
+            durationInfo.classList.remove('show');
+            progressContainer.classList.remove('show');
+            downloadProgress.classList.remove('show');
+            playBtnTrim.disabled = true;
+            downloadBtn.disabled = true;
+            
+            fileInput.value = '';
+            timeDisplay.textContent = '00:00 / 00:00';
+            progressFill.style.width = '0%';
+            progressPercentage.textContent = '0%';
+            downloadFill.style.width = '0%';
+            startPercent = 0;
+            endPercent = 100;
+            timelineProgress.style.left = '0%';
+            
+            document.querySelector('.upload-area p').textContent = 'Klik atau drag & drop video di sini';
+            downloadBtn.classList.remove('loading');
+            downloadBtn.disabled = true;
+        }
+
+        // ============================================================
+        // EVENT LISTENERS
+        // ============================================================
+        handleLeft.addEventListener('mousedown', (e) => startDrag(e, 'left'));
+        handleLeft.addEventListener('touchstart', (e) => startDrag(e, 'left'));
+        handleRight.addEventListener('mousedown', (e) => startDrag(e, 'right'));
+        handleRight.addEventListener('touchstart', (e) => startDrag(e, 'right'));
+
+        timelineTrack.addEventListener('click', skipToPosition);
+        timelineTrack.addEventListener('touchstart', (e) => {
+            if (e.target.closest('.handle')) return;
+            skipToPosition(e);
+        });
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('video/')) {
+                document.querySelector('.upload-area p').textContent = files[0].name;
+                loadVideo(files[0]);
+            } else {
+                alert('⚠️ Harap upload file video!');
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                document.querySelector('.upload-area p').textContent = file.name;
+                loadVideo(file);
+            }
+        });
+
+        videoPlayer.addEventListener('timeupdate', updateProgress);
+        videoPlayer.addEventListener('play', updatePlayButton);
+        videoPlayer.addEventListener('pause', updatePlayButton);
+        videoPlayer.addEventListener('ended', () => {
+            const startTime = (startPercent / 100) * videoDuration;
+            videoPlayer.currentTime = startTime;
+            updatePlayButton();
+            updateProgress();
+        });
+
+        playBtn.addEventListener('click', togglePlay);
+        playBtnTrim.addEventListener('click', playSelection);
+        downloadBtn.addEventListener('click', downloadTrimmedVideo);
+        resetBtn.addEventListener('click', resetAll);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === ' ' || e.key === 'Space') {
+                e.preventDefault();
+                if (isVideoLoaded) togglePlay();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if (isVideoLoaded) updateUI();
+        });
+
+        // ============================================================
+        // PRE-LOAD FFMPEG
+        // ============================================================
+        setTimeout(() => {
+            loadFFmpeg();
+        }, 3000);
+
+        console.log('🚀 Trim Video - FFmpeg siap!');
+        console.log('📹 Upload video untuk mulai mengedit');
+        console.log('🎯 Geser handle kiri/kanan untuk memilih durasi');
+        console.log('📥 Download menggunakan FFmpeg (file tidak rusak)');
+    </script>
+</body>
+</html>
