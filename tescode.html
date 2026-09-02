@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe Sederhana</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+    }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(145deg, #1b2a3a, #0f1a24);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .game-container {
+      background: #1e2f3f;
+      padding: 2rem 2rem 1.8rem;
+      border-radius: 3rem;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.06);
+      text-align: center;
+    }
+    h1 {
+      margin: 0 0 0.5rem 0;
+      font-weight: 500;
+      font-size: 2.2rem;
+      letter-spacing: 2px;
+      color: #d0e0ed;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    }
+    .status {
+      background: #14212b;
+      padding: 0.6rem 1.2rem;
+      border-radius: 60px;
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: #bcd3e3;
+      box-shadow: inset 0 4px 6px rgba(0,0,0,0.4);
+      min-width: 160px;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 12px;
+      background: #0f1a24;
+      padding: 12px;
+      border-radius: 28px;
+      box-shadow: inset 0 6px 10px rgba(0,0,0,0.6), 0 6px 12px rgba(0,0,0,0.5);
+      margin-bottom: 1.6rem;
+    }
+    .cell {
+      background: #1e3140;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4.2rem;
+      font-weight: 600;
+      color: #f0f9ff;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #0a1219, 0 6px 10px rgba(0,0,0,0.3);
+      transition: all 0.07s ease;
+      text-shadow: 0 4px 6px rgba(0,0,0,0.4);
+      user-select: none;
+    }
+    .cell:active {
+      transform: scale(0.92);
+      box-shadow: 0 2px 0 #0a1219;
+    }
+    .cell.win-highlight {
+      background: #3d6b5c;
+      box-shadow: 0 0 0 3px #a3d0b0, 0 6px 0 #1f3d33;
+      color: #f2ffe6;
+    }
+    .cell.taken {
+      cursor: default;
+    }
+    .cell.taken:active {
+      transform: none;
+      box-shadow: 0 6px 0 #0a1219;
+    }
+    .reset-btn {
+      background: #2c4457;
+      border: none;
+      padding: 0.8rem 2.5rem;
+      border-radius: 60px;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #e3effa;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #0f1a24, 0 4px 12px rgba(0,0,0,0.4);
+      transition: all 0.1s ease;
+      letter-spacing: 0.5px;
+    }
+    .reset-btn:active {
+      transform: translateY(5px);
+      box-shadow: 0 3px 0 #0f1a24;
+    }
+    .reset-btn:hover {
+      background: #33576e;
+      color: white;
+    }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .turn-indicator {
+      font-size: 1rem;
+      background: #192b36;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      color: #b4cfdf;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+    }
+    .turn-indicator span {
+      font-weight: 700;
+      color: #ddf0ff;
+    }
+    @media (max-width: 450px) {
+      .board { grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(3, 75px); gap: 8px; padding: 8px; }
+      .cell { font-size: 3.2rem; }
+      .game-container { padding: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="game-container">
+  <h1>⨯ TIC TAC TOE ○</h1>
+  <div class="status" id="statusMessage">Giliran Pemain X</div>
+  <div class="board" id="board">
+    <!-- 9 sel akan dibuat oleh JS -->
+  </div>
+  <div class="footer">
+    <div class="turn-indicator">🎯 <span id="turnSymbol">X</span> bergerak</div>
+    <button class="reset-btn" id="resetBtn">⟳ Mulai Baru</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // --- State ---
+    let board = Array(9).fill(null);        // null, 'X', 'O'
+    let currentPlayer = 'X';                // 'X' atau 'O'
+    let gameActive = true;
+    let winner = null;                     // null, 'X', 'O', 'draw'
+
+    // DOM elements
+    const boardEl = document.getElementById('board');
+    const statusEl = document.getElementById('statusMessage');
+    const turnSymbolEl = document.getElementById('turnSymbol');
+    const resetBtn = document.getElementById('resetBtn');
+
+    // --- Helper functions ---
+    function checkWinner(boardArray) {
+      const winPatterns = [
+        [0,1,2], [3,4,5], [6,7,8],  // baris
+        [0,3,6], [1,4,7], [2,5,8],  // kolom
+        [0,4,8], [2,4,6]            // diagonal
+      ];
+      for (let pattern of winPatterns) {
+        const [a,b,c] = pattern;
+        if (boardArray[a] && boardArray[a] === boardArray[b] && boardArray[a] === boardArray[c]) {
+          return { winner: boardArray[a], line: pattern };
+        }
+      }
+      if (boardArray.every(cell => cell !== null)) {
+        return { winner: 'draw', line: null };
+      }
+      return { winner: null, line: null };
+    }
+
+    // Perbarui UI berdasarkan state
+    function renderBoard() {
+      // Buat ulang sel agar selalu sinkron (mudah & aman)
+      boardEl.innerHTML = '';
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.dataset.index = i;
+        cell.textContent = board[i] || '';
+        if (board[i]) {
+          cell.classList.add('taken');
+        }
+        // Tambahkan event listener
+        cell.addEventListener('click', cellClickHandler);
+        boardEl.appendChild(cell);
+      }
+
+      // Jika ada pemenang, beri highlight pada garis kemenangan
+      if (winner && winner !== 'draw') {
+        const winInfo = checkWinner(board);
+        if (winInfo.line) {
+          const cells = boardEl.children;
+          winInfo.line.forEach(idx => {
+            cells[idx].classList.add('win-highlight');
+          });
+        }
+      }
+
+      // Update status & turn indicator
+      updateStatusAndTurn();
+    }
+
+    function updateStatusAndTurn() {
+      if (!gameActive) {
+        if (winner === 'draw') {
+          statusEl.textContent = '⚖️  Seri!';
+          turnSymbolEl.textContent = '—';
+        } else if (winner) {
+          statusEl.textContent = `🏆  Pemain ${winner} Menang!`;
+          turnSymbolEl.textContent = winner;
+        } else {
+          // seharusnya tidak terjadi
+          statusEl.textContent = 'Permainan berakhir';
+          turnSymbolEl.textContent = '?';
+        }
+        return;
+      }
+
+      // Game aktif
+      statusEl.textContent = `Giliran Pemain ${currentPlayer}`;
+      turnSymbolEl.textContent = currentPlayer;
+    }
+
+    // --- Handler klik sel ---
+    function cellClickHandler(e) {
+      const cell = e.currentTarget;
+      const index = parseInt(cell.dataset.index, 10);
+
+      // Validasi: game aktif, sel kosong, tidak ada pemenang
+      if (!gameActive) return;
+      if (board[index] !== null) return;
+      if (winner) return; // safety
+
+      // Jalankan langkah
+      board[index] = currentPlayer;
+      
+      // Cek hasil
+      const result = checkWinner(board);
+      if (result.winner) {
+        if (result.winner === 'draw') {
+          winner = 'draw';
+          gameActive = false;
+        } else {
+          winner = result.winner;
+          gameActive = false;
+        }
+        renderBoard();
+        return;
+      }
+
+      // Tidak ada pemenang → ganti giliran
+      currentPlayer = (currentPlayer === 'X' ? 'O' : 'X');
+      renderBoard();
+    }
+
+    // --- Reset permainan ---
+    function resetGame() {
+      // Reset state
+      board = Array(9).fill(null);
+      currentPlayer = 'X';
+      gameActive = true;
+      winner = null;
+      renderBoard();
+    }
+
+    // --- Inisialisasi ---
+    function initGame() {
+      resetGame(); // set papan & status
+      // event listener reset
+      resetBtn.addEventListener('click', resetGame);
+    }
+
+    // Jalankan
+    initGame();
+  })();
+</script>
+</body>
+</html>
