@@ -12,12 +12,6 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-    <!-- ===== SUPABASE JS SDK v2 ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- ===== AUTH CHECK MODULE ===== -->
-    <script src="auth-check.js"></script>
-
     <style>
         /* ============================================
            RESET & BASE
@@ -55,35 +49,8 @@
             pointer-events: none;
         }
 
-        /* ===== LOADING SCREEN ===== */
-        #authLoading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #080c1a;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
-        #authLoading.hidden { opacity: 0; pointer-events: none; }
-        #authLoading .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(124,77,255,0.1);
-            border-top: 3px solid #7c4dff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { to { transform:rotate(360deg); } }
-        #authLoading p { margin-top:16px; color:rgba(255,255,255,0.4); font-size:0.95rem; }
-
         /* ===== MAIN CONTENT ===== */
-        #mainContent { display: none; }
+        #mainContent { display: block; }
 
         .container {
             width: 100%;
@@ -156,24 +123,6 @@
             font-size: 14px;
             margin-top: 4px;
         }
-
-        /* ===== OWNER BADGE ===== */
-        .owner-badge {
-            display: none;
-            align-items: center;
-            gap: 6px;
-            background: linear-gradient(135deg, #ffd700, #f59e0b);
-            color: #1a1a2e;
-            padding: 2px 12px;
-            border-radius: 60px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-left: 8px;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-        }
-        .owner-badge i { font-size: 0.6rem; }
 
         /* ============================================
            MENU PANEL
@@ -894,12 +843,6 @@
 </head>
 <body>
 
-    <!-- ===== AUTH LOADING SCREEN ===== -->
-    <div id="authLoading">
-        <div class="spinner"></div>
-        <p>Memeriksa session...</p>
-    </div>
-
     <!-- ===== MAIN CONTENT ===== -->
     <div id="mainContent">
 
@@ -920,7 +863,6 @@
                     <h1>
                         <i class="fab fa-tiktok"></i>
                         <span class="highlight">TikTok Downloader</span>
-                        <span class="owner-badge" id="ownerBadge"><i class="fas fa-crown"></i> Owner</span>
                     </h1>
                     <p>Download video &amp; slide tanpa watermark</p>
                 </div>
@@ -962,42 +904,9 @@
 
     <script>
         // ============================================================
-        // 1. AUTH INITIALIZATION
+        // TIKTOK DOWNLOADER
         // ============================================================
-        (async function initPage() {
-            try {
-                if (typeof steveMC === 'undefined') {
-                    console.warn('⏳ Menunggu auth-check.js...');
-                    await new Promise(resolve => {
-                        const check = () => {
-                            if (typeof steveMC !== 'undefined') resolve();
-                            else setTimeout(check, 100);
-                        };
-                        check();
-                    });
-                }
-
-                const result = await steveMC.auth.initAuthPage({
-                    mainContentId: 'mainContent',
-                    ownerBadgeId: 'ownerBadge',
-                    redirectUrl: 'https://stevemc.my.id/login.html'
-                });
-
-                if (result.isLoggedIn) {
-                    console.log('✅ User sudah login:', result.user.email);
-                    console.log('👑 Status Owner:', result.isOwner ? 'TRUE ✅' : 'FALSE ❌');
-                    initTikTokDownloader();
-                }
-
-            } catch (error) {
-                console.error('❌ Auth init error:', error);
-            }
-        })();
-
-        // ============================================================
-        // 2. TIKTOK DOWNLOADER FUNCTIONS
-        // ============================================================
-        function initTikTokDownloader() {
+        (function() {
             // ─── DOM refs ──────────────────────────────────────────────
             const urlInput = document.getElementById('urlInput');
             const convertBtn = document.getElementById('convertBtn');
@@ -1383,67 +1292,57 @@
             hideError();
 
             // ============================================================
-            // 3. LOAD MENU
+            // LOAD MENU
             // ============================================================
             const menuContainer = document.getElementById('menuContainer');
             const menuToggle = document.getElementById('menuToggle');
             const menuOverlay = document.getElementById('menuOverlay');
 
-            steveMC.auth.getAuthStatus().then((result) => {
-                const isOwnerUser = result.isOwner;
-                const menuFile = isOwnerUser ? 'menu_owner.html' : 'menu.html';
+            // Langsung load menu tanpa cek auth
+            menuContainer.innerHTML = `
+                <nav class="menu-panel" id="menuPanel">
+                    <div class="menu-header">
+                        <div class="brand-icon"><i class="fas fa-cube"></i></div>
+                        <div class="brand-text">Steve<span>MC</span></div>
+                    </div>
+                    <ul class="menu-list">
+                        <li><a href="index.html"><i class="fas fa-home"></i> Beranda</a></li>
+                        <li><a href="mediadownload.html"><i class="fas fa-download"></i> Media Download</a></li>
+                        <li><a href="tiktokdl.html" class="active"><i class="fab fa-tiktok"></i> TikTok Downloader</a></li>
+                    </ul>
+                    <div class="menu-footer">
+                        <i class="fas fa-code"></i> v1.0 &bull; by SteveMC
+                    </div>
+                </nav>
+            `;
 
-                fetch(menuFile)
-                    .then(res => {
-                        if (!res.ok) throw new Error('Menu tidak ditemukan');
-                        return res.text();
-                    })
-                    .then(html => {
-                        menuContainer.innerHTML = html;
-                        const menuPanel = document.getElementById('menuPanel');
-                        if (!menuPanel) return;
+            const menuPanel = document.getElementById('menuPanel');
+            if (menuPanel) {
+                function toggleMenu(forceState) {
+                    const isOpen = typeof forceState === 'boolean' ? forceState : !menuPanel.classList.contains('open');
+                    menuPanel.classList.toggle('open', isOpen);
+                    menuOverlay.classList.toggle('open', isOpen);
+                    document.body.style.overflow = isOpen ? 'hidden' : '';
+                }
 
-                        const currentPage = window.location.pathname.split('/').pop() || 'tiktokdl.html';
-                        const allLinks = menuPanel.querySelectorAll('.menu-list a');
+                function closeMenu() { toggleMenu(false); }
 
-                        allLinks.forEach(link => {
-                            const href = link.getAttribute('href');
-                            link.classList.remove('active');
-                            if (href === currentPage) {
-                                link.classList.add('active');
-                            }
-                        });
+                menuToggle.addEventListener('click', () => toggleMenu());
+                menuOverlay.addEventListener('click', closeMenu);
 
-                        function toggleMenu(forceState) {
-                            const isOpen = typeof forceState === 'boolean' ? forceState : !menuPanel.classList.contains('open');
-                            menuPanel.classList.toggle('open', isOpen);
-                            menuOverlay.classList.toggle('open', isOpen);
-                            document.body.style.overflow = isOpen ? 'hidden' : '';
-                        }
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && menuPanel.classList.contains('open')) closeMenu();
+                });
 
-                        function closeMenu() { toggleMenu(false); }
-
-                        menuToggle.addEventListener('click', () => toggleMenu());
-                        menuOverlay.addEventListener('click', closeMenu);
-
-                        document.addEventListener('keydown', (e) => {
-                            if (e.key === 'Escape' && menuPanel.classList.contains('open')) closeMenu();
-                        });
-
-                        menuPanel.querySelectorAll('.menu-list a').forEach(link => {
-                            link.addEventListener('click', () => {
-                                if (link.getAttribute('href') !== '#') closeMenu();
-                            });
-                        });
-                    })
-                    .catch(err => {
-                        console.warn('Gagal memuat menu:', err);
-                        menuContainer.innerHTML = '<p style="color:rgba(255,255,255,0.3);padding:12px;">Menu tidak tersedia</p>';
+                menuPanel.querySelectorAll('.menu-list a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (link.getAttribute('href') !== '#') closeMenu();
                     });
-            });
+                });
+            }
 
             console.log('✅ TikTok Downloader initialized');
-        }
+        })();
     </script>
 
 </body>
